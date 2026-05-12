@@ -1,33 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken, getTokenFromRequest } from '../../utils/jwt';
 import { WorkoutProvider } from '../../providers/WorkoutProvider';
 
 // GET all workouts for authenticated user
 export async function GET(request: NextRequest) {
     try {
-        // Get token from headers or cookies
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
-
-        if (!token) {
-            return NextResponse.json(
-                { success: false, message: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload || !payload.userId) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-        }
+        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
 
         // Fetch workouts for user
         const workouts = await WorkoutProvider.findByUserId(payload.userId);
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 workouts: workouts.map((w) => ({
@@ -47,45 +29,31 @@ export async function GET(request: NextRequest) {
             },
             { status: 200 }
         );
+        return response;
     } catch (error) {
         console.error('Error fetching workouts:', error);
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }
 
 // POST create new workout
 export async function POST(request: NextRequest) {
     try {
-        // Get token from headers or cookies
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
-
-        if (!token) {
-            return NextResponse.json(
-                { success: false, message: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload || !payload.userId) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-        }
+        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
 
         const body = await request.json();
 
         // Validate required fields
         if (!body.name || body.sets === undefined || body.reps === undefined || body.weight === undefined) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Missing required fields: name, sets, reps, weight' },
                 { status: 400 }
             );
+            return response;
         }
 
         // Create workout
@@ -101,7 +69,7 @@ export async function POST(request: NextRequest) {
             notes: body.notes || '',
         });
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 message: 'Workout created successfully',
@@ -122,11 +90,13 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
+        return response;
     } catch (error) {
         console.error('Error creating workout:', error);
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }

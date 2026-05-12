@@ -3,51 +3,38 @@ import { verifyToken, getTokenFromRequest } from '../../../utils/jwt';
 import { WorkoutProvider } from '../../../providers/WorkoutProvider';
 
 interface RouteParams {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
 // GET single workout by ID
 export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
-        // Get token from headers or cookies
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
+        const { id } = await params;
+        
+        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
 
-        if (!token) {
-            return NextResponse.json(
-                { success: false, message: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload || !payload.userId) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-        }
-
-        const workout = await WorkoutProvider.findById(params.id);
+        const workout = await WorkoutProvider.findById(id);
 
         if (!workout) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Workout not found' },
                 { status: 404 }
             );
+            return response;
         }
 
         // Check if user owns this workout
         if (workout.userId.toString() !== payload.userId) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized' },
                 { status: 403 }
             );
+            return response;
         }
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 workout: {
@@ -67,52 +54,40 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             },
             { status: 200 }
         );
+        return response;
     } catch (error) {
         console.error('Error fetching workout:', error);
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }
 
 // PUT update workout
 export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
-        // Get token from headers or cookies
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
-        const id = (await params).id;
-
-        if (!token) {
-            return NextResponse.json(
-                { success: false, message: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload || !payload.userId) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-        }
+        const { id } = await params;
+        
+        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
 
         // Check if user owns this workout
         const existingWorkout = await WorkoutProvider.findById(id);
         if (!existingWorkout) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Workout not found' },
                 { status: 404 }
             );
+            return response;
         }
 
         if (existingWorkout.userId.toString() !== payload.userId) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized' },
                 { status: 403 }
             );
+            return response;
         }
 
         const body = await request.json();
@@ -131,13 +106,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         const updatedWorkout = await WorkoutProvider.update(id, updateData);
 
         if (!updatedWorkout) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Failed to update workout' },
                 { status: 500 }
             );
+            return response;
         }
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 message: 'Workout updated successfully',
@@ -158,65 +134,55 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             },
             { status: 200 }
         );
+        return response;
     } catch (error) {
         console.error('Error updating workout:', error);
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }
 
 // DELETE workout
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
-        // Get token from headers or cookies
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
-        const id = (await params).id;
-
-        if (!token) {
-            return NextResponse.json(
-                { success: false, message: 'No token provided' },
-                { status: 401 }
-            );
-        }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload || !payload.userId) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-        }
+        const { id } = await params;
+        
+        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
 
         // Check if user owns this workout
         const existingWorkout = await WorkoutProvider.findById(id);
         if (!existingWorkout) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Workout not found' },
                 { status: 404 }
             );
+            return response;
         }
 
         if (existingWorkout.userId.toString() !== payload.userId) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized' },
                 { status: 403 }
             );
+            return response;
         }
 
-        await WorkoutProvider.delete(params.id);
+        await WorkoutProvider.delete(id);
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: true, message: 'Workout deleted successfully' },
             { status: 200 }
         );
+        return response;
     } catch (error) {
         console.error('Error deleting workout:', error);
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }

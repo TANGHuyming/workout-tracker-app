@@ -3,47 +3,52 @@ import { hashPassword, type RegisterPayload, type AuthResponse } from '../../../
 import { createToken } from '../../../utils/jwt';
 import { UserProvider } from '../../../providers/UserProvider';
 
-export async function POST(request: NextRequest): Promise<NextResponse<AuthResponse>> {
+export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as RegisterPayload;
 
     // Validation
     if (!body.email || !body.username || !body.password || !body.confirmPassword) {
-      return NextResponse.json(
+      let response: any = NextResponse.json(
         { success: false, message: 'All fields are required' },
         { status: 400 }
       );
+      return response;
     }
 
     if (body.password !== body.confirmPassword) {
-      return NextResponse.json(
+      let response: any = NextResponse.json(
         { success: false, message: 'Passwords do not match' },
         { status: 400 }
       );
+      return response;
     }
 
     if (body.password.length < 6) {
-      return NextResponse.json(
+      let response: any = NextResponse.json(
         { success: false, message: 'Password must be at least 6 characters' },
         { status: 400 }
       );
+      return response;
     }
 
     // Check if user already exists
     const existingEmail = await UserProvider.findByEmail(body.email);
     if (existingEmail) {
-      return NextResponse.json(
+      let response: any = NextResponse.json(
         { success: false, message: 'Email already registered' },
         { status: 400 }
       );
+      return response;
     }
 
     const existingUsername = await UserProvider.findByUsername(body.username);
     if (existingUsername) {
-      return NextResponse.json(
+      let response: any = NextResponse.json(
         { success: false, message: 'Username already taken' },
         { status: 400 }
       );
+      return response;
     }
 
     // Create new user with hashed password
@@ -65,7 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     const token = createToken(userWithoutPassword);
 
     // Set token in httpOnly cookie
-    const response = NextResponse.json(
+    let response: any = NextResponse.json(
       {
         success: true,
         message: 'Registration successful',
@@ -86,9 +91,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
 
     return response;
   } catch (error) {
-    return NextResponse.json(
+    let response: any = NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
     );
+    return response;
   }
 }

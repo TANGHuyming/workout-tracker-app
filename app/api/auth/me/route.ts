@@ -8,31 +8,34 @@ export async function GET(request: NextRequest) {
         const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
 
         if (!token) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'No token provided' },
                 { status: 401 }
             );
+            return response;
         }
 
         // Verify token
         const payload = verifyToken(token);
         if (!payload) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Invalid token' },
                 { status: 401 }
             );
+            return response;
         }
 
         // Get user
         const user = await UserProvider.findById(payload.userId);
         if (!user) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'User not found' },
                 { status: 404 }
             );
+            return response;
         }
 
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 user: {
@@ -44,10 +47,12 @@ export async function GET(request: NextRequest) {
             },
             { status: 200 }
         );
+        return response;
     } catch (error) {
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }

@@ -61,13 +61,13 @@ export default function StatsBreakdown({ stats }: StatsBreakdownProps) {
                             icon="⚖️"
                             label="Avg Weight"
                             value={stats.averageWeight}
-                            unit="lbs"
+                            unit="kg"
                         />
                         <StatCard
                             icon="💪"
                             label="Heaviest Lift"
                             value={stats.heaviestWeight}
-                            unit="lbs"
+                            unit="kg"
                         />
                         <StatCard
                             icon="📈"

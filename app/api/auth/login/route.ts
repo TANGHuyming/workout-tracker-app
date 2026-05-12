@@ -3,34 +3,37 @@ import { comparePasswords, type LoginPayload, type AuthResponse } from '../../..
 import { createToken } from '../../../utils/jwt';
 import { UserProvider } from '../../../providers/UserProvider';
 
-export async function POST(request: NextRequest): Promise<NextResponse<AuthResponse>> {
+export async function POST(request: NextRequest) {
     try {
         const body = (await request.json()) as LoginPayload;
 
         // Validation
         if (!body.email || !body.password) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Email and password are required' },
                 { status: 400 }
             );
+            return response;
         }
 
         // Find user
         const user = await UserProvider.findByEmail(body.email);
         if (!user) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Invalid email or password' },
                 { status: 401 }
             );
+            return response;
         }
 
         // Check password
         const isPasswordValid = await comparePasswords(body.password, user.passwordHash);
         if (!isPasswordValid) {
-            return NextResponse.json(
+            let response: any = NextResponse.json(
                 { success: false, message: 'Invalid email or password' },
                 { status: 401 }
             );
+            return response;
         }
 
         // Create token
@@ -44,7 +47,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
         const token = createToken(userWithoutPassword);
 
         // Set token in httpOnly cookie
-        const response = NextResponse.json(
+        let response: any = NextResponse.json(
             {
                 success: true,
                 message: 'Login successful',
@@ -65,9 +68,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
 
         return response;
     } catch (error) {
-        return NextResponse.json(
+        let response: any = NextResponse.json(
             { success: false, message: 'Internal server error' },
             { status: 500 }
         );
+        return response;
     }
 }

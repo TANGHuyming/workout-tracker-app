@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
   try {
     // Clear the auth token cookie
-    const response = NextResponse.json(
+    let response: any = NextResponse.json(
       {
         success: true,
         message: 'Logout successful',
@@ -20,9 +20,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return response;
   } catch (error) {
-    return NextResponse.json(
+    let response: any = NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
     );
+    return response;
   }
 }
