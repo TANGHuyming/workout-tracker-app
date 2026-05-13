@@ -61,8 +61,6 @@ export class WorkoutProvider {
   static async findByUserIdFiltered(
     userId: string,
     options?: {
-      type?: 'strength' | 'cardio' | 'flexibility' | 'sports';
-      intensity?: 'low' | 'medium' | 'high';
       startDate?: Date;
       endDate?: Date;
       sortBy?: 'date' | 'weight' | 'sets';
@@ -72,14 +70,6 @@ export class WorkoutProvider {
       await connectDB();
 
       const filter: any = { userId };
-
-      if (options?.type) {
-        filter.type = options.type;
-      }
-
-      if (options?.intensity) {
-        filter.intensity = options.intensity;
-      }
 
       if (options?.startDate || options?.endDate) {
         filter.date = {};
@@ -129,11 +119,9 @@ export class WorkoutProvider {
     workoutId: string,
     updateData: Partial<{
       name?: string;
-      type?: 'strength' | 'cardio' | 'flexibility' | 'sports';
       sets?: number;
       reps?: number;
       weight?: number;
-      intensity?: 'low' | 'medium' | 'high';
       date?: Date;
       notes?: string;
     }>

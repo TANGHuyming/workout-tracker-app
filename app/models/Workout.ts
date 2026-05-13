@@ -3,12 +3,10 @@ import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 export interface IWorkout extends Document {
   userId: ObjectId;
   name: string;
-  type: 'strength' | 'cardio' | 'flexibility' | 'sports';
   sets: number;
   reps: number;
   weight: number;
   bodyweight: number;
-  intensity: 'low' | 'medium' | 'high';
   date: Date;
   notes: string;
   createdAt: Date;
@@ -26,11 +24,6 @@ const WorkoutSchema = new Schema<IWorkout>(
       type: String,
       required: [true, 'Please provide an exercise name'],
       maxlength: [100, 'Exercise name cannot exceed 100 characters'],
-    },
-    type: {
-      type: String,
-      enum: ['strength', 'cardio', 'flexibility', 'sports'],
-      default: 'strength',
     },
     sets: {
       type: Number,
@@ -54,11 +47,6 @@ const WorkoutSchema = new Schema<IWorkout>(
       required: [true, 'Please provide bodyweight'],
       min: [20, 'Bodyweight must be at least 20 kg'],
       max: [300, 'Bodyweight cannot exceed 300 kg'],
-    },
-    intensity: {
-      type: String,
-      enum: ['low', 'medium', 'high'],
-      default: 'medium',
     },
     date: {
       type: Date,

@@ -136,11 +136,15 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
     const trapsLevel = getStrengthLevel(traps?.maxWeight ?? null, traps?.bodyweight ?? null, traps?.exerciseName ?? null);
 
     return (
-        <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-2xl font-bold mb-2 text-black dark:text-white">Strength Profile</h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-                Track strength levels across 15 major muscle groups
-            </p>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    Strength Profile
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    Track strength levels across 15 major muscle groups
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Body Graphics SVG */}
@@ -336,37 +340,51 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                 <div className="space-y-3 overflow-y-auto max-h-96">
                     {Array.from(muscleGroupStats.entries()).map(([group, stats]) => {
                         const level = getStrengthLevel(stats?.maxWeight ?? null, stats?.bodyweight ?? null, stats?.exerciseName ?? null);
+                        const colorMap: Record<StrengthLevel, string> = {
+                            gray: 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700',
+                            green: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800',
+                            yellow: 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800',
+                            orange: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800',
+                            red: 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800',
+                        };
+                        const textColorMap: Record<StrengthLevel, string> = {
+                            gray: 'text-slate-700 dark:text-slate-300',
+                            green: 'text-green-700 dark:text-green-300',
+                            yellow: 'text-yellow-700 dark:text-yellow-300',
+                            orange: 'text-orange-700 dark:text-orange-300',
+                            red: 'text-red-700 dark:text-red-300',
+                        };
                         return (
                             <div
                                 key={group}
-                                className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors"
+                                className={`p-4 border rounded-lg hover:shadow-md transition-all ${colorMap[level]}`}
                             >
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-2 mb-2">
                                     <div
-                                        className="w-4 h-4 rounded"
+                                        className="w-3 h-3 rounded-full"
                                         style={{ backgroundColor: strengthColors[level] }}
                                     />
-                                    <h3 className="font-semibold text-sm text-black dark:text-white">
+                                    <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
                                         {getMuscleGroupDisplayName(group)}
                                     </h3>
                                 </div>
-                                <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">
+                                <p className={`text-xs font-semibold mb-2 uppercase tracking-wide ${textColorMap[level]}`}>
                                     {getLevelLabel(level)}
                                 </p>
                                 {stats ? (
-                                    <div className="space-y-0.5">
-                                        <p className="text-xs font-medium text-black dark:text-white">
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {stats.exerciseName}
                                         </p>
-                                        <p className="text-sm font-bold text-black dark:text-white">
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white">
                                             {stats.maxWeight} kg @ {stats.bodyweight} kg BW
                                         </p>
-                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                            Ratio: {stats.ratio.toFixed(2)}x bodyweight
+                                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                                            Ratio: <span className="font-semibold">{stats.ratio.toFixed(2)}x</span>
                                         </p>
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 italic">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 italic">
                                         No exercises logged
                                     </p>
                                 )}
@@ -375,56 +393,56 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                     })}
 
                     {/* Legend */}
-                    <div className="pt-3 border-t border-zinc-200 dark:border-zinc-700 mt-3">
-                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 uppercase">
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700 mt-4">
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wide">
                             Strength Levels
                         </p>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
-                            Based on bodyweight ratios (like GymRank)
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                            Based on bodyweight ratios
                         </p>
-                        <div className="space-y-1 text-xs">
+                        <div className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <div
-                                    className="w-3 h-3 rounded"
+                                    className="w-3 h-3 rounded-full"
                                     style={{ backgroundColor: strengthColors.gray }}
                                 />
-                                <span className="text-zinc-600 dark:text-zinc-400">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                     Untrained
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div
-                                    className="w-3 h-3 rounded"
+                                    className="w-3 h-3 rounded-full"
                                     style={{ backgroundColor: strengthColors.green }}
                                 />
-                                <span className="text-zinc-600 dark:text-zinc-400">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                     Beginner
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div
-                                    className="w-3 h-3 rounded"
+                                    className="w-3 h-3 rounded-full"
                                     style={{ backgroundColor: strengthColors.yellow }}
                                 />
-                                <span className="text-zinc-600 dark:text-zinc-400">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                     Intermediate
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div
-                                    className="w-3 h-3 rounded"
+                                    className="w-3 h-3 rounded-full"
                                     style={{ backgroundColor: strengthColors.orange }}
                                 />
-                                <span className="text-zinc-600 dark:text-zinc-400">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                     Advanced
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div
-                                    className="w-3 h-3 rounded"
+                                    className="w-3 h-3 rounded-full"
                                     style={{ backgroundColor: strengthColors.red }}
                                 />
-                                <span className="text-zinc-600 dark:text-zinc-400">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                     Elite
                                 </span>
                             </div>

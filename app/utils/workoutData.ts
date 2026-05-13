@@ -1,88 +1,13 @@
 export interface Workout {
   id: string;
   name: string;
-  type: 'cardio' | 'strength' | 'flexibility' | 'sports';
   sets: number;
   reps: number;
   weight: number; // in lbs or kg
   bodyweight: number; // in kg
-  intensity: 'low' | 'medium' | 'high';
   date: Date;
   notes?: string;
 }
-
-export const mockWorkouts: Workout[] = [
-  {
-    id: '1',
-    name: 'Bench Press',
-    type: 'strength',
-    sets: 4,
-    reps: 8,
-    weight: 120,
-    bodyweight: 80,
-    intensity: 'high',
-    date: new Date('2026-05-11'),
-    notes: 'Great form, felt strong',
-  },
-  {
-    id: '2',
-    name: 'Squats',
-    type: 'strength',
-    sets: 5,
-    reps: 5,
-    weight: 140,
-    bodyweight: 80,
-    intensity: 'high',
-    date: new Date('2026-05-10'),
-    notes: 'Intermediate level',
-  },
-  {
-    id: '3',
-    name: 'Dumbbell Rows',
-    type: 'strength',
-    sets: 4,
-    reps: 10,
-    weight: 40,
-    bodyweight: 80,
-    intensity: 'medium',
-    date: new Date('2026-05-09'),
-  },
-  {
-    id: '4',
-    name: 'Pull-ups',
-    type: 'strength',
-    sets: 3,
-    reps: 12,
-    weight: 0,
-    bodyweight: 80,
-    intensity: 'high',
-    date: new Date('2026-05-08'),
-    notes: 'Bodyweight exercise',
-  },
-  {
-    id: '5',
-    name: 'Deadlifts',
-    type: 'strength',
-    sets: 3,
-    reps: 6,
-    weight: 200,
-    bodyweight: 80,
-    intensity: 'high',
-    date: new Date('2026-05-07'),
-    notes: 'Heavy session',
-  },
-  {
-    id: '6',
-    name: 'Leg Press',
-    type: 'strength',
-    sets: 4,
-    reps: 12,
-    weight: 320,
-    bodyweight: 80,
-    intensity: 'medium',
-    date: new Date('2026-05-06'),
-  },
-];
 
 export interface WorkoutStats {
   totalWorkouts: number;

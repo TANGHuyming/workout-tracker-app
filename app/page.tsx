@@ -58,10 +58,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
+          <p className="text-lg font-medium text-slate-600 dark:text-slate-300">Loading your workouts...</p>
         </div>
       </div>
     );
@@ -70,47 +70,63 @@ export default function Home() {
   // Show login/register if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black">
-        <div className="max-w-md mx-auto px-4 py-16">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-black dark:text-white mb-2">
-              💪 Workout Tracker
-            </h1>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              Track your workouts and monitor progress
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-10">
+            <div className="mb-6">
+              <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent mb-2">
+                💪 FitTrack
+              </h1>
+            </div>
+            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
+              Track your workouts and reach your goals
             </p>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
             {showRegister ? (
               <>
-                <h2 className="text-2xl font-bold mb-6 text-black dark:text-white text-center">
-                  Create Account
-                </h2>
-                <RegisterForm
-                  onSuccess={() => {
-                    setShowRegister(false);
-                  }}
-                />
-                <button
-                  onClick={() => setShowRegister(false)}
-                  className="w-full mt-4 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2"
-                >
-                  Already have an account? Login
-                </button>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6 border-b border-slate-200 dark:border-slate-800">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">
+                    Create Account
+                  </h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 text-center mt-1">Join the fitness revolution</p>
+                </div>
+                <div className="p-6">
+                  <RegisterForm
+                    onSuccess={() => {
+                      setShowRegister(false);
+                    }}
+                  />
+                </div>
+                <div className="border-t border-slate-200 dark:border-slate-800 p-4">
+                  <button
+                    onClick={() => setShowRegister(false)}
+                    className="w-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2 transition-colors"
+                  >
+                    Already have an account? Login
+                  </button>
+                </div>
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold mb-6 text-black dark:text-white text-center">
-                  Welcome Back
-                </h2>
-                <LoginForm onSuccess={() => {}} />
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-full mt-4 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2"
-                >
-                  Don't have an account? Register
-                </button>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6 border-b border-slate-200 dark:border-slate-800">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">
+                    Welcome Back
+                  </h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 text-center mt-1">Continue your fitness journey</p>
+                </div>
+                <div className="p-6">
+                  <LoginForm onSuccess={() => {}} />
+                </div>
+                <div className="border-t border-slate-200 dark:border-slate-800 p-4">
+                  <button
+                    onClick={() => setShowRegister(true)}
+                    className="w-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2 transition-colors"
+                  >
+                    Don't have an account? Register
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -121,39 +137,41 @@ export default function Home() {
 
   // Show workout tracker if authenticated
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
       {/* Header with user info and logout */}
-      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-black dark:text-white">💪 Workout Tracker</h1>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Logged in as</p>
-              <p className="font-semibold text-black dark:text-white">{user.username}</p>
+          <h1 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+            💪 FitTrack
+          </h1>
+          <div className="flex items-center gap-6">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Logged in as</p>
+              <p className="font-semibold text-slate-900 dark:text-white">{user.username}</p>
             </div>
             <button
               onClick={() => logout()}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition-colors"
+              className="px-4 py-2 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 font-semibold rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors border border-red-200 dark:border-red-800"
             >
               Logout
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-black dark:text-white mb-2">
-            Welcome back, {user.username}! 🏋️
+        {/* Hero Section */}
+        <div className="mb-10">
+          <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+            Welcome back, <span className="bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">{user.username}</span>! 🏋️
           </h2>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            Log your workouts and track your fitness progress
+          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
+            Log your workouts and track your progress toward your fitness goals
           </p>
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           {/* Left Column - Form */}
           <div className="lg:col-span-1">
             <WorkoutForm onAdd={handleAddWorkout} />
@@ -166,15 +184,15 @@ export default function Home() {
         </div>
 
         {/* Body Graphics Section */}
-        <div className="mb-8">
+        <div className="mb-10">
           <BodyGraphics workouts={workouts} />
         </div>
 
         {/* Workout History */}
         {loadingWorkouts ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">Loading workouts...</p>
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
+            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">Loading your workouts...</p>
           </div>
         ) : (
           <WorkoutList

@@ -53,6 +53,7 @@ export const EXERCISE_DATABASE: ExerciseOption[] = [
   { name: 'Smith Machine Squats', type: 'strength', muscleGroups: ['quads', 'glutes', 'hamstrings'] },
   { name: 'Calf Raises', type: 'strength', muscleGroups: ['calves'] },
   { name: 'Leg Press Calf Raises', type: 'strength', muscleGroups: ['calves'] },
+  { name: 'Hip Thrust', type: 'strength', muscleGroups: ['glutes', 'hamstrings'] },
 
   // Strength - Arms
   { name: 'Barbell Curl', type: 'strength', muscleGroups: ['biceps', 'forearms'] },
@@ -83,34 +84,6 @@ export const EXERCISE_DATABASE: ExerciseOption[] = [
   { name: 'Cable Woodchops', type: 'strength', muscleGroups: ['obliques', 'abs'] },
   { name: 'Planks', type: 'strength', muscleGroups: ['abs', 'lower_back'] },
   { name: 'Russian Twists', type: 'strength', muscleGroups: ['obliques', 'abs'] },
-
-  // Cardio
-  { name: 'Treadmill Running', type: 'cardio' },
-  { name: 'Stationary Bike', type: 'cardio' },
-  { name: 'Elliptical Machine', type: 'cardio' },
-  { name: 'Rowing Machine', type: 'cardio' },
-  { name: 'Stair Climber', type: 'cardio' },
-  { name: 'Jump Rope', type: 'cardio' },
-  { name: 'Swimming', type: 'cardio' },
-  { name: 'Running', type: 'cardio' },
-  { name: 'Cycling', type: 'cardio' },
-  { name: 'HIIT Training', type: 'cardio' },
-
-  // Flexibility
-  { name: 'Yoga', type: 'flexibility' },
-  { name: 'Pilates', type: 'flexibility' },
-  { name: 'Static Stretching', type: 'flexibility' },
-  { name: 'Dynamic Stretching', type: 'flexibility' },
-  { name: 'Tai Chi', type: 'flexibility' },
-
-  // Sports
-  { name: 'Basketball', type: 'sports' },
-  { name: 'Soccer', type: 'sports' },
-  { name: 'Tennis', type: 'sports' },
-  { name: 'Boxing', type: 'sports' },
-  { name: 'Mixed Martial Arts', type: 'sports' },
-  { name: 'Rock Climbing', type: 'sports' },
-  { name: 'CrossFit', type: 'sports' },
 ];
 
 /**
