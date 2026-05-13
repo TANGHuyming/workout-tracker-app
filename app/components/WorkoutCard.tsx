@@ -45,6 +45,18 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
                         </div>
                     </div>
 
+                    <div className="mt-3 text-sm">
+                        <span className="text-zinc-600 dark:text-zinc-400">Bodyweight: </span>
+                        <span className="font-semibold text-black dark:text-white">
+                            {workout.bodyweight} kg
+                        </span>
+                        {workout.weight > 0 && workout.bodyweight > 0 && (
+                            <span className="text-zinc-600 dark:text-zinc-400">
+                                {' '}(Ratio: {(workout.weight / workout.bodyweight).toFixed(2)}x)
+                            </span>
+                        )}
+                    </div>
+
                     {workout.notes && (
                         <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-3 italic">
                             "{workout.notes}"

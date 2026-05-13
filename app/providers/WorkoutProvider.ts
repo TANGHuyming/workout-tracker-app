@@ -13,6 +13,7 @@ export class WorkoutProvider {
     sets: number;
     reps: number;
     weight: number;
+    bodyweight: number;
     intensity: 'low' | 'medium' | 'high';
     date?: Date;
     notes?: string;

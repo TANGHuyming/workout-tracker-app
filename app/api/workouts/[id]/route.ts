@@ -53,6 +53,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                     sets: workout.sets,
                     reps: workout.reps,
                     weight: workout.weight,
+                    bodyweight: workout.bodyweight,
                     intensity: workout.intensity,
                     date: workout.date,
                     notes: workout.notes,
@@ -116,6 +117,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         if (body.sets !== undefined) updateData.sets = body.sets;
         if (body.reps !== undefined) updateData.reps = body.reps;
         if (body.weight !== undefined) updateData.weight = body.weight;
+        if (body.bodyweight !== undefined) updateData.bodyweight = body.bodyweight;
         if (body.intensity !== undefined) updateData.intensity = body.intensity;
         if (body.date !== undefined) updateData.date = new Date(body.date);
         if (body.notes !== undefined) updateData.notes = body.notes;
@@ -142,6 +144,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                     sets: updatedWorkout.sets,
                     reps: updatedWorkout.reps,
                     weight: updatedWorkout.weight,
+                    bodyweight: updatedWorkout.bodyweight,
                     intensity: updatedWorkout.intensity,
                     date: updatedWorkout.date,
                     notes: updatedWorkout.notes,

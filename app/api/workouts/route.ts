@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
                     sets: w.sets,
                     reps: w.reps,
                     weight: w.weight,
+                    bodyweight: w.bodyweight,
                     intensity: w.intensity,
                     date: w.date,
                     notes: w.notes,
@@ -65,9 +66,9 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields
-        if (!body.name || body.sets === undefined || body.reps === undefined || body.weight === undefined) {
+        if (!body.name || body.sets === undefined || body.reps === undefined || body.weight === undefined || body.bodyweight === undefined) {
             let response: any = NextResponse.json(
-                { success: false, message: 'Missing required fields: name, sets, reps, weight' },
+                { success: false, message: 'Missing required fields: name, sets, reps, weight, bodyweight' },
                 { status: 400 }
             );
             return response;
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
             sets: body.sets,
             reps: body.reps,
             weight: body.weight,
+            bodyweight: body.bodyweight,
             intensity: body.intensity || 'medium',
             date: body.date ? new Date(body.date) : new Date(),
             notes: body.notes || '',
@@ -98,6 +100,7 @@ export async function POST(request: NextRequest) {
                     sets: workout.sets,
                     reps: workout.reps,
                     weight: workout.weight,
+                    bodyweight: workout.bodyweight,
                     intensity: workout.intensity,
                     date: workout.date,
                     notes: workout.notes,

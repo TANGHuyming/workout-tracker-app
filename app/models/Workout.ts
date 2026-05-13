@@ -7,6 +7,7 @@ export interface IWorkout extends Document {
   sets: number;
   reps: number;
   weight: number;
+  bodyweight: number;
   intensity: 'low' | 'medium' | 'high';
   date: Date;
   notes: string;
@@ -47,6 +48,12 @@ const WorkoutSchema = new Schema<IWorkout>(
       type: Number,
       required: [true, 'Please provide weight'],
       min: [0, 'Weight cannot be negative'],
+    },
+    bodyweight: {
+      type: Number,
+      required: [true, 'Please provide bodyweight'],
+      min: [20, 'Bodyweight must be at least 20 kg'],
+      max: [300, 'Bodyweight cannot exceed 300 kg'],
     },
     intensity: {
       type: String,

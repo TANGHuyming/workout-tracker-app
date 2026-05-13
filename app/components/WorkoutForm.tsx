@@ -15,6 +15,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
         sets: string;
         reps: string;
         weight: string;
+        bodyweight: string;
         date: string;
         notes: string;
     }>({
@@ -23,6 +24,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
         sets: '',
         reps: '',
         weight: '',
+        bodyweight: '',
         date: new Date().toISOString().split('T')[0],
         notes: '',
     });
@@ -32,7 +34,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.sets || !formData.reps || formData.weight === '') {
+        if (!formData.name || !formData.sets || !formData.reps || formData.weight === '' || formData.bodyweight === '') {
             alert('Please fill in all required fields');
             return;
         }
@@ -43,6 +45,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             sets: parseInt(formData.sets),
             reps: parseInt(formData.reps),
             weight: parseInt(formData.weight),
+            bodyweight: parseInt(formData.bodyweight),
             intensity: 'medium',
             date: new Date(formData.date),
             notes: formData.notes || undefined,
@@ -55,6 +58,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             sets: '',
             reps: '',
             weight: '',
+            bodyweight: '',
             date: new Date().toISOString().split('T')[0],
             notes: '',
         });
@@ -126,6 +130,21 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                         onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                         placeholder="225"
                         min="0"
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Bodyweight (kg) *
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.bodyweight}
+                        onChange={(e) => setFormData({ ...formData, bodyweight: e.target.value })}
+                        placeholder="80"
+                        min="20"
+                        max="300"
                         className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>

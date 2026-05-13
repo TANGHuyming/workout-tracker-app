@@ -5,6 +5,7 @@ export interface Workout {
   sets: number;
   reps: number;
   weight: number; // in lbs or kg
+  bodyweight: number; // in kg
   intensity: 'low' | 'medium' | 'high';
   date: Date;
   notes?: string;
@@ -17,7 +18,8 @@ export const mockWorkouts: Workout[] = [
     type: 'strength',
     sets: 4,
     reps: 8,
-    weight: 225,
+    weight: 120,
+    bodyweight: 80,
     intensity: 'high',
     date: new Date('2026-05-11'),
     notes: 'Great form, felt strong',
@@ -28,10 +30,11 @@ export const mockWorkouts: Workout[] = [
     type: 'strength',
     sets: 5,
     reps: 5,
-    weight: 315,
+    weight: 140,
+    bodyweight: 80,
     intensity: 'high',
     date: new Date('2026-05-10'),
-    notes: 'New PR!',
+    notes: 'Intermediate level',
   },
   {
     id: '3',
@@ -39,7 +42,8 @@ export const mockWorkouts: Workout[] = [
     type: 'strength',
     sets: 4,
     reps: 10,
-    weight: 90,
+    weight: 40,
+    bodyweight: 80,
     intensity: 'medium',
     date: new Date('2026-05-09'),
   },
@@ -50,6 +54,7 @@ export const mockWorkouts: Workout[] = [
     sets: 3,
     reps: 12,
     weight: 0,
+    bodyweight: 80,
     intensity: 'high',
     date: new Date('2026-05-08'),
     notes: 'Bodyweight exercise',
@@ -60,7 +65,8 @@ export const mockWorkouts: Workout[] = [
     type: 'strength',
     sets: 3,
     reps: 6,
-    weight: 405,
+    weight: 200,
+    bodyweight: 80,
     intensity: 'high',
     date: new Date('2026-05-07'),
     notes: 'Heavy session',
@@ -71,7 +77,8 @@ export const mockWorkouts: Workout[] = [
     type: 'strength',
     sets: 4,
     reps: 12,
-    weight: 450,
+    weight: 320,
+    bodyweight: 80,
     intensity: 'medium',
     date: new Date('2026-05-06'),
   },

@@ -174,92 +174,94 @@ export const getMuscleGroupDisplayName = (group: MuscleGroup): string => {
 
 /**
  * Individual strength standards for each exercise
- * Thresholds in kg for each strength level: gray < green < yellow < orange < red
+ * Thresholds use bodyweight multiplier ratios for realism
+ * Example: Squat at 1.5x bodyweight = 120kg at 80kg BW = Intermediate
  */
 export interface StrengthThresholds {
-  gray: number;      // Untrained
-  green: number;     // Beginner
-  yellow: number;    // Intermediate
-  orange: number;    // Advanced
-  red: number;       // Elite (anything at or above this is elite)
+  gray: number;      // Untrained (multiplier)
+  green: number;     // Beginner (multiplier)
+  yellow: number;    // Intermediate (multiplier)
+  orange: number;    // Advanced (multiplier)
+  red: number;       // Elite (multiplier, anything at or above this)
 }
 
 export const STRENGTH_STANDARDS: Record<string, StrengthThresholds> = {
-  // Compound Lifts - Heavy (Barbell)
-  'Deadlifts': { gray: 60, green: 100, yellow: 160, orange: 220, red: 300 },
-  'Squats': { gray: 40, green: 80, yellow: 140, orange: 200, red: 280 },
-  'Barbell Row': { gray: 30, green: 70, yellow: 120, orange: 170, red: 240 },
-  'Hack Squats': { gray: 40, green: 80, yellow: 140, orange: 200, red: 280 },
-  'Smith Machine Squats': { gray: 40, green: 80, yellow: 140, orange: 200, red: 280 },
-  'Leg Press': { gray: 80, green: 180, yellow: 320, orange: 450, red: 600 },
+  // Compound Lifts - Heavy (based on bodyweight ratio)
+  'Deadlifts': { gray: 0.75, green: 1.25, yellow: 2.0, orange: 2.75, red: 3.5 },
+  'Squats': { gray: 0.5, green: 1.0, yellow: 1.5, orange: 2.25, red: 3.0 },
+  'Barbell Row': { gray: 0.4, green: 0.8, yellow: 1.25, orange: 1.75, red: 2.25 },
+  'Hack Squats': { gray: 0.5, green: 1.0, yellow: 1.5, orange: 2.25, red: 3.0 },
+  'Smith Machine Squats': { gray: 0.5, green: 1.0, yellow: 1.5, orange: 2.25, red: 3.0 },
+  'Leg Press': { gray: 1.0, green: 2.0, yellow: 3.5, orange: 5.0, red: 6.5 },
   
   // Bench Pressing Variants
-  'Bench Press': { gray: 20, green: 60, yellow: 100, orange: 140, red: 200 },
-  'Incline Bench Press': { gray: 15, green: 50, yellow: 90, orange: 130, red: 180 },
-  'Dumbbell Bench Press': { gray: 10, green: 30, yellow: 55, orange: 85, red: 120 },
-  'Cable Chest Press': { gray: 15, green: 45, yellow: 80, orange: 120, red: 170 },
-  'Machine Chest Press': { gray: 20, green: 60, yellow: 100, orange: 140, red: 200 },
-  'Push-ups': { gray: 5, green: 20, yellow: 50, orange: 100, red: 150 },
+  'Bench Press': { gray: 0.25, green: 0.5, yellow: 0.75, orange: 1.0, red: 1.35 },
+  'Incline Bench Press': { gray: 0.2, green: 0.4, yellow: 0.6, orange: 0.8, red: 1.1 },
+  'Dumbbell Bench Press': { gray: 0.15, green: 0.35, yellow: 0.55, orange: 0.75, red: 1.0 },
+  'Cable Chest Press': { gray: 0.2, green: 0.45, yellow: 0.7, orange: 1.0, red: 1.3 },
+  'Machine Chest Press': { gray: 0.25, green: 0.5, yellow: 0.75, orange: 1.0, red: 1.35 },
+  'Push-ups': { gray: 0.2, green: 0.5, yellow: 1.0, orange: 1.5, red: 2.0 },
 
   // Pulling Exercises
-  'Pull-ups': { gray: 0, green: 5, yellow: 12, orange: 25, red: 40 },
-  'Assisted Pull-ups': { gray: 20, green: 50, yellow: 80, orange: 110, red: 150 },
-  'Lat Pulldown': { gray: 20, green: 60, yellow: 100, orange: 140, red: 200 },
-  'Seated Row': { gray: 25, green: 65, yellow: 110, orange: 160, red: 220 },
-  'Cable Row': { gray: 25, green: 65, yellow: 110, orange: 160, red: 220 },
-  'Lat Pullover': { gray: 15, green: 45, yellow: 80, orange: 120, red: 170 },
+  'Pull-ups': { gray: 0.0, green: 0.1, yellow: 0.2, orange: 0.35, red: 0.5 },
+  'Assisted Pull-ups': { gray: 0.2, green: 0.5, yellow: 0.8, orange: 1.1, red: 1.5 },
+  'Lat Pulldown': { gray: 0.2, green: 0.5, yellow: 0.8, orange: 1.1, red: 1.5 },
+  'Seated Row': { gray: 0.25, green: 0.6, yellow: 0.95, orange: 1.3, red: 1.75 },
+  'Cable Row': { gray: 0.25, green: 0.6, yellow: 0.95, orange: 1.3, red: 1.75 },
+  'Lat Pullover': { gray: 0.15, green: 0.4, yellow: 0.7, orange: 1.0, red: 1.3 },
 
   // Leg Exercises - Isolation
-  'Leg Curl': { gray: 15, green: 50, yellow: 90, orange: 130, red: 180 },
-  'Leg Extension': { gray: 15, green: 50, yellow: 90, orange: 130, red: 180 },
-  'Lunges': { gray: 10, green: 30, yellow: 60, orange: 100, red: 150 },
-  'Bulgarian Split Squats': { gray: 10, green: 30, yellow: 60, orange: 100, red: 150 },
-  'Calf Raises': { gray: 30, green: 80, yellow: 150, orange: 220, red: 320 },
-  'Leg Press Calf Raises': { gray: 60, green: 150, yellow: 270, orange: 400, red: 550 },
+  'Leg Curl': { gray: 0.2, green: 0.5, yellow: 0.9, orange: 1.3, red: 1.8 },
+  'Leg Extension': { gray: 0.2, green: 0.5, yellow: 0.9, orange: 1.3, red: 1.8 },
+  'Lunges': { gray: 0.15, green: 0.35, yellow: 0.65, orange: 1.0, red: 1.5 },
+  'Bulgarian Split Squats': { gray: 0.1, green: 0.3, yellow: 0.6, orange: 1.0, red: 1.4 },
+  'Calf Raises': { gray: 0.4, green: 1.0, yellow: 1.6, orange: 2.4, red: 3.4 },
+  'Leg Press Calf Raises': { gray: 0.6, green: 1.5, yellow: 2.7, orange: 4.0, red: 5.5 },
 
-  // Arm Exercises - Curls
-  'Barbell Curl': { gray: 10, green: 25, yellow: 45, orange: 70, red: 100 },
-  'Dumbbell Curl': { gray: 5, green: 12, yellow: 22, orange: 35, red: 55 },
-  'Cable Curl': { gray: 8, green: 20, yellow: 40, orange: 65, red: 95 },
-  'Hammer Curl': { gray: 6, green: 15, yellow: 30, orange: 50, red: 75 },
-  'Concentration Curl': { gray: 4, green: 10, yellow: 20, orange: 35, red: 55 },
+  // Arm Exercises - Curls (dumbbell weight per arm)
+  'Barbell Curl': { gray: 0.1, green: 0.25, yellow: 0.45, orange: 0.65, red: 0.9 },
+  'Dumbbell Curl': { gray: 0.05, green: 0.15, yellow: 0.28, orange: 0.44, red: 0.65 },
+  'Cable Curl': { gray: 0.08, green: 0.2, yellow: 0.38, orange: 0.6, red: 0.85 },
+  'Hammer Curl': { gray: 0.06, green: 0.15, yellow: 0.3, orange: 0.5, red: 0.75 },
+  'Concentration Curl': { gray: 0.04, green: 0.1, yellow: 0.2, orange: 0.35, red: 0.55 },
 
   // Arm Exercises - Triceps
-  'Tricep Dips': { gray: 0, green: 10, yellow: 25, orange: 50, red: 80 },
-  'Tricep Rope Pulldown': { gray: 10, green: 30, yellow: 60, orange: 95, red: 140 },
-  'Tricep Extension': { gray: 6, green: 18, yellow: 38, orange: 65, red: 100 },
-  'Overhead Tricep Extension': { gray: 6, green: 18, yellow: 38, orange: 65, red: 100 },
-  'Skull Crushers': { gray: 8, green: 20, yellow: 45, orange: 75, red: 115 },
+  'Tricep Dips': { gray: 0.0, green: 0.1, yellow: 0.25, orange: 0.5, red: 0.8 },
+  'Tricep Rope Pulldown': { gray: 0.1, green: 0.3, yellow: 0.6, orange: 0.9, red: 1.3 },
+  'Tricep Extension': { gray: 0.06, green: 0.18, yellow: 0.38, orange: 0.65, red: 1.0 },
+  'Overhead Tricep Extension': { gray: 0.06, green: 0.18, yellow: 0.38, orange: 0.65, red: 1.0 },
+  'Skull Crushers': { gray: 0.08, green: 0.2, yellow: 0.45, orange: 0.75, red: 1.15 },
 
   // Shoulder Exercises
-  'Military Press': { gray: 12, green: 30, yellow: 55, orange: 85, red: 120 },
-  'Shoulder Press': { gray: 12, green: 30, yellow: 55, orange: 85, red: 120 },
-  'Dumbbell Press': { gray: 6, green: 18, yellow: 35, orange: 60, red: 90 },
-  'Lateral Raise': { gray: 4, green: 10, yellow: 18, orange: 28, red: 42 },
-  'Front Raise': { gray: 4, green: 10, yellow: 18, orange: 28, red: 42 },
-  'Reverse Peck Deck': { gray: 10, green: 30, yellow: 55, orange: 85, red: 120 },
-  'Upright Row': { gray: 10, green: 25, yellow: 50, orange: 80, red: 120 },
-  'Shrugs': { gray: 20, green: 60, yellow: 120, orange: 200, red: 300 },
+  'Military Press': { gray: 0.12, green: 0.3, yellow: 0.55, orange: 0.85, red: 1.2 },
+  'Shoulder Press': { gray: 0.12, green: 0.3, yellow: 0.55, orange: 0.85, red: 1.2 },
+  'Dumbbell Press': { gray: 0.06, green: 0.18, yellow: 0.35, orange: 0.6, red: 0.9 },
+  'Lateral Raise': { gray: 0.04, green: 0.1, yellow: 0.18, orange: 0.28, red: 0.42 },
+  'Front Raise': { gray: 0.04, green: 0.1, yellow: 0.18, orange: 0.28, red: 0.42 },
+  'Reverse Peck Deck': { gray: 0.1, green: 0.3, yellow: 0.55, orange: 0.85, red: 1.2 },
+  'Upright Row': { gray: 0.1, green: 0.25, yellow: 0.5, orange: 0.8, red: 1.2 },
+  'Shrugs': { gray: 0.2, green: 0.6, yellow: 1.2, orange: 2.0, red: 3.0 },
 
-  // Core Exercises
-  'Crunches': { gray: 0, green: 10, yellow: 25, orange: 50, red: 100 },
-  'Ab Wheel Rollout': { gray: 0, green: 5, yellow: 15, orange: 35, red: 60 },
-  'Hanging Leg Raises': { gray: 0, green: 5, yellow: 15, orange: 35, red: 60 },
-  'Cable Woodchops': { gray: 8, green: 20, yellow: 45, orange: 80, red: 120 },
-  'Planks': { gray: 15, green: 45, yellow: 90, orange: 180, red: 300 },
-  'Russian Twists': { gray: 4, green: 12, yellow: 25, orange: 50, red: 90 },
+  // Core Exercises (reps-based, using 0-based scale)
+  'Crunches': { gray: 0, green: 0.2, yellow: 0.5, orange: 1.0, red: 2.0 },
+  'Ab Wheel Rollout': { gray: 0, green: 0.05, yellow: 0.15, orange: 0.35, red: 0.6 },
+  'Hanging Leg Raises': { gray: 0, green: 0.05, yellow: 0.15, orange: 0.35, red: 0.6 },
+  'Cable Woodchops': { gray: 0.08, green: 0.2, yellow: 0.45, orange: 0.8, red: 1.2 },
+  'Planks': { gray: 0.15, green: 0.45, yellow: 0.9, orange: 1.8, red: 3.0 },
+  'Russian Twists': { gray: 0.04, green: 0.12, yellow: 0.25, orange: 0.5, red: 0.9 },
 
   // Dumbbell Flye
-  'Dumbbell Flye': { gray: 4, green: 10, yellow: 20, orange: 35, red: 55 },
-  'Dumbbell Rows': { gray: 8, green: 20, yellow: 40, orange: 65, red: 100 },
+  'Dumbbell Flye': { gray: 0.04, green: 0.1, yellow: 0.2, orange: 0.35, red: 0.55 },
+  'Dumbbell Rows': { gray: 0.08, green: 0.2, yellow: 0.4, orange: 0.65, red: 1.0 },
 
-  // Default for unknown exercises
+  // Default for unknown exercises (fallback to absolute weight standards)
 };
 
 /**
  * Get strength thresholds for a specific exercise
+ * Returns multiplier ratios (weight/bodyweight)
  */
 export const getStrengthThresholdsForExercise = (exerciseName: string): StrengthThresholds => {
-  // Return specific thresholds if found, otherwise return default thresholds
-  return STRENGTH_STANDARDS[exerciseName] || { gray: 30, green: 75, yellow: 150, orange: 250, red: 350 };
+  // Return specific thresholds if found, otherwise return default ratios
+  return STRENGTH_STANDARDS[exerciseName] || { gray: 0.25, green: 0.5, yellow: 0.75, orange: 1.0, red: 1.35 };
 };

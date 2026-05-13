@@ -35,7 +35,9 @@ const darkStrengthColors: StrengthColorMap = {
 
 interface ExerciseStrength {
     maxWeight: number;
+    bodyweight: number;
     exerciseName: string;
+    ratio: number;
 }
 
 interface MuscleGroupStrength extends ExerciseStrength {
@@ -65,10 +67,14 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                     prev.weight > current.weight ? prev : current
                 );
 
+                const ratio = maxExercise.bodyweight > 0 ? maxExercise.weight / maxExercise.bodyweight : 0;
+
                 muscleGroupMap.set(group, {
                     muscleGroup: group,
                     maxWeight: maxExercise.weight,
+                    bodyweight: maxExercise.bodyweight,
                     exerciseName: maxExercise.name,
+                    ratio: ratio,
                 });
             }
         });
@@ -77,16 +83,17 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
     };
 
     // Get strength level based on exercise-specific weight thresholds
-    const getStrengthLevel = (weight: number | null, exerciseName: string | null): StrengthLevel => {
-        if (weight === null || exerciseName === null) return 'gray';
+    const getStrengthLevel = (weight: number | null, bodyweight: number | null, exerciseName: string | null): StrengthLevel => {
+        if (weight === null || bodyweight === null || bodyweight === 0 || exerciseName === null) return 'gray';
         
         const thresholds = getStrengthThresholdsForExercise(exerciseName);
+        const ratio = weight / bodyweight;
         
-        if (weight < thresholds.gray) return 'gray';
-        if (weight < thresholds.green) return 'gray';
-        if (weight < thresholds.yellow) return 'green';
-        if (weight < thresholds.orange) return 'yellow';
-        if (weight < thresholds.red) return 'orange';
+        if (ratio < thresholds.gray) return 'gray';
+        if (ratio < thresholds.green) return 'gray';
+        if (ratio < thresholds.yellow) return 'green';
+        if (ratio < thresholds.orange) return 'yellow';
+        if (ratio < thresholds.red) return 'orange';
         return 'red';
     };
 
@@ -116,17 +123,17 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
     const abs = muscleGroupStats.get('abs');
     const traps = muscleGroupStats.get('traps');
 
-    const chestLevel = getStrengthLevel(chest?.maxWeight ?? null, chest?.exerciseName ?? null);
-    const backLevel = getStrengthLevel(back?.maxWeight ?? null, back?.exerciseName ?? null);
-    const latsLevel = getStrengthLevel(lats?.maxWeight ?? null, lats?.exerciseName ?? null);
-    const bicepsLevel = getStrengthLevel(biceps?.maxWeight ?? null, biceps?.exerciseName ?? null);
-    const tricepsLevel = getStrengthLevel(triceps?.maxWeight ?? null, triceps?.exerciseName ?? null);
-    const shouldersLevel = getStrengthLevel(shoulders?.maxWeight ?? null, shoulders?.exerciseName ?? null);
-    const quadsLevel = getStrengthLevel(quads?.maxWeight ?? null, quads?.exerciseName ?? null);
-    const hamsLevel = getStrengthLevel(hamstrings?.maxWeight ?? null, hamstrings?.exerciseName ?? null);
-    const glutesLevel = getStrengthLevel(glutes?.maxWeight ?? null, glutes?.exerciseName ?? null);
-    const absLevel = getStrengthLevel(abs?.maxWeight ?? null, abs?.exerciseName ?? null);
-    const trapsLevel = getStrengthLevel(traps?.maxWeight ?? null, traps?.exerciseName ?? null);
+    const chestLevel = getStrengthLevel(chest?.maxWeight ?? null, chest?.bodyweight ?? null, chest?.exerciseName ?? null);
+    const backLevel = getStrengthLevel(back?.maxWeight ?? null, back?.bodyweight ?? null, back?.exerciseName ?? null);
+    const latsLevel = getStrengthLevel(lats?.maxWeight ?? null, lats?.bodyweight ?? null, lats?.exerciseName ?? null);
+    const bicepsLevel = getStrengthLevel(biceps?.maxWeight ?? null, biceps?.bodyweight ?? null, biceps?.exerciseName ?? null);
+    const tricepsLevel = getStrengthLevel(triceps?.maxWeight ?? null, triceps?.bodyweight ?? null, triceps?.exerciseName ?? null);
+    const shouldersLevel = getStrengthLevel(shoulders?.maxWeight ?? null, shoulders?.bodyweight ?? null, shoulders?.exerciseName ?? null);
+    const quadsLevel = getStrengthLevel(quads?.maxWeight ?? null, quads?.bodyweight ?? null, quads?.exerciseName ?? null);
+    const hamsLevel = getStrengthLevel(hamstrings?.maxWeight ?? null, hamstrings?.bodyweight ?? null, hamstrings?.exerciseName ?? null);
+    const glutesLevel = getStrengthLevel(glutes?.maxWeight ?? null, glutes?.bodyweight ?? null, glutes?.exerciseName ?? null);
+    const absLevel = getStrengthLevel(abs?.maxWeight ?? null, abs?.bodyweight ?? null, abs?.exerciseName ?? null);
+    const trapsLevel = getStrengthLevel(traps?.maxWeight ?? null, traps?.bodyweight ?? null, traps?.exerciseName ?? null);
 
     return (
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800">
@@ -328,7 +335,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                 {/* Strength Details Grid */}
                 <div className="space-y-3 overflow-y-auto max-h-96">
                     {Array.from(muscleGroupStats.entries()).map(([group, stats]) => {
-                        const level = getStrengthLevel(stats?.maxWeight ?? null, stats?.exerciseName ?? null);
+                        const level = getStrengthLevel(stats?.maxWeight ?? null, stats?.bodyweight ?? null, stats?.exerciseName ?? null);
                         return (
                             <div
                                 key={group}
@@ -352,7 +359,10 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                             {stats.exerciseName}
                                         </p>
                                         <p className="text-sm font-bold text-black dark:text-white">
-                                            {stats.maxWeight} kg
+                                            {stats.maxWeight} kg @ {stats.bodyweight} kg BW
+                                        </p>
+                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                            Ratio: {stats.ratio.toFixed(2)}x bodyweight
                                         </p>
                                     </div>
                                 ) : (
@@ -369,8 +379,8 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                         <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 uppercase">
                             Strength Levels
                         </p>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-2">
-                            Thresholds vary by exercise
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+                            Based on bodyweight ratios (like GymRank)
                         </p>
                         <div className="space-y-1 text-xs">
                             <div className="flex items-center gap-2">
