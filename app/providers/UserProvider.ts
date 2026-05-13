@@ -95,6 +95,7 @@ export class UserProvider {
       });
       return user;
     } catch (error: any) {
+      console.log(error);
       if (error.code === 11000) {
         const field = Object.keys(error.keyPattern)[0];
         throw new Error(`${field} already exists`);
