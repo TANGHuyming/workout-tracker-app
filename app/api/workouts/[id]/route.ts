@@ -13,7 +13,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
         const { id } = await params;
         
-        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         const workout = await WorkoutProvider.findById(id);
 
@@ -57,8 +65,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         return response;
     } catch (error) {
         console.error('Error fetching workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: `Error: ${errorMsg}` },
             { status: 500 }
         );
         return response;
@@ -70,7 +79,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
         const { id } = await params;
         
-        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         // Check if user owns this workout
         const existingWorkout = await WorkoutProvider.findById(id);
@@ -137,8 +154,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         return response;
     } catch (error) {
         console.error('Error updating workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: `Error: ${errorMsg}` },
             { status: 500 }
         );
         return response;
@@ -150,7 +168,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
         const { id } = await params;
         
-        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         // Check if user owns this workout
         const existingWorkout = await WorkoutProvider.findById(id);
@@ -179,8 +205,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         return response;
     } catch (error) {
         console.error('Error deleting workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: `Error: ${errorMsg}` },
             { status: 500 }
         );
         return response;

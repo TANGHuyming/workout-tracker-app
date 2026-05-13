@@ -4,7 +4,15 @@ import { WorkoutProvider } from '../../providers/WorkoutProvider';
 // GET all workouts for authenticated user
 export async function GET(request: NextRequest) {
     try {
-        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         // Fetch workouts for user
         const workouts = await WorkoutProvider.findByUserId(payload.userId);
@@ -32,8 +40,9 @@ export async function GET(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('Error fetching workouts:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: `Error: ${errorMsg}` },
             { status: 500 }
         );
         return response;
@@ -43,7 +52,15 @@ export async function GET(request: NextRequest) {
 // POST create new workout
 export async function POST(request: NextRequest) {
     try {
-        const payload = JSON.parse(request.headers.get('jwt-payload') as string);
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         const body = await request.json();
 
@@ -93,8 +110,9 @@ export async function POST(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('Error creating workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: `Error: ${errorMsg}` },
             { status: 500 }
         );
         return response;
