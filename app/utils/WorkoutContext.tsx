@@ -64,12 +64,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: workout.name,
-                        type: workout.type,
                         sets: workout.sets,
                         reps: workout.reps,
                         weight: workout.weight,
                         bodyweight: workout.bodyweight,
-                        intensity: workout.intensity,
                         date: workout.date,
                         notes: workout.notes,
                     }),
@@ -84,12 +82,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                 const newWorkout: Workout = {
                     id: data.workout.id,
                     name: data.workout.name,
-                    type: data.workout.type,
                     sets: data.workout.sets,
                     reps: data.workout.reps,
                     weight: data.workout.weight,
                     bodyweight: data.workout.bodyweight,
-                    intensity: data.workout.intensity,
                     date: new Date(data.workout.date),
                     notes: data.workout.notes,
                 };
@@ -124,12 +120,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                 const updatedWorkout: Workout = {
                     id: data.workout.id,
                     name: data.workout.name,
-                    type: data.workout.type,
                     sets: data.workout.sets,
                     reps: data.workout.reps,
                     weight: data.workout.weight,
                     bodyweight: data.workout.bodyweight,
-                    intensity: data.workout.intensity,
                     date: new Date(data.workout.date),
                     notes: data.workout.notes,
                 };

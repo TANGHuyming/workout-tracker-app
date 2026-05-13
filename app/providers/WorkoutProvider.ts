@@ -9,12 +9,10 @@ export class WorkoutProvider {
   static async create(workoutData: {
     userId: string | ObjectId;
     name: string;
-    type: 'strength' | 'cardio' | 'flexibility' | 'sports';
     sets: number;
     reps: number;
     weight: number;
     bodyweight: number;
-    intensity: 'low' | 'medium' | 'high';
     date?: Date;
     notes?: string;
   }): Promise<IWorkout> {
