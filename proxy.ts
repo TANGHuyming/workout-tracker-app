@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getTokenFromRequest } from './app/utils/jwt';
-import { handleCors } from './app/lib/cors';
 import { nextjsRateLimit } from '@universal-rate-limit/nextjs';
-import { csrfMiddleware } from './app/lib/csrf';
+
+const ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    process.env.NEXT_PUBLIC_APP_URL,
+];
 
 const limiter = nextjsRateLimit({
     limit: 20,            // Limit each key to 5 requests per window
@@ -12,6 +16,7 @@ const limiter = nextjsRateLimit({
 const publicRoutes = ['/api/auth/login', '/api/auth/register'];
 
 export async function proxy(request: NextRequest) {
+    const response = NextResponse.next();
     const pathname = request.nextUrl.pathname;
 
     // Skip middleware for public routes
@@ -23,29 +28,24 @@ export async function proxy(request: NextRequest) {
     if (!pathname.startsWith('/api/')) {
         return NextResponse.next();
     }
-    
 
     // JWT auth
     const payload = requireAuth(request);
-    request.headers.set('jwt-payload', JSON.stringify(payload));
+    response.headers.set('jwt-payload', JSON.stringify(payload));
 
     // CORS
-    handleCors(request);
+    const headers = corsHeaders(request);
+    Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+    });
 
     // Rate Limiting
     const result = await limiter(request);
-    if(result.limited) {
+    if (result.limited) {
         return NextResponse.json({ success: false, message: 'Rate limit exceeded' }, { status: 429 });
     }
 
-    // CSRF
-    csrfMiddleware(request);
-
-    return NextResponse.next({
-        request: {
-            headers: request.headers
-        }
-    });
+    return response;
 }
 
 function requireAuth(request: NextRequest) {
@@ -63,6 +63,19 @@ function requireAuth(request: NextRequest) {
     }
 
     return payload;
+}
+
+function corsHeaders(request: NextRequest) {
+    const origin = request.headers.get('origin');
+    const isAllowedOrigin = !origin || ALLOWED_ORIGINS.includes(origin);
+
+    return {
+        'Access-Control-Allow-Origin': isAllowedOrigin ? origin || '*' : 'null',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+    };
 }
 
 // Configure which routes use this middleware

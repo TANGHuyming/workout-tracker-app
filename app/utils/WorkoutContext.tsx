@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import type { Workout } from './workoutData';
 
 interface WorkoutContextType {
@@ -8,9 +8,9 @@ interface WorkoutContextType {
     isLoading: boolean;
     error: string | null;
     fetchWorkouts: () => Promise<void>;
-    addWorkout: (workout: Omit<Workout, 'id'>) => Promise<Workout>;
-    updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
-    deleteWorkout: (id: string) => Promise<void>;
+    addWorkout: (workout: Omit<Workout, 'id'>, csrfToken: string) => Promise<Workout>;
+    updateWorkout: (id: string, updates: Partial<Workout>, csrfToken: string) => Promise<Workout>;
+    deleteWorkout: (id: string, csrfToken: string) => Promise<void>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -56,12 +56,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const addWorkout = useCallback(
-        async (workout: Omit<Workout, 'id'>) => {
+        async (workout: Omit<Workout, 'id'>, csrfToken: string) => {
             try {
                 setError(null);
                 const response = await fetch('/api/workouts', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
                     body: JSON.stringify({
                         name: workout.name,
                         sets: workout.sets,
@@ -102,12 +102,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     );
 
     const updateWorkout = useCallback(
-        async (id: string, updates: Partial<Workout>) => {
+        async (id: string, updates: Partial<Workout>, csrfToken: string) => {
             try {
                 setError(null);
                 const response = await fetch(`/api/workouts/${id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
                     body: JSON.stringify(updates),
                 });
 
@@ -143,11 +143,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     );
 
     const deleteWorkout = useCallback(
-        async (id: string) => {
+        async (id: string, csrfToken: string) => {
             try {
                 setError(null);
                 const response = await fetch(`/api/workouts/${id}`, {
                     method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
                 });
 
                 if (!response.ok) {

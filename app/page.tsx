@@ -21,6 +21,28 @@ export default function Home() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ username: user?.username || '', email: user?.email || '' });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch("/api/csrf", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch CSRF token");
+        }
+        const data = await response.json();
+        setCsrfToken(data.csrfToken);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchCsrfToken();
+  }, []);
 
   // Fetch workouts from API when user is loaded
   useEffect(() => {
@@ -36,25 +58,23 @@ export default function Home() {
 
   const handleAddWorkout = async (newWorkout: Omit<Workout, 'id'>) => {
     try {
-      await addWorkout(newWorkout);
+      await addWorkout(newWorkout, csrfToken);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to create workout');
     }
   };
 
   const handleDeleteWorkout = async (id: string) => {
-    if (confirm('Are you sure you want to delete this workout?')) {
-      try {
-        await deleteWorkout(id);
-      } catch (error) {
-        alert(error instanceof Error ? error.message : 'Failed to delete workout');
-      }
+    try {
+      await deleteWorkout(id, csrfToken);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete workout');
     }
   };
 
   const handleUpdateWorkout = async (id: string, updates: Partial<Workout>) => {
     try {
-      await updateWorkout(id, updates);
+      await updateWorkout(id, updates, csrfToken);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to update workout');
     }
@@ -65,7 +85,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
         body: JSON.stringify({
           username: profileForm.username,
           email: profileForm.email,

@@ -4,26 +4,16 @@ import { UserProvider } from '../../../providers/UserProvider';
 
 export async function GET(request: NextRequest) {
     try {
-        // Get token from headers
-        const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
 
-        if (!token) {
-            let response: any = NextResponse.json(
-                { success: false, message: 'No token provided' },
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
                 { status: 401 }
             );
-            return response;
         }
-
-        // Verify token
-        const payload = verifyToken(token);
-        if (!payload) {
-            let response: any = NextResponse.json(
-                { success: false, message: 'Invalid token' },
-                { status: 401 }
-            );
-            return response;
-        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
 
         // Get user
         const user = await UserProvider.findById(payload.userId);

@@ -1,6 +1,10 @@
 import { ProfilePayload } from "@/app/utils/profileData";
 import { NextRequest, NextResponse } from "next/server";
 import { UserProvider } from "@/app/providers/UserProvider"
+import csrf from 'csrf';
+
+const csrfProtection = new csrf();
+const secret = process.env.CSRF_SECRET || 'your-super-secret-key-change-in-production';
 
 export async function PUT(request: NextRequest) {
     try {
@@ -14,6 +18,15 @@ export async function PUT(request: NextRequest) {
         }
         
         const payload = JSON.parse(jwtPayloadHeader);
+
+        const csrfToken = request.headers.get('x-csrf-token') ?? '';
+        if (!csrfProtection.verify(secret, csrfToken)) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Unauthorized: Invalid CSRF token' },
+                { status: 403 }
+            );
+            return response;
+        }
         
         // Validation
         if (!body.email || !body.username) {

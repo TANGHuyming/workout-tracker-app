@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+
+    cookieStore.getAll().forEach((cookie) => {
+      cookieStore.delete(cookie.name)
+    })
+
     // Clear the auth token cookie
     let response: any = NextResponse.json(
       {
@@ -10,13 +17,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-
-    response.cookies.set({
-      name: 'authToken',
-      value: '',
-      httpOnly: true,
-      maxAge: 0, // This deletes the cookie
-    });
 
     return response;
   } catch (error) {
