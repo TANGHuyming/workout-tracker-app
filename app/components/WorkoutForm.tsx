@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { Workout } from '../utils/workoutData';
-import { getExercisesByType } from '../utils/exercises';
+import { getAllExercises } from '../utils/exercises';
 
 interface WorkoutFormProps {
     onAdd: (workout: Omit<Workout, 'id'>) => void;
@@ -15,7 +15,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
         sets: string;
         reps: string;
         weight: string;
-        intensity: Workout['intensity'];
+        date: string;
         notes: string;
     }>({
         name: '',
@@ -23,19 +23,11 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
         sets: '',
         reps: '',
         weight: '',
-        intensity: 'medium',
+        date: new Date().toISOString().split('T')[0],
         notes: '',
     });
 
-    const availableExercises = getExercisesByType(formData.type);
-
-    const handleTypeChange = (newType: string) => {
-        setFormData({
-            ...formData,
-            type: newType as Workout['type'],
-            name: '', // Reset exercise name when type changes
-        });
-    };
+    const availableExercises = getAllExercises();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,8 +43,8 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             sets: parseInt(formData.sets),
             reps: parseInt(formData.reps),
             weight: parseInt(formData.weight),
-            intensity: formData.intensity as Workout['intensity'],
-            date: new Date(),
+            intensity: 'medium',
+            date: new Date(formData.date),
             notes: formData.notes || undefined,
         });
 
@@ -63,7 +55,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             sets: '',
             reps: '',
             weight: '',
-            intensity: 'medium',
+            date: new Date().toISOString().split('T')[0],
             notes: '',
         });
     };
@@ -78,23 +70,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        Exercise Type *
-                    </label>
-                    <select
-                        value={formData.type}
-                        onChange={(e) => handleTypeChange(e.target.value)}
-                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="strength">Strength</option>
-                        <option value="cardio">Cardio</option>
-                        <option value="flexibility">Flexibility</option>
-                        <option value="sports">Sports</option>
-                    </select>
-                </div>
-
-                <div>
+                <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                         Exercise Name *
                     </label>
@@ -156,20 +132,14 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
 
                 <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        Intensity *
+                        Date *
                     </label>
-                    <select
-                        value={formData.intensity}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            setFormData({ ...formData, intensity: value as Workout['intensity'] });
-                        }}
+                    <input
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                         className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
+                    />
                 </div>
 
                 <div className="md:col-span-2">

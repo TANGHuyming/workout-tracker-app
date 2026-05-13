@@ -84,8 +84,6 @@ export interface WorkoutStats {
   averageWeight: number;
   heaviestWeight: number;
   averageRepsPerSet: number;
-  workoutsByType: Record<string, number>;
-  workoutsByIntensity: Record<string, number>;
   lastWorkoutDate: string;
   streakDays: number;
 }
@@ -99,8 +97,6 @@ export const calculateStats = (workouts: Workout[]): WorkoutStats => {
       averageWeight: 0,
       heaviestWeight: 0,
       averageRepsPerSet: 0,
-      workoutsByType: {},
-      workoutsByIntensity: {},
       lastWorkoutDate: 'N/A',
       streakDays: 0,
     };
@@ -118,14 +114,6 @@ export const calculateStats = (workouts: Workout[]): WorkoutStats => {
   
   // Find heaviest weight
   const heaviestWeight = Math.max(...workouts.map((w) => w.weight), 0);
-
-  const workoutsByType: Record<string, number> = {};
-  const workoutsByIntensity: Record<string, number> = {};
-
-  workouts.forEach((w) => {
-    workoutsByType[w.type] = (workoutsByType[w.type] || 0) + 1;
-    workoutsByIntensity[w.intensity] = (workoutsByIntensity[w.intensity] || 0) + 1;
-  });
 
   const lastWorkout = workouts.sort((a, b) => b.date.getTime() - a.date.getTime())[0];
   const lastWorkoutDate = lastWorkout.date.toLocaleDateString();
@@ -153,62 +141,7 @@ export const calculateStats = (workouts: Workout[]): WorkoutStats => {
     averageWeight,
     heaviestWeight,
     averageRepsPerSet,
-    workoutsByType,
-    workoutsByIntensity,
     lastWorkoutDate,
     streakDays,
   };
 };
-
-export class WorkoutManager {
-  private workouts: Workout[] = [...mockWorkouts];
-
-  getAll(): Workout[] {
-    return this.workouts.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }
-
-  add(workout: Omit<Workout, 'id'>): Workout {
-    const newWorkout: Workout = {
-      ...workout,
-      id: Date.now().toString(),
-    };
-    this.workouts.push(newWorkout);
-    return newWorkout;
-  }
-
-  update(id: string, updates: Partial<Omit<Workout, 'id'>>): Workout | null {
-    const index = this.workouts.findIndex((w) => w.id === id);
-    if (index === -1) return null;
-
-    this.workouts[index] = {
-      ...this.workouts[index],
-      ...updates,
-    };
-    return this.workouts[index];
-  }
-
-  delete(id: string): boolean {
-    const index = this.workouts.findIndex((w) => w.id === id);
-    if (index === -1) return false;
-
-    this.workouts.splice(index, 1);
-    return true;
-  }
-
-  getById(id: string): Workout | null {
-    return this.workouts.find((w) => w.id === id) || null;
-  }
-
-  getStats(): WorkoutStats {
-    return calculateStats(this.workouts);
-  }
-
-  getRecent(days: number): Workout[] {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-
-    return this.workouts.filter((w) => new Date(w.date) >= cutoffDate);
-  }
-}
-
-export const workoutManager = new WorkoutManager();

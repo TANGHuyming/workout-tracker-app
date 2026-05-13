@@ -6,19 +6,6 @@ interface WorkoutCardProps {
     onEdit?: (workout: Workout) => void;
 }
 
-const typeColors = {
-    cardio: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    strength: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    flexibility: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    sports: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-};
-
-const intensityColors = {
-    low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-};
-
 export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardProps) {
     const date = new Date(workout.date);
     const formattedDate = date.toLocaleDateString('en-US', {
@@ -31,19 +18,6 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
         <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex-1">
-                    <div className="flex flex-wrap gap-2 mb-2">
-                        <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize ${typeColors[workout.type]}`}
-                        >
-                            {workout.type}
-                        </span>
-                        <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize ${intensityColors[workout.intensity]}`}
-                        >
-                            {workout.intensity}
-                        </span>
-                    </div>
-
                     <h3 className="text-lg font-semibold text-black dark:text-white mb-1">
                         {workout.name}
                     </h3>

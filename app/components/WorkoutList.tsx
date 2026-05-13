@@ -12,11 +12,27 @@ interface WorkoutListProps {
 }
 
 export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutListProps) {
-    const [filterType, setFilterType] = useState<string>('all');
+    const [searchExercise, setSearchExercise] = useState<string>('');
+    const [searchDate, setSearchDate] = useState<string>('');
+    const [searchWeight, setSearchWeight] = useState<string>('');
     const [sortBy, setSortBy] = useState<'date' | 'weight' | 'sets'>('date');
     const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
 
-    const filteredWorkouts = workouts.filter((w) => filterType === 'all' || w.type === filterType);
+    const filteredWorkouts = workouts.filter((w) => {
+        // Filter by exercise name
+        const exerciseMatch = searchExercise === '' || 
+            w.name.toLowerCase().includes(searchExercise.toLowerCase());
+        
+        // Filter by date
+        const dateMatch = searchDate === '' ||
+            new Date(w.date).toISOString().split('T')[0] === searchDate;
+        
+        // Filter by weight (minimum weight)
+        const weightMatch = searchWeight === '' ||
+            w.weight >= parseInt(searchWeight);
+        
+        return exerciseMatch && dateMatch && weightMatch;
+    });
 
     const sortedWorkouts = [...filteredWorkouts].sort((a, b) => {
         switch (sortBy) {
@@ -50,33 +66,59 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
             <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800">
                 <h2 className="text-2xl font-bold mb-6 text-black dark:text-white">Workout History</h2>
 
-                {/* Filters and Sort */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div className="flex-1">
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Filter by Type
-                        </label>
-                        <select
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="all">All Types</option>
-                            <option value="cardio">Cardio</option>
-                            <option value="strength">Strength</option>
-                            <option value="flexibility">Flexibility</option>
-                            <option value="sports">Sports</option>
-                        </select>
+                {/* Search and Sort */}
+                <div className="space-y-4 mb-6">
+                    {/* Search Inputs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                                Search Exercise
+                            </label>
+                            <input
+                                type="text"
+                                value={searchExercise}
+                                onChange={(e) => setSearchExercise(e.target.value)}
+                                placeholder="e.g., Bench Press"
+                                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                                Search Date
+                            </label>
+                            <input
+                                type="date"
+                                value={searchDate}
+                                onChange={(e) => setSearchDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                                Minimum Weight (kg)
+                            </label>
+                            <input
+                                type="number"
+                                value={searchWeight}
+                                onChange={(e) => setSearchWeight(e.target.value)}
+                                placeholder="e.g., 100"
+                                min="0"
+                                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex-1">
+                    {/* Sort */}
+                    <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                             Sort by
                         </label>
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as 'date' | 'weight' | 'sets')}
-                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full sm:max-w-xs px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="date">Date (Newest)</option>
                             <option value="weight">Weight (Heaviest)</option>
@@ -89,9 +131,9 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 {sortedWorkouts.length === 0 ? (
                     <div className="text-center py-12">
                         <p className="text-lg text-zinc-500 dark:text-zinc-400">
-                            {filterType === 'all'
-                                ? 'No workouts logged yet'
-                                : `No ${filterType} workouts found`}
+                            {workouts.length === 0 
+                                ? 'No workouts logged yet' 
+                                : 'No workouts match your search criteria'}
                         </p>
                     </div>
                 ) : (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from './utils/AuthContext';
+import { useWorkouts } from './utils/WorkoutContext';
 import WorkoutForm from './components/WorkoutForm';
 import WorkoutList from './components/WorkoutList';
 import StatsBreakdown from './components/StatsBreakdown';
@@ -13,90 +14,26 @@ import type { Workout, WorkoutStats } from './utils/workoutData';
 
 export default function Home() {
   const { user, isLoading, logout } = useAuth();
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const { workouts, isLoading: loadingWorkouts, error, fetchWorkouts, addWorkout, updateWorkout, deleteWorkout } = useWorkouts();
   const [stats, setStats] = useState<WorkoutStats | null>(null);
   const [showRegister, setShowRegister] = useState(false);
-  const [loadingWorkouts, setLoadingWorkouts] = useState(false);
 
   // Fetch workouts from API when user is loaded
   useEffect(() => {
     if (user && !isLoading) {
       fetchWorkouts();
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, fetchWorkouts]);
 
   // Update stats whenever workouts change
   useEffect(() => {
     setStats(calculateStats(workouts));
   }, [workouts]);
 
-  const fetchWorkouts = async () => {
-    try {
-      setLoadingWorkouts(true);
-      const response = await fetch('/api/workouts', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch workouts');
-      }
-
-      const data = await response.json();
-      const mappedWorkouts: Workout[] = data.workouts.map((w: any) => ({
-        id: w.id,
-        name: w.name,
-        type: w.type,
-        sets: w.sets,
-        reps: w.reps,
-        weight: w.weight,
-        intensity: w.intensity,
-        date: new Date(w.date),
-        notes: w.notes,
-      }));
-      setWorkouts(mappedWorkouts);
-    } catch (error) {
-      console.error('Error fetching workouts:', error);
-      alert('Failed to load workouts');
-    } finally {
-      setLoadingWorkouts(false);
-    }
-  };
-
   const handleAddWorkout = async (newWorkout: Omit<Workout, 'id'>) => {
     try {
-      const response = await fetch('/api/workouts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(newWorkout),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create workout');
-      }
-
-      const data = await response.json();
-      const createdWorkout: Workout = {
-        id: data.workout.id,
-        name: data.workout.name,
-        type: data.workout.type,
-        sets: data.workout.sets,
-        reps: data.workout.reps,
-        weight: data.workout.weight,
-        intensity: data.workout.intensity,
-        date: new Date(data.workout.date),
-        notes: data.workout.notes,
-      };
-      setWorkouts([createdWorkout, ...workouts]);
+      await addWorkout(newWorkout);
     } catch (error) {
-      console.error('Error creating workout:', error);
       alert(error instanceof Error ? error.message : 'Failed to create workout');
     }
   };
@@ -104,22 +41,8 @@ export default function Home() {
   const handleDeleteWorkout = async (id: string) => {
     if (confirm('Are you sure you want to delete this workout?')) {
       try {
-        const response = await fetch(`/api/workouts/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to delete workout');
-        }
-
-        setWorkouts(workouts.filter((w) => w.id !== id));
+        await deleteWorkout(id);
       } catch (error) {
-        console.error('Error deleting workout:', error);
         alert(error instanceof Error ? error.message : 'Failed to delete workout');
       }
     }
@@ -127,39 +50,8 @@ export default function Home() {
 
   const handleUpdateWorkout = async (id: string, updates: Partial<Workout>) => {
     try {
-      const response = await fetch(`/api/workouts/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update workout');
-      }
-
-      const data = await response.json();
-      const updatedWorkout: Workout = {
-        id: data.workout.id,
-        name: data.workout.name,
-        type: data.workout.type,
-        sets: data.workout.sets,
-        reps: data.workout.reps,
-        weight: data.workout.weight,
-        intensity: data.workout.intensity,
-        date: new Date(data.workout.date),
-        notes: data.workout.notes,
-      };
-      setWorkouts(
-        workouts.map((w) =>
-          w.id === id ? updatedWorkout : w
-        )
-      );
+      await updateWorkout(id, updates);
     } catch (error) {
-      console.error('Error updating workout:', error);
       alert(error instanceof Error ? error.message : 'Failed to update workout');
     }
   };

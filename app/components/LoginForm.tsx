@@ -74,13 +74,6 @@ export default function LoginForm({ onSuccess }: LoginProps) {
             >
                 {isLoading ? 'Logging in...' : 'Login'}
             </button>
-
-            {/* Demo Credentials */}
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-200 rounded-md text-sm">
-                <p className="font-semibold mb-1">Demo Credentials:</p>
-                <p>📧 john@example.com / password123</p>
-                <p>📧 jane@example.com / password456</p>
-            </div>
         </form>
     );
 }

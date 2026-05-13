@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Workout } from '../utils/workoutData';
-import { getExercisesByType } from '../utils/exercises';
+import { getAllExercises } from '../utils/exercises';
 
 interface WorkoutEditModalProps {
     workout: Workout;
@@ -26,15 +26,7 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const availableExercises = getExercisesByType(formData.type as 'strength' | 'cardio' | 'flexibility' | 'sports');
-
-    const handleTypeChange = (newType: string) => {
-        setFormData({
-            ...formData,
-            type: newType as Workout['type'],
-            name: '', // Reset exercise name when type changes
-        });
-    };
+    const availableExercises = getAllExercises();
 
     useEffect(() => {
         if (isOpen) {
@@ -100,22 +92,6 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
 
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                            Exercise Type *
-                        </label>
-                        <select
-                            value={formData.type}
-                            onChange={(e) => handleTypeChange(e.target.value)}
-                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="strength">Strength</option>
-                            <option value="cardio">Cardio</option>
-                            <option value="flexibility">Flexibility</option>
-                            <option value="sports">Sports</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                             Exercise Name *
                         </label>
                         <select
@@ -134,17 +110,44 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
 
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                            Intensity *
+                            Sets *
                         </label>
-                        <select
-                            value={formData.intensity}
-                            onChange={(e) => setFormData({ ...formData, intensity: e.target.value as Workout['intensity'] })}
+                        <input
+                            type="number"
+                            value={formData.sets}
+                            onChange={(e) => setFormData({ ...formData, sets: parseInt(e.target.value) || 0 })}
+                            placeholder="4"
+                            min="1"
                             className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                            Reps *
+                        </label>
+                        <input
+                            type="number"
+                            value={formData.reps}
+                            onChange={(e) => setFormData({ ...formData, reps: parseInt(e.target.value) || 0 })}
+                            placeholder="8"
+                            min="1"
+                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                            Weight (kg) *
+                        </label>
+                        <input
+                            type="number"
+                            value={formData.weight}
+                            onChange={(e) => setFormData({ ...formData, weight: parseInt(e.target.value) || 0 })}
+                            placeholder="225"
+                            min="0"
+                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                     </div>
 
                     <div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getTokenFromRequest } from './app/utils/jwt';
 import { handleCors } from './app/lib/cors';
 import { nextjsRateLimit } from '@universal-rate-limit/nextjs';
+import { csrfMiddleware } from './app/lib/csrf';
 
 const limiter = nextjsRateLimit({
     limit: 20,            // Limit each key to 5 requests per window
@@ -21,6 +22,9 @@ export async function proxy(request: NextRequest) {
     if(result.limited) {
         return NextResponse.json({ success: false, message: 'Rate limit exceeded' }, { status: 429 });
     }
+
+    // CSRF
+    csrfMiddleware(request);
 
     return NextResponse.next({
         request: {
