@@ -9,7 +9,22 @@ const limiter = nextjsRateLimit({
     algorithm: { type: 'sliding-window', windowMs: 60000 },
 })
 
+const publicRoutes = ['/api/auth/login', '/api/auth/register'];
+
 export async function proxy(request: NextRequest) {
+    const pathname = request.nextUrl.pathname;
+
+    // Skip middleware for public routes
+    if (publicRoutes.includes(pathname)) {
+        return NextResponse.next();
+    }
+
+    // Skip middleware for non-API routes
+    if (!pathname.startsWith('/api/')) {
+        return NextResponse.next();
+    }
+    
+
     // JWT auth
     const payload = requireAuth(request);
     request.headers.set('jwt-payload', JSON.stringify(payload));
@@ -33,8 +48,6 @@ export async function proxy(request: NextRequest) {
     });
 }
 
-export const config = { matcher: '/api/workouts/:path*' };
-
 function requireAuth(request: NextRequest) {
     const token = getTokenFromRequest(request) || request.cookies.get('authToken')?.value;
 
@@ -51,3 +64,17 @@ function requireAuth(request: NextRequest) {
 
     return payload;
 }
+
+// Configure which routes use this middleware
+export const config = {
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public folder
+         */
+        '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    ],
+};
