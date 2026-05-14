@@ -180,7 +180,7 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                             type="date"
                             value={formData.date instanceof Date ? formData.date.toISOString().split('T')[0] : ''}
                             onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value) })}
-                            className="block w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="flex w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         />
                     </div>
 

@@ -96,7 +96,7 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                                 type="date"
                                 value={searchDate}
                                 onChange={(e) => setSearchDate(e.target.value)}
-                                className="block w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                className="flex w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                         </div>
 
