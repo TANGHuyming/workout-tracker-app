@@ -219,26 +219,6 @@ export class WorkoutProvider {
         },
       ]);
 
-      const typeStats = await WorkoutModel.aggregate([
-        { $match: { userId: new (require('mongodb').ObjectId)(userId) } },
-        {
-          $group: {
-            _id: '$type',
-            count: { $sum: 1 },
-          },
-        },
-      ]);
-
-      const intensityStats = await WorkoutModel.aggregate([
-        { $match: { userId: new (require('mongodb').ObjectId)(userId) } },
-        {
-          $group: {
-            _id: '$intensity',
-            count: { $sum: 1 },
-          },
-        },
-      ]);
-
       return {
         overall: stats[0] || {
           totalWorkouts: 0,
@@ -248,8 +228,6 @@ export class WorkoutProvider {
           maxWeight: 0,
           averageRepsPerSet: 0,
         },
-        byType: typeStats,
-        byIntensity: intensityStats,
       };
     } catch (error) {
       throw error;
