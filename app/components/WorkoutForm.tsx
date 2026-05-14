@@ -42,8 +42,8 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             name: formData.name,
             sets: parseInt(formData.sets),
             reps: parseInt(formData.reps),
-            weight: parseInt(formData.weight),
-            bodyweight: parseInt(formData.bodyweight),
+            weight: parseFloat(formData.weight),
+            bodyweight: parseFloat(formData.bodyweight),
             date: new Date(formData.date),
             notes: formData.notes || undefined,
         });
@@ -128,6 +128,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                         </label>
                         <input
                             type="number"
+                            step="0.1"
                             value={formData.weight}
                             onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                             placeholder="225"
@@ -142,6 +143,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                         </label>
                         <input
                             type="number"
+                            step="0.1"
                             value={formData.bodyweight}
                             onChange={(e) => setFormData({ ...formData, bodyweight: e.target.value })}
                             placeholder="80"

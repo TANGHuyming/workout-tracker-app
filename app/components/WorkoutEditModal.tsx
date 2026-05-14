@@ -146,10 +146,12 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                             </label>
                             <input
                                 type="number"
+                                step="0.1"
                                 value={formData.weight}
-                                onChange={(e) => setFormData({ ...formData, weight: parseInt(e.target.value) || 0 })}
+                                onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })}
                                 placeholder="225"
                                 min="0"
+                                max="500"
                                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                         </div>
@@ -160,8 +162,9 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                             </label>
                             <input
                                 type="number"
+                                step="0.1"
                                 value={formData.bodyweight}
-                                onChange={(e) => setFormData({ ...formData, bodyweight: parseInt(e.target.value) || 0 })}
+                                onChange={(e) => setFormData({ ...formData, bodyweight: parseFloat(e.target.value) || 0 })}
                                 placeholder="80"
                                 min="20"
                                 max="300"
