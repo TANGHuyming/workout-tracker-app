@@ -54,6 +54,7 @@ export const EXERCISE_DATABASE: ExerciseOption[] = [
   { name: 'Calf Raises', type: 'strength', muscleGroups: ['calves'] },
   { name: 'Leg Press Calf Raises', type: 'strength', muscleGroups: ['calves'] },
   { name: 'Hip Thrust', type: 'strength', muscleGroups: ['glutes', 'hamstrings'] },
+  { name: 'Power Clean', type: 'strength', muscleGroups: ['quads', 'glutes', 'hamstrings'] },
 
   // Strength - Arms
   { name: 'Barbell Curl', type: 'strength', muscleGroups: ['biceps', 'forearms'] },
@@ -166,6 +167,7 @@ export const STRENGTH_STANDARDS: Record<string, StrengthThresholds> = {
   'Hack Squats': { gray: 0.5, green: 1.0, yellow: 1.5, orange: 2.25, red: 3.0 },
   'Smith Machine Squats': { gray: 0.5, green: 1.0, yellow: 1.5, orange: 2.25, red: 3.0 },
   'Leg Press': { gray: 1.0, green: 2.0, yellow: 3.5, orange: 5.0, red: 6.5 },
+  'Power Clean': { gray: 0.5, green: 0.75, yellow: 1, orange: 1.4, red: 2 },
   
   // Bench Pressing Variants
   'Bench Press': { gray: 0.25, green: 0.5, yellow: 0.75, orange: 1.0, red: 1.35 },

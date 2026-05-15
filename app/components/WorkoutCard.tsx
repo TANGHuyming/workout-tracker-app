@@ -1,4 +1,5 @@
 import type { Workout } from '../utils/workoutData';
+import { STRENGTH_STANDARDS } from '../utils/exercises';
 
 interface WorkoutCardProps {
     workout: Workout;
@@ -14,7 +15,14 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
         year: 'numeric',
     });
 
-    const ratio = workout.weight > 0 && workout.bodyweight > 0 ? (workout.weight / workout.bodyweight).toFixed(2) : '0';
+    const ratio = workout.weight > 0 && workout.bodyweight > 0 ? (workout.weight / workout.bodyweight) : 0;
+    const strengthStandard = STRENGTH_STANDARDS[workout.name];
+    let ratioStyle = `text-xl font-bold mt-1`;
+    if(ratio > strengthStandard?.red) ratioStyle += 'text-red-600 dark:text-red-400';
+    else if(ratio > strengthStandard?.orange) ratioStyle += 'text-orange-600 dark:text-orange-400';
+    else if(ratio > strengthStandard?.yellow) ratioStyle += 'text-yellow-600 dark:text-yellow-400';
+    else if(ratio > strengthStandard?.green) ratioStyle += 'text-green-600 dark:text-green-400';
+    else ratioStyle += 'text-gray-600 dark:text-gray-400';
 
     return (
         <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
@@ -50,8 +58,8 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
                         </div>
                         <div>
                             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ratio</p>
-                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-                                {ratio}x
+                            <p className={ratioStyle}>
+                                {ratio.toFixed(2)}x
                             </p>
                         </div>
                     </div>
