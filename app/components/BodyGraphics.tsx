@@ -120,6 +120,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
     const quads = muscleGroupStats.get('quads');
     const hamstrings = muscleGroupStats.get('hamstrings');
     const glutes = muscleGroupStats.get('glutes');
+    const calves = muscleGroupStats.get('calves');
     const abs = muscleGroupStats.get('abs');
     const traps = muscleGroupStats.get('traps');
 
@@ -132,6 +133,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
     const quadsLevel = getStrengthLevel(quads?.maxWeight ?? null, quads?.bodyweight ?? null, quads?.exerciseName ?? null);
     const hamsLevel = getStrengthLevel(hamstrings?.maxWeight ?? null, hamstrings?.bodyweight ?? null, hamstrings?.exerciseName ?? null);
     const glutesLevel = getStrengthLevel(glutes?.maxWeight ?? null, glutes?.bodyweight ?? null, glutes?.exerciseName ?? null);
+    const calvesLevel = getStrengthLevel(calves?.maxWeight ?? null, calves?.bodyweight ?? null, calves?.exerciseName ?? null);
     const absLevel = getStrengthLevel(abs?.maxWeight ?? null, abs?.bodyweight ?? null, abs?.exerciseName ?? null);
     const trapsLevel = getStrengthLevel(traps?.maxWeight ?? null, traps?.bodyweight ?? null, traps?.exerciseName ?? null);
 
@@ -155,53 +157,63 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                         style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
                     >
                         {/* Head */}
-                        <circle cx="100" cy="50" r="25" fill={strengthColors.gray} />
+                        <circle cx="100" cy="60" r="25" fill={strengthColors.gray} />
 
                         {/* Neck */}
-                        <line x1="100" y1="75" x2="100" y2="100" stroke={strengthColors.gray} strokeWidth="8" />
+                        <line x1="100" y1="85" x2="100" y2="100" stroke={strengthColors.gray} strokeWidth="8" />
 
                         {/* Traps - shoulders top back */}
                         <ellipse
                             cx="100"
                             cy="110"
-                            rx="45"
+                            rx="35"
                             ry="20"
                             fill={strengthColors[trapsLevel]}
-                            opacity="0.75"
+                            opacity="0.5"
                         />
 
                         {/* Torso/Chest - colored based on chest strength */}
                         <ellipse
                             cx="100"
-                            cy="150"
-                            rx="35"
-                            ry="45"
+                            cy="140"
+                            rx="40"
+                            ry="30"
                             fill={strengthColors[chestLevel]}
-                            opacity="0.85"
+                            opacity="0.75"
                         />
 
-                        {/* Back/Lats - colored based on back/lats strength */}
+                        {/* Lats - colored based on lats strength */}
                         <ellipse
                             cx="100"
                             cy="170"
                             rx="32"
                             ry="40"
                             fill={strengthColors[latsLevel]}
-                            opacity="0.7"
+                            opacity="0.5"
+                        />
+
+                        {/* Back - Back strength */}
+                        <rect
+                            x="79"
+                            y="145"
+                            width="40"
+                            height="80"
+                            fill={strengthColors[backLevel]}
+                            opacity="0.5"
                         />
 
                         {/* Abs - core area */}
                         <rect
                             x="90"
-                            y="145"
+                            y="170"
                             width="20"
-                            height="40"
+                            height="50"
                             fill={strengthColors[absLevel]}
-                            opacity="0.6"
+                            opacity="0.75"
                         />
 
                         {/* Left Arm - Bicep and Tricep */}
-                        <g opacity="0.85">
+                        <g>
                             <line
                                 x1="65"
                                 y1="130"
@@ -210,6 +222,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[bicepsLevel]}
                                 strokeWidth="12"
                                 strokeLinecap="round"
+                                opacity="0.75"
                             />
                             <line
                                 x1="65"
@@ -219,14 +232,14 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[tricepsLevel]}
                                 strokeWidth="10"
                                 strokeLinecap="round"
-                                opacity="0.7"
+                                opacity="0.5"
                             />
                             {/* Left Hand */}
                             <circle cx="25" cy="185" r="8" fill={strengthColors[bicepsLevel]} />
                         </g>
 
                         {/* Right Arm - Bicep and Tricep */}
-                        <g opacity="0.85">
+                        <g>
                             <line
                                 x1="135"
                                 y1="130"
@@ -235,6 +248,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[bicepsLevel]}
                                 strokeWidth="12"
                                 strokeLinecap="round"
+                                opacity="0.75"
                             />
                             <line
                                 x1="135"
@@ -244,14 +258,14 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[tricepsLevel]}
                                 strokeWidth="10"
                                 strokeLinecap="round"
-                                opacity="0.7"
+                                opacity="0.5"
                             />
                             {/* Right Hand */}
                             <circle cx="175" cy="185" r="8" fill={strengthColors[bicepsLevel]} />
                         </g>
 
                         {/* Shoulders - colored separately */}
-                        <g opacity="0.8">
+                        <g>
                             <circle
                                 cx="65"
                                 cy="125"
@@ -267,7 +281,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                         </g>
 
                         {/* Left Leg - Quads and Hamstrings */}
-                        <g opacity="0.85">
+                        <g>
                             <line
                                 x1="85"
                                 y1="235"
@@ -276,6 +290,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[quadsLevel]}
                                 strokeWidth="14"
                                 strokeLinecap="round"
+                                opacity="0.75"
                             />
                             <line
                                 x1="90"
@@ -285,14 +300,14 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[hamsLevel]}
                                 strokeWidth="12"
                                 strokeLinecap="round"
-                                opacity="0.7"
+                                opacity="0.5"
                             />
                             {/* Left Foot */}
                             <rect x="65" y="330" width="20" height="10" fill={strengthColors[quadsLevel]} />
                         </g>
 
                         {/* Right Leg - Quads and Hamstrings */}
-                        <g opacity="0.85">
+                        <g>
                             <line
                                 x1="115"
                                 y1="235"
@@ -301,6 +316,7 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[quadsLevel]}
                                 strokeWidth="14"
                                 strokeLinecap="round"
+                                opacity="0.75"
                             />
                             <line
                                 x1="110"
@@ -310,27 +326,55 @@ export default function BodyGraphics({ workouts }: BodyGraphicsProps) {
                                 stroke={strengthColors[hamsLevel]}
                                 strokeWidth="12"
                                 strokeLinecap="round"
-                                opacity="0.7"
+                                opacity="0.5"
                             />
                             {/* Right Foot */}
                             <rect x="115" y="330" width="20" height="10" fill={strengthColors[quadsLevel]} />
                         </g>
 
                         {/* Glutes - lower back/hip area */}
-                        <g opacity="0.7">
+                        <g opacity="0.5">
                             <ellipse
-                                cx="85"
+                                cx="90"
                                 cy="240"
                                 rx="12"
                                 ry="15"
                                 fill={strengthColors[glutesLevel]}
                             />
                             <ellipse
-                                cx="115"
+                                cx="110"
                                 cy="240"
                                 rx="12"
                                 ry="15"
                                 fill={strengthColors[glutesLevel]}
+                            />
+                        </g>
+                        
+                        {/* Left Calves - lower leg area */}
+                        <g>
+                            <line
+                                x1="85"
+                                y1="300"
+                                x2="80"
+                                y2="330"
+                                stroke={strengthColors[calvesLevel]}
+                                strokeWidth="12"
+                                strokeLinecap="round"
+                                opacity="0.5"
+                            />
+                        </g>
+                        
+                        {/* Right Calves - lower leg area */}
+                        <g>
+                            <line
+                                x1="115"
+                                y1="300"
+                                x2="120"
+                                y2="330"
+                                stroke={strengthColors[calvesLevel]}
+                                strokeWidth="12"
+                                strokeLinecap="round"
+                                opacity="0.5"
                             />
                         </g>
                     </svg>

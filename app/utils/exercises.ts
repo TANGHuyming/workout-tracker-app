@@ -190,7 +190,7 @@ export const STRENGTH_STANDARDS: Record<string, StrengthThresholds> = {
   'Leg Extension': { gray: 0.2, green: 0.5, yellow: 0.9, orange: 1.3, red: 1.8 },
   'Lunges': { gray: 0.15, green: 0.35, yellow: 0.65, orange: 1.0, red: 1.5 },
   'Bulgarian Split Squats': { gray: 0.1, green: 0.3, yellow: 0.6, orange: 1.0, red: 1.4 },
-  'Calf Raises': { gray: 0.4, green: 1.0, yellow: 1.6, orange: 2.4, red: 3.4 },
+  'Calf Raises': { gray: 0.25, green: 0.5, yellow: 1, orange: 1.5, red: 2 },
   'Leg Press Calf Raises': { gray: 0.6, green: 1.5, yellow: 2.7, orange: 4.0, red: 5.5 },
 
   // Arm Exercises - Curls (dumbbell weight per arm)
@@ -238,5 +238,5 @@ export const STRENGTH_STANDARDS: Record<string, StrengthThresholds> = {
  */
 export const getStrengthThresholdsForExercise = (exerciseName: string): StrengthThresholds => {
   // Return specific thresholds if found, otherwise return default ratios
-  return STRENGTH_STANDARDS[exerciseName] || { gray: 0.25, green: 0.5, yellow: 0.75, orange: 1.0, red: 1.35 };
+  return STRENGTH_STANDARDS[exerciseName] || { gray: 0.5, green: 1, yellow: 1.5, orange: 2, red: 2.5 };
 };
