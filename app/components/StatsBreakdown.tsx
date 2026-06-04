@@ -54,51 +54,51 @@ export default function StatsBreakdown({ stats }: StatsBreakdownProps) {
                     {/* Main Stats Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <StatCard
-                            icon="🏋️"
+                            icon=""
                             label="Total Workouts"
                             value={stats.totalWorkouts}
                             bgGradient="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
                         />
                         <StatCard
-                            icon="📊"
+                            icon=""
                             label="Total Sets"
                             value={stats.totalSets}
                             bgGradient="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20"
                         />
                         <StatCard
-                            icon="🔢"
+                            icon=""
                             label="Total Reps"
                             value={stats.totalReps}
                             bgGradient="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20"
                         />
                         <StatCard
-                            icon="⚖️"
+                            icon=""
                             label="Avg Weight"
                             value={stats.averageWeight}
                             unit="kg"
                             bgGradient="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20"
                         />
                         <StatCard
-                            icon="💪"
+                            icon=""
                             label="Heaviest Lift"
                             value={stats.heaviestWeight}
                             unit="kg"
                             bgGradient="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20"
                         />
                         <StatCard
-                            icon="📈"
+                            icon=""
                             label="Avg Reps/Set"
                             value={stats.averageRepsPerSet}
                             bgGradient="bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-800/20"
                         />
                         <StatCard
-                            icon="📅"
+                            icon=""
                             label="Last Workout"
                             value={stats.lastWorkoutDate}
                             bgGradient="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20"
                         />
                         <StatCard
-                            icon="🔥"
+                            icon=""
                             label="Current Streak"
                             value={stats.streakDays}
                             unit="days"

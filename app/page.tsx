@@ -14,6 +14,7 @@ import type { Workout, WorkoutStats } from './utils/workoutData';
 import { getAllExercises } from './utils/exercises';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { LuBicepsFlexed } from "react-icons/lu";
 
 export default function Home() {
   const { user, isLoading, logout, refreshUser } = useAuth();
@@ -262,9 +263,12 @@ export default function Home() {
       {/* Header with user info and logout */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-            💪 FitTrack
-          </h1>
+          <div className="flex items-center gap-3">
+            <LuBicepsFlexed className="text-2xl text-blue-500 font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text" />
+            <h1 className="text-2xl font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+              FitTrack
+            </h1>
+          </div>
           <div className="flex items-center gap-6">
             {
               !showProfile ?
@@ -395,7 +399,7 @@ export default function Home() {
           {/* Hero Section */}
           <div className="mb-10">
             <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-              Welcome back, <span className="bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">{user.username}</span>! 🏋️
+              Welcome back, <span className="bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">{user.username}</span>!
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
               Log your workouts and track your progress toward your fitness goals
@@ -447,7 +451,6 @@ export default function Home() {
                 <Line options={chartOptions} data={chartData} />
                 :
                 <div className="text-center py-12">
-                  <div className="text-5xl mb-4">🏋️</div>
                   <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
                     No exercise selected
                   </p>

@@ -5,7 +5,7 @@ import type { Workout } from '../utils/workoutData';
 import { getAllExercises } from '../utils/exercises';
 
 interface WorkoutFormProps {
-    onAdd: (workout: Omit<Workout, 'id'>) => void;
+    onAdd: (workout: Omit<Workout, 'id'>) => Promise<void>;
 }
 
 export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
@@ -26,38 +26,43 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
         date: new Date().toISOString().split('T')[0],
         notes: '',
     });
-
+    const [isDisabled, setIsDisabled] = useState(false);
     const availableExercises = getAllExercises();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        setIsDisabled(true);
         e.preventDefault();
+        try {
+            if (!formData.name || !formData.sets || !formData.reps || formData.weight === '' || formData.bodyweight === '') {
+                throw new Error('Please fill in all required fields');;
+            }
 
-        if (!formData.name || !formData.sets || !formData.reps || formData.weight === '' || formData.bodyweight === '') {
-            const error = new Error('Please fill in all required fields');
-            console.error(error);
-            return;
+            await onAdd({
+                name: formData.name,
+                sets: parseInt(formData.sets),
+                reps: parseInt(formData.reps),
+                weight: parseFloat(formData.weight),
+                bodyweight: parseFloat(formData.bodyweight),
+                date: new Date(formData.date),
+                notes: formData.notes || undefined,
+            });
         }
-
-        onAdd({
-            name: formData.name,
-            sets: parseInt(formData.sets),
-            reps: parseInt(formData.reps),
-            weight: parseFloat(formData.weight),
-            bodyweight: parseFloat(formData.bodyweight),
-            date: new Date(formData.date),
-            notes: formData.notes || undefined,
-        });
-
-        // Reset form
-        setFormData({
-            name: '',
-            sets: '',
-            reps: '',
-            weight: '',
-            bodyweight: '',
-            date: new Date().toISOString().split('T')[0],
-            notes: '',
-        });
+        catch(error) {
+            console.error('Error logging workout:', error);
+        }
+        finally {
+            // Reset form
+            setFormData({
+                name: '',
+                sets: '',
+                reps: '',
+                weight: '',
+                bodyweight: '',
+                date: new Date().toISOString().split('T')[0],
+                notes: '',
+            });
+            setIsDisabled(false);
+        }
     };
 
     return (
@@ -182,8 +187,9 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             <button
                 type="submit"
                 className="w-full mt-8 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+                disabled={isDisabled}
             >
-                ✓ Log Workout
+                {isDisabled ? 'Logging...' : '✓ Log Workout'}
             </button>
         </form>
     );
