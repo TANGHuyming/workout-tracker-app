@@ -87,11 +87,4 @@ textarea {
   @apply bg-blue-500 text-white;
 }
 
-input[type="date"] {
-  display: block;
-  -webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  width: 100%;
-  box-sizing: border-box; /* Ensures padding doesn't cause overflow */
-}
 

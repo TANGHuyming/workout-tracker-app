@@ -74,7 +74,7 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 {/* Search and Sort */}
                 <div className="space-y-6 mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
                     {/* Search Inputs */}
-                    <div className="flex flex-row justify-between gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Exercise
