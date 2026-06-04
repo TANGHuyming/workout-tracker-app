@@ -13,7 +13,7 @@ interface WorkoutListProps {
 
 export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutListProps) {
     const [searchExercise, setSearchExercise] = useState<string>('');
-    const [searchDate, setSearchDate] = useState<string>('');
+    const [searchDate, setSearchDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [searchWeight, setSearchWeight] = useState<string>('');
     const [sortBy, setSortBy] = useState<'date' | 'weight' | 'sets'>('date');
     const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
@@ -133,33 +133,35 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 </div>
 
                 {/* Workouts Display */}
-                {sortedWorkouts.length === 0 ? (
-                    <div className="text-center py-16">
-                        <div className="text-5xl mb-4">🏋️</div>
-                        <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                            {workouts.length === 0 
-                                ? 'No workouts logged yet' 
-                                : 'No workouts match your search criteria'}
-                        </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                            {workouts.length === 0 ? 'Start logging your workouts to see them here' : 'Try adjusting your filters'}
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 px-2">
-                            Showing <span className="text-slate-900 dark:text-white font-bold">{sortedWorkouts.length}</span> workout{sortedWorkouts.length !== 1 ? 's' : ''}
-                        </p>
-                        {sortedWorkouts.map((workout) => (
-                            <WorkoutCard
-                                key={workout.id}
-                                workout={workout}
-                                onDelete={onDelete}
-                                onEdit={handleEdit}
-                            />
-                        ))}
-                    </div>
-                )}
+                <div className="max-h-[120vh] overflow-y-auto">
+                    {sortedWorkouts.length === 0 ? (
+                        <div className="text-center py-16">
+                            <div className="text-5xl mb-4">🏋️</div>
+                            <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
+                                {workouts.length === 0
+                                    ? 'No workouts logged yet'
+                                    : 'No workouts match your search criteria'}
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                                {workouts.length === 0 ? 'Start logging your workouts to see them here' : 'Try adjusting your filters'}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 px-2">
+                                Showing <span className="text-slate-900 dark:text-white font-bold">{sortedWorkouts.length}</span> workout{sortedWorkouts.length !== 1 ? 's' : ''}
+                            </p>
+                            {sortedWorkouts.map((workout) => (
+                                <WorkoutCard
+                                    key={workout.id}
+                                    workout={workout}
+                                    onDelete={onDelete}
+                                    onEdit={handleEdit}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Edit Modal */}

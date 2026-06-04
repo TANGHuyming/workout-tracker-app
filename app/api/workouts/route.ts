@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { WorkoutProvider } from '../../providers/WorkoutProvider';
 import csrf from 'csrf';
 
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
             },
             { status: 200 }
         );
+
         return response;
     } catch (error) {
         console.error('Error fetching workouts:', error);
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
             date: body.date ? new Date(body.date) : new Date(),
             notes: body.notes || '',
         });
-
+    
         let response: any = NextResponse.json(
             {
                 success: true,
@@ -118,9 +120,164 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
+
+        revalidateTag('workouts', "max");
+
         return response;
     } catch (error) {
         console.error('Error creating workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        let response: any = NextResponse.json(
+            { success: false, message: `Error: ${errorMsg}` },
+            { status: 500 }
+        );
+        return response;
+    }
+}
+
+// PUT update workout
+export async function PUT(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const id = body.id;
+
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
+
+        const csrfToken = request.headers.get('x-csrf-token') ?? '';
+        if (!csrfProtection.verify(secret, csrfToken)) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Unauthorized: Invalid CSRF token' },
+                { status: 403 }
+            );
+            return response;
+        }
+
+        // Check if user owns this workout
+        const existingWorkout = await WorkoutProvider.findById(id);
+        if (!existingWorkout) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Workout not found' },
+                { status: 404 }
+            );
+            return response;
+        }
+
+        if (existingWorkout.userId.toString() !== payload.userId) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Unauthorized' },
+                { status: 403 }
+            );
+            return response;
+        }
+
+        // Update only provided fields
+        const updateData: any = {};
+        if (body.name !== undefined) updateData.name = body.name;
+        if (body.sets !== undefined) updateData.sets = body.sets;
+        if (body.reps !== undefined) updateData.reps = body.reps;
+        if (body.weight !== undefined) updateData.weight = body.weight;
+        if (body.bodyweight !== undefined) updateData.bodyweight = body.bodyweight;
+        if (body.date !== undefined) updateData.date = new Date(body.date);
+        if (body.notes !== undefined) updateData.notes = body.notes;
+
+        const updatedWorkout = await WorkoutProvider.update(id, updateData);
+
+        if (!updatedWorkout) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Failed to update workout' },
+                { status: 500 }
+            );
+            return response;
+        }
+
+        let response: any = NextResponse.json(
+            {
+                success: true,
+                message: 'Workout updated successfully',
+                workout: {
+                    id: updatedWorkout._id.toString(),
+                    userId: updatedWorkout.userId.toString(),
+                    name: updatedWorkout.name,
+                    sets: updatedWorkout.sets,
+                    reps: updatedWorkout.reps,
+                    weight: updatedWorkout.weight,
+                    bodyweight: updatedWorkout.bodyweight,
+                    date: updatedWorkout.date,
+                    notes: updatedWorkout.notes,
+                    createdAt: updatedWorkout.createdAt,
+                    updatedAt: updatedWorkout.updatedAt,
+                },
+            },
+            { status: 200 }
+        );
+
+        revalidateTag('workouts', "max");
+
+        return response;
+    } catch (error) {
+        console.error('Error updating workout:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        let response: any = NextResponse.json(
+            { success: false, message: `Error: ${errorMsg}` },
+            { status: 500 }
+        );
+        return response;
+    }
+}
+
+// DELETE workout
+export async function DELETE(request: NextRequest) {
+    try {
+        const { id } = await request.json();
+        
+        const jwtPayloadHeader = request.headers.get('jwt-payload');
+        if (!jwtPayloadHeader) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized: No JWT payload' },
+                { status: 401 }
+            );
+        }
+        
+        const payload = JSON.parse(jwtPayloadHeader);
+
+        // Check if user owns this workout
+        const existingWorkout = await WorkoutProvider.findById(id);
+        if (!existingWorkout) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Workout not found' },
+                { status: 404 }
+            );
+            return response;
+        }
+
+        if (existingWorkout.userId.toString() !== payload.userId) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Unauthorized' },
+                { status: 403 }
+            );
+            return response;
+        }
+
+        await WorkoutProvider.delete(id);
+
+        let response: any = NextResponse.json(
+            { success: true, message: 'Workout deleted successfully' },
+            { status: 200 }
+        );
+
+        revalidateTag('workouts', "max");
+
+        return response;
+    } catch (error) {
+        console.error('Error deleting workout:', error);
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         let response: any = NextResponse.json(
             { success: false, message: `Error: ${errorMsg}` },

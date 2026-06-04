@@ -80,7 +80,7 @@ export default function Home() {
     if (user && !isLoading) {
       fetchWorkouts();
     }
-  }, [user, isLoading, fetchWorkouts]);
+  }, [user, isLoading]);
 
   // Update stats whenever workouts change
   useEffect(() => {

@@ -24,7 +24,16 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
             setError(null);
-            const response = await fetch('/api/workouts');
+
+            const response = await fetch('/api/workouts', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'force-cache',
+                next: {
+                    tags: ['workouts', 'workouts-with-userId'],
+                    revalidate: 0,
+                }
+            });
 
             if (!response.ok) {
                 const data = await response.json();
@@ -105,10 +114,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         async (id: string, updates: Partial<Workout>, csrfToken: string) => {
             try {
                 setError(null);
-                const response = await fetch(`/api/workouts/${id}`, {
+                const response = await fetch(`/api/workouts`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-                    body: JSON.stringify(updates),
+                    body: JSON.stringify({ id, ...updates }),
                 });
 
                 if (!response.ok) {
@@ -146,9 +155,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         async (id: string, csrfToken: string) => {
             try {
                 setError(null);
-                const response = await fetch(`/api/workouts/${id}`, {
+                const response = await fetch(`/api/workouts`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                    body: JSON.stringify({ id }),
                 });
 
                 if (!response.ok) {

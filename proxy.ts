@@ -8,10 +8,10 @@ const ALLOWED_ORIGINS = [
     process.env.NEXT_PUBLIC_APP_URL,
 ];
 
-const limiter = nextjsRateLimit({
-    limit: 20,            // Limit each key to 5 requests per window
-    algorithm: { type: 'sliding-window', windowMs: 60000 },
-})
+// const limiter = nextjsRateLimit({
+//     limit: 20,            // Limit each key to 5 requests per window
+//     algorithm: { type: 'sliding-window', windowMs: 60000 },
+// })
 
 const publicRoutes = ['/api/auth/login', '/api/auth/register'];
 
@@ -40,10 +40,10 @@ export async function proxy(request: NextRequest) {
     });
 
     // Rate Limiting
-    const result = await limiter(request);
-    if (result.limited) {
-        return NextResponse.json({ success: false, message: 'Rate limit exceeded' }, { status: 429 });
-    }
+    // const result = await limiter(request);
+    // if (result.limited) {
+    //     return NextResponse.json({ success: false, message: 'Rate limit exceeded' }, { status: 429 });
+    // }
 
     return response;
 }
