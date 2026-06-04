@@ -15,6 +15,8 @@ import { getAllExercises } from './utils/exercises';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { LuBicepsFlexed } from "react-icons/lu";
+import Toast from './components/Toast';
+import User from './components/User';
 
 export default function Home() {
   const { user, isLoading, logout, refreshUser } = useAuth();
@@ -27,6 +29,7 @@ export default function Home() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
   const [exerciseName, setExerciseName] = useState('');
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const availableExercises = getAllExercises();
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
   const chartOptions = {
@@ -71,6 +74,7 @@ export default function Home() {
         setCsrfToken(data.csrfToken);
       } catch (error) {
         console.error(error);
+        setToast({message: 'Failed to fetch CSRF token', type: 'error'});
       }
     };
     fetchCsrfToken();
@@ -89,11 +93,20 @@ export default function Home() {
     handleSearchExercise();
   }, [exerciseName, workouts]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setToast(null);
+    }, 5000)
+  }, [toast])
+
   const handleAddWorkout = async (newWorkout: Omit<Workout, 'id'>) => {
     try {
       await addWorkout(newWorkout, csrfToken);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to create workout');
+      setToast({message: error instanceof Error ? error.message : 'Failed to create workout', type: 'error'});
+      // alert(error instanceof Error ? error.message : 'Failed to create workout');
+    } finally {
+      setToast({ message: 'Workout logged successfully!', type: 'success' });
     }
   };
 
@@ -101,7 +114,10 @@ export default function Home() {
     try {
       await deleteWorkout(id, csrfToken);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to delete workout');
+      setToast({message: error instanceof Error ? error.message : 'Failed to delete workout', type: 'error'});
+      // alert(error instanceof Error ? error.message : 'Failed to delete workout');
+    } finally {
+      setToast({ message: 'Workout deleted successfully!', type: 'success' });
     }
   };
 
@@ -109,7 +125,10 @@ export default function Home() {
     try {
       await updateWorkout(id, updates, csrfToken);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to update workout');
+      setToast({message: error instanceof Error ? error.message : 'Failed to update workout', type: 'error'});
+      // alert(error instanceof Error ? error.message : 'Failed to update workout');
+    } finally {
+      setToast({ message: 'Workout updated successfully!', type: 'success' });
     }
   };
 
@@ -134,7 +153,8 @@ export default function Home() {
       setEditingProfile(false);
       refreshUser();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to update profile');
+      setToast({message: error instanceof Error ? error.message : 'Failed to update profile', type: 'error'});
+      // alert(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setSavingProfile(false);
     }
@@ -191,85 +211,26 @@ export default function Home() {
 
   // Show login/register if not authenticated
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <div className="mb-6">
-              <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent mb-2">
-                💪 FitTrack
-              </h1>
-            </div>
-            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
-              Track your workouts and reach your goals
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-            {showRegister ? (
-              <>
-                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6 border-b border-slate-200 dark:border-slate-800">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">
-                    Create Account
-                  </h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 text-center mt-1">Join the fitness revolution</p>
-                </div>
-                <div className="p-6">
-                  <RegisterForm
-                    onSuccess={() => {
-                      setShowRegister(false);
-                    }}
-                  />
-                </div>
-                <div className="border-t border-slate-200 dark:border-slate-800 p-4">
-                  <button
-                    onClick={() => setShowRegister(false)}
-                    className="w-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2 transition-colors"
-                  >
-                    Already have an account? Login
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-6 border-b border-slate-200 dark:border-slate-800">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">
-                    Welcome Back
-                  </h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 text-center mt-1">Continue your fitness journey</p>
-                </div>
-                <div className="p-6">
-                  <LoginForm onSuccess={() => {}} />
-                </div>
-                <div className="border-t border-slate-200 dark:border-slate-800 p-4">
-                  <button
-                    onClick={() => setShowRegister(true)}
-                    className="w-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium py-2 transition-colors"
-                  >
-                    Don't have an account? Register
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    return <User showRegister={showRegister} setShowRegister={setShowRegister} />;
   }
 
   // Show workout tracker if authenticated
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
+      {
+        toast && <Toast message={toast.message} type={toast.type} />
+      }
+      
       {/* Header with user info and logout */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <LuBicepsFlexed className="text-2xl text-blue-500 font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text" />
+            <LuBicepsFlexed className="hidden sm:block text-2xl text-blue-500 font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text" />
             <h1 className="text-2xl font-black bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
               FitTrack
             </h1>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-1 sm:gap-6">
             {
               !showProfile ?
               <button
@@ -410,7 +371,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             {/* Left Column - Form */}
             <div className="lg:col-span-1">
-              <WorkoutForm onAdd={handleAddWorkout} />
+              <WorkoutForm onAdd={handleAddWorkout} setToast={setToast} />
             </div>
 
             {/* Right Column - Stats */}

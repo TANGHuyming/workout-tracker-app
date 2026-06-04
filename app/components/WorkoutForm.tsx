@@ -8,7 +8,13 @@ interface WorkoutFormProps {
     onAdd: (workout: Omit<Workout, 'id'>) => Promise<void>;
 }
 
-export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
+export default function WorkoutForm({ 
+    onAdd, 
+    setToast 
+}: {
+    onAdd: WorkoutFormProps['onAdd'];
+    setToast: any;
+}) {
     const [formData, setFormData] = useState<{
         name: string;
         sets: string;
@@ -48,9 +54,11 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
             });
         }
         catch(error) {
-            console.error('Error logging workout:', error);
+            setToast({ message: (error as Error).message, type: 'error' });
+            // console.error('Error logging workout:', error);
         }
         finally {
+            setToast({ message: 'Workout logged successfully!', type: 'success' });
             // Reset form
             setFormData({
                 name: '',
