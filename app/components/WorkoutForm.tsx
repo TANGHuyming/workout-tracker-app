@@ -91,7 +91,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                     </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Sets *
@@ -121,7 +121,7 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Weight (kg) *
@@ -162,7 +162,8 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        style={{ display: 'block', width: '100%' }}
+                        className="px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -170,12 +171,11 @@ export default function WorkoutForm({ onAdd }: WorkoutFormProps) {
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Notes (optional)
                     </label>
-                    <input
-                        type="text"
+                    <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="How did it feel? PRs? Injuries?"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="resize-none w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
             </div>
