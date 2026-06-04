@@ -1,7 +1,7 @@
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
-export default function User({
+export default function LoginRegister({
     showRegister,
     setShowRegister,
 }: {

@@ -16,7 +16,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { Line } from 'react-chartjs-2';
 import { LuBicepsFlexed } from "react-icons/lu";
 import Toast from './components/Toast';
-import User from './components/User';
+import LoginRegister from './components/LoginRegister';
 
 export default function Home() {
   const { user, isLoading, logout, refreshUser } = useAuth();
@@ -211,7 +211,7 @@ export default function Home() {
 
   // Show login/register if not authenticated
   if (!user) {
-    return <User showRegister={showRegister} setShowRegister={setShowRegister} />;
+    return <LoginRegister showRegister={showRegister} setShowRegister={setShowRegister} />;
   }
 
   // Show workout tracker if authenticated
