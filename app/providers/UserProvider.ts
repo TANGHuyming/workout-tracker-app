@@ -105,6 +105,30 @@ export class UserProvider {
   }
 
   /**
+   * Update password by ID
+   */
+  static async updatePasswordById(
+    id: string, 
+    newPasswordHash: string
+  ): Promise<IUser | null> {
+    try {
+      await connectDB();
+      const user = await UserModel.findByIdAndUpdate(id, { passwordHash: newPasswordHash }, {
+        new: true,
+        runValidators: true,
+      });
+      return user;
+    } catch (error: any) {
+      console.log(error);
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern)[0];
+        throw new Error(`${field} already exists`);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Delete user
    */
   static async delete(userId: string): Promise<IUser | null> {

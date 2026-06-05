@@ -7,8 +7,6 @@ import WorkoutForm from './components/WorkoutForm';
 import WorkoutList from './components/WorkoutList';
 import StatsBreakdown from './components/StatsBreakdown';
 import BodyGraphics from './components/BodyGraphics';
-import LoginForm from './components/LoginForm';
-import RegisterForm from './components/RegisterForm';
 import { calculateStats } from './utils/workoutData';
 import type { Workout, WorkoutStats } from './utils/workoutData';
 import { getAllExercises } from './utils/exercises';
@@ -20,7 +18,7 @@ import LoginRegister from './components/LoginRegister';
 
 export default function Home() {
   const { user, isLoading, logout, refreshUser } = useAuth();
-  const { workouts, isLoading: loadingWorkouts, error, fetchWorkouts, addWorkout, updateWorkout, deleteWorkout } = useWorkouts();
+  const { workouts, isLoading: loadingWorkouts, error, fetchWorkouts, addWorkout, updateWorkout, removeWorkout } = useWorkouts();
   const [stats, setStats] = useState<WorkoutStats | null>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -30,6 +28,7 @@ export default function Home() {
   const [csrfToken, setCsrfToken] = useState('');
   const [exerciseName, setExerciseName] = useState('');
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const availableExercises = getAllExercises();
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
   const chartOptions = {
@@ -106,17 +105,19 @@ export default function Home() {
       setToast({message: error instanceof Error ? error.message : 'Failed to create workout', type: 'error'});
       // alert(error instanceof Error ? error.message : 'Failed to create workout');
     } finally {
+      fetchWorkouts();
       setToast({ message: 'Workout logged successfully!', type: 'success' });
     }
   };
 
   const handleDeleteWorkout = async (id: string) => {
     try {
-      await deleteWorkout(id, csrfToken);
+      await removeWorkout(id, csrfToken);
     } catch (error) {
       setToast({message: error instanceof Error ? error.message : 'Failed to delete workout', type: 'error'});
       // alert(error instanceof Error ? error.message : 'Failed to delete workout');
     } finally {
+      fetchWorkouts();
       setToast({ message: 'Workout deleted successfully!', type: 'success' });
     }
   };
@@ -128,6 +129,7 @@ export default function Home() {
       setToast({message: error instanceof Error ? error.message : 'Failed to update workout', type: 'error'});
       // alert(error instanceof Error ? error.message : 'Failed to update workout');
     } finally {
+      fetchWorkouts();
       setToast({ message: 'Workout updated successfully!', type: 'success' });
     }
   };
@@ -211,7 +213,30 @@ export default function Home() {
 
   // Show login/register if not authenticated
   if (!user) {
-    return <LoginRegister showRegister={showRegister} setShowRegister={setShowRegister} />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-md">
+              {/* Header */}
+              <div className="text-center mb-10">
+              <div className="mb-6">
+                  <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent mb-2">
+                  💪 FitTrack
+                  </h1>
+              </div>
+              <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
+                  Track your workouts and reach your goals
+              </p>
+              </div>
+
+              <LoginRegister 
+                showRegister={showRegister} 
+                showResetPassword={showResetPassword}
+                setShowRegister={setShowRegister} 
+                setShowResetPassword={setShowResetPassword}
+              />
+          </div>
+      </div>
+    );
   }
 
   // Show workout tracker if authenticated

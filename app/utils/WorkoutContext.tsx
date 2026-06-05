@@ -1,16 +1,16 @@
 'use client';
-
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import type { Workout } from './workoutData';
+import { getWorkouts, postWorkout, putWorkout, deleteWorkout } from './workout/fetchWorkouts';
 
 interface WorkoutContextType {
     workouts: Workout[];
     isLoading: boolean;
     error: string | null;
     fetchWorkouts: () => Promise<void>;
-    addWorkout: (workout: Omit<Workout, 'id'>, csrfToken: string) => Promise<Workout>;
-    updateWorkout: (id: string, updates: Partial<Workout>, csrfToken: string) => Promise<Workout>;
-    deleteWorkout: (id: string, csrfToken: string) => Promise<void>;
+    addWorkout: (workout: Omit<Workout, 'id'>, csrfToken: string) => Promise<Workout | null>;
+    updateWorkout: (id: string, updates: Partial<Workout>, csrfToken: string) => Promise<Workout | null>;
+    removeWorkout: (id: string, csrfToken: string) => Promise<void>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -20,29 +20,21 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchWorkouts = useCallback(async () => {
-        try {
+    const fetchWorkouts = useCallback(
+        async () => {
             setIsLoading(true);
             setError(null);
 
-            const response = await fetch('/api/workouts', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                cache: 'force-cache',
-                next: {
-                    tags: ['workouts', 'workouts-with-userId'],
-                    revalidate: 0,
-                }
-            });
+            const workouts = await getWorkouts();
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || 'Failed to fetch workouts');
+            if(!workouts || workouts.length === 0) {
+                setError('No workouts found');
+                setIsLoading(false);
+                return;
             }
 
-            const data = await response.json();
             setWorkouts(
-                data.workouts.map((w: any) => ({
+                workouts.map((w: any) => ({
                     id: w.id,
                     name: w.name,
                     type: w.type,
@@ -55,123 +47,76 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                     notes: w.notes,
                 }))
             );
-        } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to fetch workouts';
-            setError(message);
-            console.error('Error fetching workouts:', err);
-        } finally {
+            
             setIsLoading(false);
-        }
-    }, []);
+        }, 
+        []
+    );
 
     const addWorkout = useCallback(
         async (workout: Omit<Workout, 'id'>, csrfToken: string) => {
-            try {
-                setError(null);
-                const response = await fetch('/api/workouts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-                    body: JSON.stringify({
-                        name: workout.name,
-                        sets: workout.sets,
-                        reps: workout.reps,
-                        weight: workout.weight,
-                        bodyweight: workout.bodyweight,
-                        date: workout.date,
-                        notes: workout.notes,
-                    }),
-                });
+            setError(null);
+            const data = await postWorkout(workout, csrfToken);
 
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Failed to add workout');
-                }
-
-                const data = await response.json();
-                const newWorkout: Workout = {
-                    id: data.workout.id,
-                    name: data.workout.name,
-                    sets: data.workout.sets,
-                    reps: data.workout.reps,
-                    weight: data.workout.weight,
-                    bodyweight: data.workout.bodyweight,
-                    date: new Date(data.workout.date),
-                    notes: data.workout.notes,
-                };
-
-                setWorkouts((prev) => [newWorkout, ...prev]);
-                return newWorkout;
-            } catch (err) {
-                const message = err instanceof Error ? err.message : 'Failed to add workout';
-                setError(message);
-                throw err;
+            if(!data) {
+                setError('Failed to add workout');
+                return null;
             }
+
+            const newWorkout: Workout = {
+                id: data?.id,
+                name: data?.name,
+                sets: data?.sets,
+                reps: data?.reps,
+                weight: data?.weight,
+                bodyweight: data?.bodyweight,
+                date: new Date(data?.date),
+                notes: data?.notes,
+            };
+
+            setWorkouts((prev) => [newWorkout, ...prev]);
+            return newWorkout;
         },
         []
     );
 
     const updateWorkout = useCallback(
         async (id: string, updates: Partial<Workout>, csrfToken: string) => {
-            try {
-                setError(null);
-                const response = await fetch(`/api/workouts`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-                    body: JSON.stringify({ id, ...updates }),
-                });
+            setError(null);
+            const data = await putWorkout(id, updates, csrfToken);
 
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Failed to update workout');
-                }
-
-                const data = await response.json();
-                const updatedWorkout: Workout = {
-                    id: data.workout.id,
-                    name: data.workout.name,
-                    sets: data.workout.sets,
-                    reps: data.workout.reps,
-                    weight: data.workout.weight,
-                    bodyweight: data.workout.bodyweight,
-                    date: new Date(data.workout.date),
-                    notes: data.workout.notes,
-                };
-
-                setWorkouts((prev) =>
-                    prev.map((w) => (w.id === id ? updatedWorkout : w))
-                );
-
-                return updatedWorkout;
-            } catch (err) {
-                const message = err instanceof Error ? err.message : 'Failed to update workout';
-                setError(message);
-                throw err;
+            if(!data) {
+                setError('Failed to update workout');
+                return null;
             }
+
+            const updatedWorkout: Workout = {
+                id: data?.id,
+                name: data?.name,
+                sets: data?.sets,
+                reps: data?.reps,
+                weight: data?.weight,
+                bodyweight: data?.bodyweight,
+                date: new Date(data?.date),
+                notes: data?.notes,
+            };
+
+            setWorkouts((prev) =>
+                prev.map((w) => (w.id === id ? updatedWorkout : w))
+            );
+
+            return updatedWorkout;
         },
         []
     );
 
-    const deleteWorkout = useCallback(
+    const removeWorkout = useCallback(
         async (id: string, csrfToken: string) => {
-            try {
-                setError(null);
-                const response = await fetch(`/api/workouts`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-                    body: JSON.stringify({ id }),
-                });
+            setError(null);
+            
+            await deleteWorkout(id, csrfToken);
 
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Failed to delete workout');
-                }
-
-                setWorkouts((prev) => prev.filter((w) => w.id !== id));
-            } catch (err) {
-                const message = err instanceof Error ? err.message : 'Failed to delete workout';
-                setError(message);
-                throw err;
-            }
+            setWorkouts((prev) => prev.filter((w) => w.id !== id));
         },
         []
     );
@@ -185,7 +130,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
                 fetchWorkouts,
                 addWorkout,
                 updateWorkout,
-                deleteWorkout,
+                removeWorkout,
             }}
         >
             {children}

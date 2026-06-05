@@ -4,8 +4,7 @@ import { nextjsRateLimit } from '@universal-rate-limit/nextjs';
 
 const ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://localhost:3001',
-    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.NEXT_PUBLIC_BASE_URL,
 ];
 
 const limiter = nextjsRateLimit({

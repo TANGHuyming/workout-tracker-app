@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 import { WorkoutProvider } from '../../providers/WorkoutProvider';
 import csrf from 'csrf';
 
@@ -121,8 +120,6 @@ export async function POST(request: NextRequest) {
             { status: 201 }
         );
 
-        revalidateTag('workouts', "max");
-
         return response;
     } catch (error) {
         console.error('Error creating workout:', error);
@@ -218,8 +215,6 @@ export async function PUT(request: NextRequest) {
             },
             { status: 200 }
         );
-
-        revalidateTag('workouts', "max");
 
         return response;
     } catch (error) {

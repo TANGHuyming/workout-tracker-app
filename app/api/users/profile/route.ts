@@ -6,6 +6,43 @@ import csrf from 'csrf';
 const csrfProtection = new csrf();
 const secret = process.env.CSRF_SECRET || 'your-super-secret-key-change-in-production';
 
+export async function GET(request: NextRequest) {
+    try {
+        let response: any = null;
+        const users = await UserProvider.findAll();
+        if(!users) {
+            response = NextResponse.json(
+                {success: false, message: 'No users found'},
+                {status: 404}
+            );
+
+            return response
+        }
+
+        const formattedUsers = users.map(user => ({
+            id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+        }));
+        
+        response = NextResponse.json(
+            {success: true, users: formattedUsers},
+            {status: 200}
+        )
+
+        return response;
+    }
+    catch(err) {
+        let response: any = NextResponse.json(
+            { success: false, message: 'Internal server error' },
+            { status: 500 }
+        );
+        return response;
+    }
+}
+
 export async function PUT(request: NextRequest) {
     try {
         const body = (await request.json()) as ProfilePayload;
