@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WorkoutProvider } from '../../providers/WorkoutProvider';
 import csrf from 'csrf';
+import {cookies} from 'next/headers';
 
 const csrfProtection = new csrf();
 const secret = process.env.CSRF_SECRET || 'your-super-secret-key-change-in-production';
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
         let response: any = NextResponse.json(
             {
                 success: true,
+                message: 'Workouts fetched successfully',
                 workouts: workouts.map((w) => ({
                     id: w._id.toString(),
                     userId: w.userId.toString(),
@@ -57,17 +59,18 @@ export async function GET(request: NextRequest) {
 // POST create new workout
 export async function POST(request: NextRequest) {
     try {
-        const jwtPayloadHeader = request.headers.get('jwt-payload');
-        if (!jwtPayloadHeader) {
+        const cookieStore = await cookies();
+        const csrfToken = cookieStore.get('csrfToken')?.value || "";
+        const jwtPayloadHeader = request.headers.get('jwt-payload') || "{}";
+        const payload = JSON.parse(jwtPayloadHeader);
+
+        if (!payload) {
             return NextResponse.json(
                 { success: false, message: 'Unauthorized: No JWT payload' },
                 { status: 401 }
             );
         }
-        
-        const payload = JSON.parse(jwtPayloadHeader);
 
-        const csrfToken = request.headers.get('x-csrf-token') ?? '';
         if (!csrfProtection.verify(secret, csrfToken)) {
             let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized: Invalid CSRF token' },
@@ -137,18 +140,18 @@ export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
         const id = body.id;
+        const cookieStore = await cookies();
+        const csrfToken = cookieStore.get('csrfToken')?.value || "";
+        const jwtPayloadHeader = request.headers.get('jwt-payload') || "{}";
+        const payload = JSON.parse(jwtPayloadHeader);
 
-        const jwtPayloadHeader = request.headers.get('jwt-payload');
-        if (!jwtPayloadHeader) {
+        if (!payload) {
             return NextResponse.json(
                 { success: false, message: 'Unauthorized: No JWT payload' },
                 { status: 401 }
             );
         }
-        
-        const payload = JSON.parse(jwtPayloadHeader);
 
-        const csrfToken = request.headers.get('x-csrf-token') ?? '';
         if (!csrfProtection.verify(secret, csrfToken)) {
             let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized: Invalid CSRF token' },
@@ -232,16 +235,25 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     try {
         const { id } = await request.json();
-        
-        const jwtPayloadHeader = request.headers.get('jwt-payload');
-        if (!jwtPayloadHeader) {
+        const cookieStore = await cookies();
+        const csrfToken = cookieStore.get('csrfToken')?.value || "";
+        const jwtPayloadHeader = request.headers.get('jwt-payload') || "{}";
+        const payload = JSON.parse(jwtPayloadHeader);
+
+        if (!payload) {
             return NextResponse.json(
                 { success: false, message: 'Unauthorized: No JWT payload' },
                 { status: 401 }
             );
         }
-        
-        const payload = JSON.parse(jwtPayloadHeader);
+
+        if (!csrfProtection.verify(secret, csrfToken)) {
+            let response: any = NextResponse.json(
+                { success: false, message: 'Unauthorized: Invalid CSRF token' },
+                { status: 403 }
+            );
+            return response;
+        }
 
         // Check if user owns this workout
         const existingWorkout = await WorkoutProvider.findById(id);

@@ -1,4 +1,4 @@
-import type { Workout } from '../utils/workoutData';
+import type { Workout } from '../utils/workout/workoutData';
 import { STRENGTH_STANDARDS } from '../utils/exercises';
 
 interface WorkoutCardProps {

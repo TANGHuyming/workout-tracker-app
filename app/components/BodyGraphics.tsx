@@ -1,6 +1,6 @@
 'use client';
 
-import type { Workout } from '../utils/workoutData';
+import type { Workout } from '../utils/workout/workoutData';
 import { getMuscleGroupsForExercise, getMuscleGroupDisplayName, getStrengthThresholdsForExercise, type MuscleGroup } from '../utils/exercises';
 
 interface BodyGraphicsProps {

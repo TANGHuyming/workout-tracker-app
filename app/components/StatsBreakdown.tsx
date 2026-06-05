@@ -1,4 +1,4 @@
-import type { WorkoutStats } from '../utils/workoutData';
+import type { WorkoutStats } from '../utils/workout/workoutData';
 
 interface StatsBreakdownProps {
     stats: WorkoutStats;

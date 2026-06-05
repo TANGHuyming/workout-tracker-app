@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-import type { User } from './authData';
+import type { User } from './auth/authData';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your-super-secret-key-change-in-production';
 

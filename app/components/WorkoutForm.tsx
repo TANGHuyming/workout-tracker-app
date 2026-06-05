@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Workout } from '../utils/workoutData';
+import type { Workout } from '../utils/workout/workoutData';
 import { getAllExercises } from '../utils/exercises';
 
 interface WorkoutFormProps {

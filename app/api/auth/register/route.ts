@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hashPassword, type RegisterPayload, type AuthResponse } from '../../../utils/authData';
+import { hashPassword, type RegisterPayload, type AuthResponse } from '../../../utils/auth/authData';
 import { createToken } from '../../../utils/jwt';
 import { UserProvider } from '../../../providers/UserProvider';
 

@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {UserProvider} from "@/app/providers/UserProvider";
-import {hashPassword} from "@/app/utils/authData";
+import {hashPassword} from "@/app/utils/auth/authData";
 
 export async function POST(request: NextRequest) {
     try {

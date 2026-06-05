@@ -4,6 +4,7 @@ export interface IUser extends Document {
   email: string;
   username: string;
   passwordHash: string;
+  bodyweight: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,11 @@ const UserSchema = new Schema<IUser>(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't return password by default
     },
+    bodyweight: {
+      type: Number,
+      required:[true, 'Please provide your bodyweight'],
+      min: [0, 'Bodyweight must be a positive number'],
+    }
   },
   {
     timestamps: true,

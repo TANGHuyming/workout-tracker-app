@@ -2,6 +2,7 @@ import { ProfilePayload } from "@/app/utils/profileData";
 import { NextRequest, NextResponse } from "next/server";
 import { UserProvider } from "@/app/providers/UserProvider"
 import csrf from 'csrf';
+import {cookies} from 'next/headers';
 
 const csrfProtection = new csrf();
 const secret = process.env.CSRF_SECRET || 'your-super-secret-key-change-in-production';
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
             id: user._id.toString(),
             email: user.email,
             username: user.username,
+            bodyweight: user.bodyweight,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
         }));
@@ -46,17 +48,18 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const body = (await request.json()) as ProfilePayload;
-        const jwtPayloadHeader = request.headers.get('jwt-payload');
-        if (!jwtPayloadHeader) {
+        const cookieStore = await cookies();
+        const csrfToken = cookieStore.get('csrfToken')?.value || "";
+        const jwtPayloadHeader = request.headers.get('jwt-payload') || "{}";
+        const payload = JSON.parse(jwtPayloadHeader);
+
+        if (!payload) {
             return NextResponse.json(
                 { success: false, message: 'Unauthorized: No JWT payload' },
                 { status: 401 }
             );
         }
-        
-        const payload = JSON.parse(jwtPayloadHeader);
 
-        const csrfToken = request.headers.get('x-csrf-token') ?? '';
         if (!csrfProtection.verify(secret, csrfToken)) {
             let response: any = NextResponse.json(
                 { success: false, message: 'Unauthorized: Invalid CSRF token' },

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "./utils/AuthContext";
-import { WorkoutProvider } from "./utils/WorkoutContext";
+import { AuthProvider } from "./utils/auth/AuthContext";
+import { WorkoutProvider } from "./utils/workout/WorkoutContext";
 import "./globals.css";
+import Header from "./components/layouts/Header";
+import Footer from "./components/layouts/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +35,14 @@ export default function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="min-h-full flex flex-col">
+      
+      <body className="flex flex-col">
         <AuthProvider>
-          <WorkoutProvider>{children}</WorkoutProvider>
+          <Header />
+          <WorkoutProvider>
+            <div className="min-h-screen">{children}</div>
+          </WorkoutProvider>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

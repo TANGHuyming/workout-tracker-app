@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../utils/AuthContext';
+import { useAuth } from '../utils/auth/AuthContext';
 
 interface RegisterProps {
     onSuccess?: () => void;
