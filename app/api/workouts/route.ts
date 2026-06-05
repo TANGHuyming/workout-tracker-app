@@ -268,8 +268,6 @@ export async function DELETE(request: NextRequest) {
             { status: 200 }
         );
 
-        revalidateTag('workouts', "max");
-
         return response;
     } catch (error) {
         console.error('Error deleting workout:', error);
