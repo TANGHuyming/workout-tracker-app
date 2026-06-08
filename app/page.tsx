@@ -3,29 +3,21 @@ import { useState, useEffect } from 'react';
 import { useAuth } from './utils/auth/AuthContext';
 import { useWorkouts } from './utils/workout/WorkoutContext';
 import WorkoutForm from './components/WorkoutForm';
-import WorkoutList from './components/WorkoutList';
-import StatsBreakdown from './components/StatsBreakdown';
 import BodyGraphics from './components/BodyGraphics';
-import { calculateStats } from './utils/workout/workoutData';
-import type { Workout, WorkoutStats } from './utils/workout/workoutData';
+import type { Workout } from './utils/workout/workoutData';
 import { getAllExercises } from './utils/exercises';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { LuBicepsFlexed } from "react-icons/lu";
 import Toast from './components/Toast';
 import LoginRegister from './components/LoginRegister';
-import { useRouter } from 'next/navigation';
 import { fetchCsrfToken } from './utils/csrf/fetchCsrfToken';
 
 export default function Home() {
-  const router = useRouter();
-  const { user, isLoading, logout, refreshUser } = useAuth();
-  const { workouts, isLoading: loadingWorkouts, fetchWorkouts, addWorkout, updateWorkout, deleteWorkout } = useWorkouts();
-  const [stats, setStats] = useState<WorkoutStats | null>(null);
+  const { user, isLoading } = useAuth();
+  const { workouts, fetchWorkouts, addWorkout } = useWorkouts();
   const [showRegister, setShowRegister] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [exerciseName, setExerciseName] = useState('');
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const availableExercises = getAllExercises();
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -68,7 +60,6 @@ export default function Home() {
 
   // Update stats whenever workouts change
   useEffect(() => {
-    setStats(calculateStats(workouts));
     handleSearchExercise();
   }, [exerciseName, workouts]);
 
@@ -84,27 +75,7 @@ export default function Home() {
       setToast({ message: 'Workout logged successfully!', type: 'success' });
       fetchWorkouts();
     } catch (error) {
-      setToast({message: 'Failed to create workout', type: 'error'});
-    }
-  };
-
-  const handleDeleteWorkout = async (id: string) => {
-    try {
-      await deleteWorkout(id);
-      fetchWorkouts();
-      setToast({ message: 'Workout deleted successfully!', type: 'success' });
-    } catch (error) {
-      setToast({message: 'Failed to delete workout', type: 'error'});
-    }
-  };
-
-  const handleUpdateWorkout = async (id: string, updates: Partial<Workout>) => {
-    try {
-      await updateWorkout(id, updates);
-      fetchWorkouts();
-      setToast({ message: 'Workout updated successfully!', type: 'success' });
-    } catch (error) {
-      setToast({message: 'Failed to update workout', type: 'error'});
+      setToast({ message: 'Failed to create workout', type: 'error' });
     }
   };
 
@@ -121,7 +92,7 @@ export default function Home() {
     });
 
     const averageLifts = [];
-    for(let i = 0; i < chartLabels.length; i++) {
+    for (let i = 0; i < chartLabels.length; i++) {
       const filteredByMonth = monthDatePair.filter((workout) => {
         return workout.month === chartLabels[i];
       });
@@ -161,26 +132,26 @@ export default function Home() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md">
-              {/* Header */}
-              <div className="text-center mb-10">
-              <div className="mb-6">
-                  <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent mb-2">
-                  💪 FitTrack
-                  </h1>
-              </div>
-              <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
-                  Track your workouts and reach your goals
-              </p>
-              </div>
-
-              <LoginRegister 
-                showRegister={showRegister} 
-                showResetPassword={showResetPassword}
-                setShowRegister={setShowRegister} 
-                setShowResetPassword={setShowResetPassword}
-              />
+        <div className="w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="mb-6">
+              <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent mb-2">
+                💪 FitTrack
+              </h1>
+            </div>
+            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
+              Track your workouts and reach your goals
+            </p>
           </div>
+
+          <LoginRegister
+            showRegister={showRegister}
+            showResetPassword={showResetPassword}
+            setShowRegister={setShowRegister}
+            setShowResetPassword={setShowResetPassword}
+          />
+        </div>
       </div>
     );
   }
@@ -191,7 +162,7 @@ export default function Home() {
       {
         toast && <Toast message={toast.message} type={toast.type} />
       }
-      
+
       <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="mb-10">
@@ -204,15 +175,9 @@ export default function Home() {
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          {/* Left Column - Form */}
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 gap-8 mb-10">
+          <div>
             <WorkoutForm onAdd={handleAddWorkout} setToast={setToast} />
-          </div>
-
-          {/* Right Column - Stats */}
-          <div className="lg:col-span-2">
-            {stats && <StatsBreakdown stats={stats} />}
           </div>
         </div>
 
@@ -222,39 +187,39 @@ export default function Home() {
           >
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Exercise Progression
+                Exercise Progression
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">How your exercise is evolving</p>
             </div>
 
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                Exercise Name *
+              Exercise Name *
             </label>
             <select
-                value={exerciseName}
-                onChange={(e) => setExerciseName(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              value={exerciseName}
+              onChange={(e) => setExerciseName(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
             >
-                <option value="">Select an exercise...</option>
-                {availableExercises.map((exercise) => (
-                    <option key={exercise} value={exercise}>
-                        {exercise}
-                    </option>
-                ))}
+              <option value="">Select an exercise...</option>
+              {availableExercises.map((exercise) => (
+                <option key={exercise} value={exercise}>
+                  {exercise}
+                </option>
+              ))}
             </select>
 
             {
               exerciseName ?
-              <Line options={chartOptions} data={chartData} />
-              :
-              <div className="text-center py-12">
-                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                  No exercise selected
-                </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                  Try selecting an exercise to view its progression
-                </p>
-              </div>
+                <Line options={chartOptions} data={chartData} />
+                :
+                <div className="text-center py-12">
+                  <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
+                    No exercise selected
+                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    Try selecting an exercise to view its progression
+                  </p>
+                </div>
             }
           </div>
         </div>
@@ -263,20 +228,6 @@ export default function Home() {
         <div className="mb-10">
           <BodyGraphics workouts={workouts} />
         </div>
-
-        {/* Workout History */}
-        {loadingWorkouts ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
-            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">Loading your workouts...</p>
-          </div>
-        ) : (
-          <WorkoutList
-            workouts={workouts}
-            onDelete={handleDeleteWorkout}
-            onUpdate={handleUpdateWorkout}
-          />
-        )}
       </div>
     </div>
   );

@@ -87,4 +87,7 @@ textarea {
   @apply bg-blue-500 text-white;
 }
 
+.dropdown_menu {
+  @apply p-4 cursor-pointer hover:bg-slate-800;
+}
 

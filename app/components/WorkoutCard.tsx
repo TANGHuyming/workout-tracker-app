@@ -37,7 +37,7 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-3 mb-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                         <div>
                             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sets</p>
                             <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
@@ -64,7 +64,7 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 hidden sm:block">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Bodyweight</p>
                         <p className="text-sm text-slate-900 dark:text-white font-medium">
                             {workout.bodyweight} kg
