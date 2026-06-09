@@ -85,12 +85,6 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {error && (
-                        <div className="p-4 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg text-sm font-medium">
-                            {error}
-                        </div>
-                    )}
-
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Exercise Name *
@@ -109,7 +103,7 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                         </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Sets *
@@ -139,7 +133,7 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Weight (kg) *

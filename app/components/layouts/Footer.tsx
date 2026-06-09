@@ -32,13 +32,22 @@ export default function Footer() {
                         Home
                     </button>
 
+
+                    <button
+                        onClick={() => router.push('/history')}
+                        className="cursor-pointer text-blue-600 dark:text-blue-400 font-semibold"
+                    >
+                        History
+                    </button>
+ 
+
                     <button
                         onClick={() => router.push('/profile')}
                         className="cursor-pointer text-blue-600 dark:text-blue-400 font-semibold"
                     >
                         Profile
                     </button>
-                    
+
                     <button
                         onClick={() => logout()}
                         className="cursor-pointer text-red-600 dark:text-red-400 font-semibold"

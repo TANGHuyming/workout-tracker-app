@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
       hmrRefreshes: true, // Ensure this is present
     },
   },
-  cacheComponents: true,
 };
 
 export default nextConfig;   

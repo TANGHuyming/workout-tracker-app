@@ -13,11 +13,10 @@ export default function ProfilePage() {
     const { user, refreshUser } = useAuth();
     const [editingProfile, setEditingProfile] = useState(false);
     const [profileForm, setProfileForm] = useState({ username: user?.username || '', email: user?.email || '' }); const [savingProfile, setSavingProfile] = useState(false); const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null); const router = useRouter();
-    const { workouts, fetchWorkouts } = useWorkouts();
+    const { workouts } = useWorkouts();
 
     useEffect(() => {
         fetchCsrfToken();
-        fetchWorkouts();
     }, []);
 
     useEffect(() => {
@@ -75,19 +74,19 @@ export default function ProfilePage() {
                             {/* Display Mode */}
                             <div>
                                 <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Username</label>
-                                <p className="text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <p className="text-md sm:text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                                     {user?.username}
                                 </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Email</label>
-                                <p className="text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <p className="text-md sm:text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                                     {user?.email || 'Not provided'}
                                 </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Member Since</label>
-                                <p className="text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <p className="text-md sm:text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                                     {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                                 </p>
                             </div>

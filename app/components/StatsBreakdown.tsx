@@ -25,7 +25,7 @@ export default function StatsBreakdown({ stats }: StatsBreakdownProps) {
                 </div>
                 <span className="text-3xl">{icon}</span>
             </div>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
                 {value}
                 {unit && <span className="text-sm text-slate-600 dark:text-slate-400 ml-2 font-normal">{unit}</span>}
             </p>

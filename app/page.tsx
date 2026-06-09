@@ -15,9 +15,9 @@ import { fetchCsrfToken } from './utils/csrf/fetchCsrfToken';
 export default function Home() {
   const { user, isLoading } = useAuth();
   const { workouts, fetchWorkouts, addWorkout } = useWorkouts();
-  const [showRegister, setShowRegister] = useState(false);
-  const [exerciseName, setExerciseName] = useState('');
-  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+  const [ showRegister, setShowRegister ] = useState(false);
+  const [ exerciseName, setExerciseName ] = useState('');
+  const [ toast, setToast ] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const availableExercises = getAllExercises();
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -53,10 +53,10 @@ export default function Home() {
 
   // Fetch workouts from API when user is loaded
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user) {
       fetchWorkouts();
     }
-  }, [user, isLoading]);
+  }, [user]);
 
   // Update stats whenever workouts change
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
 import { FaXmark } from "react-icons/fa6";
-import {useState} from "react";
+import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { LuBicepsFlexed } from 'react-icons/lu';
 import { useRouter } from 'next/navigation';
@@ -64,7 +64,7 @@ export default function Header() {
                     }
                 
                     <div className={`${showDropdownMenu ? "flex" : "hidden"}`}>
-                        <ul className="fixed top-16 right-4 z-10 min-w-[50vw] bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 border-blue-950 rounded-md border-2">
+                        <ul className="font-bold text-md fixed top-16 right-4 z-10 min-w-[50vw] bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 border-blue-950 rounded-md border-2">
                             <li className="dropdown_item" onClick={() => router.push('/')}>Home</li>
                             <li className="dropdown_item" onClick={() => router.push('/history')}>History</li>
                             <li className="dropdown_item" onClick={() => router.push('/profile')}>Profile</li> 
