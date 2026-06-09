@@ -6,8 +6,30 @@ import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
 import { useState, useEffect } from "react";
 
 export default function HistoryPage() {
-  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' }>();
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } = useWorkouts();
+
+  useEffect(() => {
+    const fetcher = async () => {
+      setIsLoading(true);
+      try {
+        await fetchWorkouts();
+      }
+      catch (err) {
+        setToast({ message: err instanceof Error ? err.message : 'Failed to fetch workouts', type: 'error' })
+      }
+      finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (workouts.length === 0 || !workouts) {
+      fetcher();
+    }
+
+    setIsLoading(false);
+  }, []);
 
   const handleDeleteWorkout = async (id: string) => {
     try {
@@ -34,13 +56,19 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      {toast ? <Toast message={toast.message} type={toast.type} /> : <div></div>}
-      <WorkoutList
-        workouts={workouts}
-        onDelete={handleDeleteWorkout}
-        onUpdate={handleUpdateWorkout}
-      />
-    </div>
+    isLoading ?
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6" ></div>
+        <p className="text-lg font-medium text-slate-600 dark:text-slate-300">Loading your workouts...</p>
+      </div>
+    :
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {toast ? <Toast message={toast.message} type={toast.type} /> : <div></div>}
+        <WorkoutList
+          workouts={workouts}
+          onDelete={handleDeleteWorkout}
+          onUpdate={handleUpdateWorkout}
+        />
+      </div>
   );
 }

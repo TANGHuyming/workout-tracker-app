@@ -1,5 +1,7 @@
+'use client';
 import type { Workout } from '../utils/workout/workoutData';
 import { STRENGTH_STANDARDS } from '../utils/exercises';
+import { useState } from 'react';
 
 interface WorkoutCardProps {
     workout: Workout;
@@ -9,6 +11,7 @@ interface WorkoutCardProps {
 
 export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardProps) {
     const date = new Date(workout.date);
+    const [confirmDelete, setConfirmDelete] = useState(false);
     const formattedDate = date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -18,11 +21,24 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
     const ratio = workout.weight > 0 && workout.bodyweight > 0 ? (workout.weight / workout.bodyweight) : 0;
     const strengthStandard = STRENGTH_STANDARDS[workout.name];
     let ratioStyle = `text-xl font-bold mt-1`;
-    if(ratio > strengthStandard?.red) ratioStyle += 'text-red-600 dark:text-red-400';
-    else if(ratio > strengthStandard?.orange) ratioStyle += 'text-orange-600 dark:text-orange-400';
-    else if(ratio > strengthStandard?.yellow) ratioStyle += 'text-yellow-600 dark:text-yellow-400';
-    else if(ratio > strengthStandard?.green) ratioStyle += 'text-green-600 dark:text-green-400';
+    if (ratio > strengthStandard?.red) ratioStyle += 'text-red-600 dark:text-red-400';
+    else if (ratio > strengthStandard?.orange) ratioStyle += 'text-orange-600 dark:text-orange-400';
+    else if (ratio > strengthStandard?.yellow) ratioStyle += 'text-yellow-600 dark:text-yellow-400';
+    else if (ratio > strengthStandard?.green) ratioStyle += 'text-green-600 dark:text-green-400';
     else ratioStyle += 'text-gray-600 dark:text-gray-400';
+
+    const handleDelete = () => {
+        setConfirmDelete(true);
+    }
+
+    const handleConfirmDelete = (confirmDelete: boolean, id: string) => {
+        if (confirmDelete) {
+            onDelete(id);
+        }
+        else {
+            setConfirmDelete(false);
+        }
+    }
 
     return (
         <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
@@ -87,16 +103,27 @@ export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardPr
                             Edit
                         </button>
                     )}
-                    <button
-                        onClick={() => {
-                            if (confirm('Are you sure you want to delete this workout?')) {
-                                onDelete(workout.id);
-                            }
-                        }}
-                        className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
-                    >
-                        Delete
-                    </button>
+
+                    {
+                        !confirmDelete ?
+                            <button
+                                onClick={() => {
+                                    handleDelete();
+                                }}
+                                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+                            >
+                                Delete
+                            </button>
+                            :
+                            <button
+                                onClick={() => {
+                                    handleConfirmDelete(confirmDelete, workout.id)
+                                }}
+                                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+                            >
+                                Confirm delete
+                            </button>
+                    }
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 'use client';
-
+import Toast from '@/app/components/Toast';
 import { useState, useEffect } from 'react';
 import type { Workout } from '../utils/workout/workoutData';
 import { getAllExercises } from '../utils/exercises';
@@ -23,7 +23,7 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
         notes: workout.notes,
     });
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [ toast, setToast ] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
     const availableExercises = getAllExercises();
 
@@ -39,7 +39,6 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
                 date: workout.date,
                 notes: workout.notes,
             });
-            setError(null);
         }
     }, [isOpen, workout]);
 
@@ -47,18 +46,22 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
         e.preventDefault();
 
         // Validation
-        if (!formData.name || formData.sets === undefined || formData.reps === undefined || formData.weight === undefined || formData.bodyweight === undefined) {
-            setError('Please fill in all required fields');
+        if (!formData.name || !formData.sets || !formData.reps || !formData.weight || !formData.bodyweight ) {
+            setToast({message: 'Please fill in the required form', type: 'error'});
+            return;
+        }
+
+        if(new Date(formData.date) > new Date()) {
+            setToast({message: 'Logging for the future?', type: 'error'});
             return;
         }
 
         try {
             setIsSaving(true);
-            setError(null);
             await onSave(workout.id, formData);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save workout');
+            setToast({message: err instanceof Error ? err.message : 'Failed to save workout', type: 'error'});
         } finally {
             setIsSaving(false);
         }
@@ -68,6 +71,10 @@ export default function WorkoutEditModal({ workout, isOpen, onClose, onSave }: W
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            {
+                toast && <Toast message={toast.message} type={toast.type}/>
+            }
+
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
                 {/* Header */}
                 <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
