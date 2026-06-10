@@ -6,10 +6,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body className="flex flex-col">
-      <AuthProvider>
-        <div className="min-h-screen">{children}</div>
-      </AuthProvider>
-    </body>
+    <AuthProvider>
+      <div className="min-h-screen">{children}</div>
+    </AuthProvider>
   );
 }

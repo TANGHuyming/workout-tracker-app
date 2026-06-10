@@ -32,6 +32,12 @@ export default function HistoryPage() {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setToast(null);
+    }, 5000);
+  }, [toast]);
+
   const handleDeleteWorkout = async (id: string) => {
     try {
       await deleteWorkout(id);

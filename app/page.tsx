@@ -68,6 +68,7 @@ export default function Home() {
 
   // Fetch CSRF token
   useEffect(() => {
+    refreshUser();
     fetchCsrfToken();
   }, []);
 
@@ -91,7 +92,6 @@ export default function Home() {
       fetcher();
     }
 
-    refreshUser();
     setIsLoading(false);
   }, [user]);
 
