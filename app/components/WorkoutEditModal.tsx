@@ -47,13 +47,7 @@ export default function WorkoutEditModal({
     }
   }, [isOpen, workout]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setToast(null);
-    }, 5000);
-  }, [toast]);
-
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
@@ -95,7 +89,7 @@ export default function WorkoutEditModal({
 
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
         {/* Header */}
-        <div className="sticky top-0 bg-linear-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
+        <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit Workout</h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{formData.name}</p>
@@ -232,7 +226,7 @@ export default function WorkoutEditModal({
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 px-4 py-2 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-blue-400 disabled:to-blue-300 text-white font-semibold rounded-lg transition-all text-sm disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-blue-400 disabled:to-blue-300 text-white font-semibold rounded-lg transition-all text-sm disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSaving ? (
                 <>

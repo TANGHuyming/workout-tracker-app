@@ -1,6 +1,6 @@
-import { connectDB } from '../lib/mongodb';
-import WorkoutModel, { IWorkout } from '../models/Workout';
-import { ObjectId } from 'mongodb';
+import { connectDB } from "../lib/mongodb";
+import WorkoutModel, { IWorkout } from "../models/Workout";
+import { ObjectId } from "mongodb";
 
 export class WorkoutProvider {
   /**
@@ -19,7 +19,7 @@ export class WorkoutProvider {
     try {
       await connectDB();
       const workout = await WorkoutModel.create(workoutData);
-      return workout.populate('userId');
+      return workout.populate("userId");
     } catch (error) {
       throw error;
     }
@@ -44,9 +44,7 @@ export class WorkoutProvider {
   static async findByUserId(userId: string): Promise<IWorkout[]> {
     try {
       await connectDB();
-      const workouts = await WorkoutModel.find({ userId })
-        .populate('userId')
-        .sort({ date: -1 });
+      const workouts = await WorkoutModel.find({ userId }).populate("userId").sort({ date: -1 });
       return workouts;
     } catch (error) {
       throw error;
@@ -58,33 +56,38 @@ export class WorkoutProvider {
    */
   static async findByUserIdFiltered(
     userId: string,
-    options?: {
-      startDate?: Date;
-      endDate?: Date;
-      sortBy?: 'date' | 'weight' | 'sets';
-    }
+    options: {
+      date: Date;
+      sortBy: "date" | "weight" | "sets";
+    },
   ): Promise<IWorkout[]> {
     try {
       await connectDB();
 
-      const filter: any = { userId };
+      const filter: any = {
+        userId,
+        createdAt: {
+          $gte: "",
+          $lt: "",
+        },
+      };
 
-      if (options?.startDate || options?.endDate) {
-        filter.date = {};
-        if (options.startDate) {
-          filter.date.$gte = options.startDate;
-        }
-        if (options.endDate) {
-          filter.date.$lte = options.endDate;
-        }
+      if (options.date) {
+        // Remove time component
+        const startDate = new Date(options.date);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1);
+        filter.createdAt.$gte = startDate;
+        filter.createdAt.$lt = endDate;
       }
 
-      let query = WorkoutModel.find(filter).populate('userId');
+      let query = WorkoutModel.find(filter).populate("userId");
 
       // Sort options
-      if (options?.sortBy === 'weight') {
+      if (options?.sortBy === "weight") {
         query = query.sort({ weight: -1 });
-      } else if (options?.sortBy === 'sets') {
+      } else if (options?.sortBy === "sets") {
         query = query.sort({ sets: -1 });
       } else {
         query = query.sort({ date: -1 });
@@ -103,7 +106,7 @@ export class WorkoutProvider {
   static async findAll(): Promise<IWorkout[]> {
     try {
       await connectDB();
-      const workouts = await WorkoutModel.find().populate('userId').sort({ date: -1 });
+      const workouts = await WorkoutModel.find().populate("userId").sort({ date: -1 });
       return workouts;
     } catch (error) {
       throw error;
@@ -122,14 +125,14 @@ export class WorkoutProvider {
       weight?: number;
       date?: Date;
       notes?: string;
-    }>
+    }>,
   ): Promise<IWorkout | null> {
     try {
       await connectDB();
       const workout = await WorkoutModel.findByIdAndUpdate(workoutId, updateData, {
         new: true,
         runValidators: true,
-      }).populate('userId');
+      }).populate("userId");
       return workout;
     } catch (error) {
       throw error;
@@ -188,7 +191,7 @@ export class WorkoutProvider {
         userId,
         date: { $gte: startDate },
       })
-        .populate('userId')
+        .populate("userId")
         .sort({ date: -1 });
 
       return workouts;
@@ -205,16 +208,16 @@ export class WorkoutProvider {
       await connectDB();
 
       const stats = await WorkoutModel.aggregate([
-        { $match: { userId: new (require('mongodb').ObjectId)(userId) } },
+        { $match: { userId: new (require("mongodb").ObjectId)(userId) } },
         {
           $group: {
             _id: null,
             totalWorkouts: { $sum: 1 },
-            totalSets: { $sum: '$sets' },
-            totalReps: { $sum: '$reps' },
-            averageWeight: { $avg: '$weight' },
-            maxWeight: { $max: '$weight' },
-            averageRepsPerSet: { $avg: { $divide: ['$reps', '$sets'] } },
+            totalSets: { $sum: "$sets" },
+            totalReps: { $sum: "$reps" },
+            averageWeight: { $avg: "$weight" },
+            maxWeight: { $max: "$weight" },
+            averageRepsPerSet: { $avg: { $divide: ["$reps", "$sets"] } },
           },
         },
       ]);

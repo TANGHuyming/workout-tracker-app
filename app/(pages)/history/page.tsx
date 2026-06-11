@@ -8,13 +8,14 @@ import { useState, useEffect } from "react";
 export default function HistoryPage() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } = useWorkouts();
+  const { workouts, fetchWorkouts, fetchWorkoutsByDate, deleteWorkout, updateWorkout } =
+    useWorkouts();
 
   useEffect(() => {
     const fetcher = async () => {
       setIsLoading(true);
       try {
-        await fetchWorkouts();
+        await fetchWorkoutsByDate(new Date());
       } catch (err) {
         setToast({
           message: err instanceof Error ? err.message : "Failed to fetch workouts",
@@ -36,12 +37,11 @@ export default function HistoryPage() {
     setTimeout(() => {
       setToast(null);
     }, 5000);
-  }, [toast]);
+  }, []);
 
   const handleDeleteWorkout = async (id: string) => {
     try {
       await deleteWorkout(id);
-      fetchWorkouts();
     } catch (error) {
       setToast({ message: "Deleting workout failed!", type: "error" });
     } finally {
@@ -52,7 +52,6 @@ export default function HistoryPage() {
   const handleUpdateWorkout = async (id: string, updates: Partial<Workout>) => {
     try {
       await updateWorkout(id, updates);
-      fetchWorkouts();
     } catch (error) {
       setToast({ message: "Updating workout failed!", type: "error" });
     } finally {

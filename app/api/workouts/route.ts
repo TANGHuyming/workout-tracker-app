@@ -2,14 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkoutProvider } from "../../providers/WorkoutProvider";
 import csrf from "csrf";
 import { cookies } from "next/headers";
-import { indexByUserId } from "@/app/controllers/WorkoutController";
+import { indexByUserId, indexByDate } from "@/app/controllers/WorkoutController";
+import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
 const secret = process.env.CSRF_SECRET || "your-super-secret-key-change-in-production";
 
 // GET all workouts for authenticated user
 export async function GET(request: NextRequest) {
-  const data = await indexByUserId(request);
+  const params = request.nextUrl.searchParams;
+  const date = params.get("date");
+
+  console.log(date);
+
+  let data;
+
+  const jwtPayloadHeader = request.headers.get("jwt-payload");
+
+  if (!jwtPayloadHeader) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized: No JWT payload" },
+      { status: 401 },
+    );
+  }
+
+  const payload = getJwtPayload(request);
+
+  if (payload.success) {
+    throw new Error(`${payload.message}`);
+  }
+
+  if (date) data = await indexByDate(payload.userId, new Date(date));
+  else data = await indexByUserId(payload.userId);
 
   if (!data.success) {
     return NextResponse.json({ message: "Failed to fetch workouts" }, { status: 400 });
@@ -269,4 +293,3 @@ export async function DELETE(request: NextRequest) {
     return response;
   }
 }
-

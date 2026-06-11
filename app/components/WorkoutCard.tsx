@@ -1,131 +1,139 @@
-'use client';
-import type { Workout } from '../utils/workout/workoutData';
-import { STRENGTH_STANDARDS } from '../utils/exercises';
-import { useState } from 'react';
+"use client";
+import type { Workout } from "../utils/workout/workoutData";
+import { STRENGTH_STANDARDS } from "../utils/exercises";
+import { useState } from "react";
 
 interface WorkoutCardProps {
-    workout: Workout;
-    onDelete: (id: string) => void;
-    onEdit?: (workout: Workout) => void;
+  workout: Workout;
+  onDelete: (id: string) => void;
+  onEdit?: (workout: Workout) => void;
 }
 
 export default function WorkoutCard({ workout, onDelete, onEdit }: WorkoutCardProps) {
-    const date = new Date(workout.date);
-    const [confirmDelete, setConfirmDelete] = useState(false);
-    const formattedDate = date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+  const date = new Date(workout.date);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
-    const ratio = workout.weight > 0 && workout.bodyweight > 0 ? (workout.weight / workout.bodyweight) : 0;
-    const strengthStandard = STRENGTH_STANDARDS[workout.name];
-    let ratioStyle = `text-xl font-bold mt-1`;
-    if (ratio > strengthStandard?.red) ratioStyle += 'text-red-600 dark:text-red-400';
-    else if (ratio > strengthStandard?.orange) ratioStyle += 'text-orange-600 dark:text-orange-400';
-    else if (ratio > strengthStandard?.yellow) ratioStyle += 'text-yellow-600 dark:text-yellow-400';
-    else if (ratio > strengthStandard?.green) ratioStyle += 'text-green-600 dark:text-green-400';
-    else ratioStyle += 'text-gray-600 dark:text-gray-400';
+  const ratio =
+    workout.weight > 0 && workout.bodyweight > 0 ? workout.weight / workout.bodyweight : 0;
+  const strengthStandard = STRENGTH_STANDARDS[workout.name];
+  let ratioStyle = `text-xl font-bold mt-1`;
+  if (ratio > strengthStandard?.red) ratioStyle += "text-red-600 dark:text-red-400";
+  else if (ratio > strengthStandard?.orange) ratioStyle += "text-orange-600 dark:text-orange-400";
+  else if (ratio > strengthStandard?.yellow) ratioStyle += "text-yellow-600 dark:text-yellow-400";
+  else if (ratio > strengthStandard?.green) ratioStyle += "text-green-600 dark:text-green-400";
+  else ratioStyle += "text-gray-600 dark:text-gray-400";
 
-    const handleDelete = () => {
-        setConfirmDelete(true);
+  const handleDelete = () => {
+    setConfirmDelete(true);
+  };
+
+  const handleConfirmDelete = (confirmDelete: boolean, id: string) => {
+    if (confirmDelete) {
+      onDelete(id);
+    } else {
+      setConfirmDelete(false);
     }
+  };
 
-    const handleConfirmDelete = (confirmDelete: boolean, id: string) => {
-        if (confirmDelete) {
-            onDelete(id);
-        }
-        else {
-            setConfirmDelete(false);
-        }
-    }
-
-    return (
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="flex-1">
-                    <div className="flex items-start gap-3 mb-3">
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                                {workout.name}
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{formattedDate}</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <div>
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sets</p>
-                            <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {workout.sets}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reps</p>
-                            <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {workout.reps}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Weight</p>
-                            <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {workout.weight} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">kg</span>
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ratio</p>
-                            <p className={ratioStyle}>
-                                {ratio.toFixed(2)}x
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 hidden sm:block">
-                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Bodyweight</p>
-                        <p className="text-sm text-slate-900 dark:text-white font-medium">
-                            {workout.bodyweight} kg
-                        </p>
-                    </div>
-
-                    {workout.notes && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 italic border-l-2 border-slate-300 dark:border-slate-600 pl-3 py-1 bg-slate-50 dark:bg-slate-900/30 px-3 rounded">
-                            "{workout.notes}"
-                        </p>
-                    )}
-                </div>
-
-                <div className="flex gap-2 sm:flex-col sm:w-auto">
-                    {onEdit && (
-                        <button
-                            onClick={() => onEdit(workout)}
-                            className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
-                        >
-                            Edit
-                        </button>
-                    )}
-
-                    {
-                        !confirmDelete ?
-                            <button
-                                onClick={() => {
-                                    handleDelete();
-                                }}
-                                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
-                            >
-                                Delete
-                            </button>
-                            :
-                            <button
-                                onClick={() => {
-                                    handleConfirmDelete(confirmDelete, workout.id)
-                                }}
-                                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
-                            >
-                                Confirm delete
-                            </button>
-                    }
-                </div>
+  return (
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{workout.name}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
+                {formattedDate}
+              </p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Sets
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                {workout.sets}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Reps
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                {workout.reps}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Weight
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                {workout.weight}{" "}
+                <span className="text-sm font-normal text-slate-500 dark:text-slate-400">kg</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Ratio
+              </p>
+              <p className={ratioStyle}>{ratio.toFixed(2)}x</p>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 hidden sm:block">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+              Bodyweight
+            </p>
+            <p className="text-sm text-slate-900 dark:text-white font-medium">
+              {workout.bodyweight} kg
+            </p>
+          </div>
+
+          {workout.notes && (
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 italic border-l-2 border-slate-300 dark:border-slate-600 pl-3 py-1 bg-slate-50 dark:bg-slate-900/30 px-3 rounded">
+              "{workout.notes}"
+            </p>
+          )}
         </div>
-    );
+
+        <div className="flex gap-2 sm:flex-col sm:w-auto">
+          {onEdit && (
+            <button
+              onClick={() => onEdit(workout)}
+              className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
+            >
+              Edit
+            </button>
+          )}
+
+          {!confirmDelete ? (
+            <button
+              onClick={() => {
+                handleDelete();
+              }}
+              className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+            >
+              Delete
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                handleConfirmDelete(confirmDelete, workout.id);
+              }}
+              className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+            >
+              Confirm delete
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
