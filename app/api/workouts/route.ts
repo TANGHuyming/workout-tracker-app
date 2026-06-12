@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkoutProvider } from "../../providers/WorkoutProvider";
 import csrf from "csrf";
 import { cookies } from "next/headers";
-import { indexByUserId, indexByDate } from "@/app/controllers/WorkoutController";
+import {
+  indexByUserId,
+  indexByDate,
+  indexBySearch,
+  indexByMininum,
+} from "@/app/controllers/WorkoutController";
 import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
@@ -12,11 +17,9 @@ const secret = process.env.CSRF_SECRET || "your-super-secret-key-change-in-produ
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const date = params.get("date");
-
-  console.log(date);
-
+  const searchQuery = params.get("searchQuery");
+  const minimum = parseFloat(params.get("minimum") || "0");
   let data;
-
   const jwtPayloadHeader = request.headers.get("jwt-payload");
 
   if (!jwtPayloadHeader) {
@@ -33,6 +36,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (date) data = await indexByDate(payload.userId, new Date(date));
+  else if (searchQuery) data = await indexBySearch(payload.userId, searchQuery);
+  else if (minimum) data = await indexByMininum(payload.userId, minimum);
   else data = await indexByUserId(payload.userId);
 
   if (!data.success) {

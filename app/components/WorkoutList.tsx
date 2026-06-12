@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Workout } from "../utils/workout/workoutData";
 import WorkoutCard from "./WorkoutCard";
 import WorkoutEditModal from "./WorkoutEditModal";
@@ -13,17 +13,22 @@ interface WorkoutListProps {
 }
 
 export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutListProps) {
-  const { fetchWorkoutsByDate } = useWorkouts();
+  const { fetchWorkouts, fetchWorkoutsByDate, fetchWorkoutsBySearch, fetchWorkoutsByMinimum } =
+    useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchDate, setSearchDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [searchWeight, setSearchWeight] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
 
+  useEffect(() => {
+    return () => {
+      fetchWorkouts();
+    };
+  });
+
   const filterByDate = async (value: string) => {
     const date = new Date(value);
-    setSearchDate(date.toISOString().split("T")[0]);
-    console.log(date);
     try {
       await fetchWorkoutsByDate(date);
     } catch (error) {
@@ -31,22 +36,39 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
     }
   };
 
-  const filteredWorkouts = workouts.filter((w) => {
-    // Filter by exercise name
-    const exerciseMatch =
-      searchExercise === "" || w.name.toLowerCase().includes(searchExercise.toLowerCase());
+  const filterBySearch = async (value: string) => {
+    const searchQuery = value;
+    try {
+      if (searchQuery.length === 0) {
+        await fetchWorkouts();
+        return;
+      }
 
-    // Filter by date
-    const dateMatch =
-      searchDate === "" || new Date(w.date).toISOString().split("T")[0] === searchDate;
+      await fetchWorkoutsBySearch(searchQuery);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSearchExercise("");
+    }
+  };
 
-    // Filter by weight (minimum weight)
-    const weightMatch = searchWeight === "" || w.weight >= parseInt(searchWeight);
+  const filterByMinimum = async (value: string) => {
+    const minimum = parseFloat(value) || 0;
+    try {
+      if (minimum === 0) {
+        await fetchWorkouts();
+        return;
+      }
 
-    return exerciseMatch && dateMatch && weightMatch;
-  });
+      await fetchWorkoutsByMinimum(minimum);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSearchWeight("");
+    }
+  };
 
-  const sortedWorkouts = [...filteredWorkouts].sort((a, b) => {
+  const sortedWorkouts = [...workouts].sort((a, b) => {
     switch (sortBy) {
       case "weight":
         return b.weight - a.weight;
@@ -88,7 +110,7 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
         <div className="space-y-6 mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
           {/* Search Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Exercise
               </label>
@@ -99,21 +121,36 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 placeholder="e.g., Bench Press"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
+              <button
+                type="button"
+                onClick={() => filterBySearch(searchExercise)}
+                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
+              >
+                Search
+              </button>
             </div>
 
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Date
               </label>
               <input
                 type="date"
                 value={searchDate}
-                onChange={(e) => filterByDate(e.target.value)}
+                onChange={(e) => setSearchDate(e.target.value)}
                 className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
+
+              <button
+                type="button"
+                onClick={() => filterByDate(searchDate)}
+                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
+              >
+                Filter
+              </button>
             </div>
 
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Min Weight (kg)
               </label>
@@ -125,6 +162,14 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 min="0"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
+
+              <button
+                type="button"
+                onClick={() => filterByMinimum(searchWeight)}
+                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
+              >
+                Filter
+              </button>
             </div>
           </div>
 

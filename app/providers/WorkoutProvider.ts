@@ -54,7 +54,7 @@ export class WorkoutProvider {
   /**
    * Get all workouts for a user with filtering and sorting
    */
-  static async findByUserIdFiltered(
+  static async findByDate(
     userId: string,
     options: {
       date: Date;
@@ -93,6 +93,36 @@ export class WorkoutProvider {
         query = query.sort({ date: -1 });
       }
 
+      const workouts = await query;
+      return workouts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async findBySearch(userId: string, searchQuery: string): Promise<IWorkout[]> {
+    try {
+      const filter: any = {
+        userId,
+        name: { $regex: searchQuery, $options: "i" },
+      };
+      await connectDB();
+      const query = WorkoutModel.find(filter).populate("userId");
+      const workouts = await query;
+      return workouts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async findByMininum(userId: string, minimum: number): Promise<IWorkout[]> {
+    try {
+      const filter: any = {
+        userId,
+        weight: { $gte: minimum },
+      };
+      await connectDB();
+      const query = WorkoutModel.find(filter).populate("userId");
       const workouts = await query;
       return workouts;
     } catch (error) {

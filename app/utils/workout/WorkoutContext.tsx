@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import type { Workout } from "./workoutData";
 
 interface WorkoutContextType {
@@ -9,6 +9,8 @@ interface WorkoutContextType {
   error: string | null;
   fetchWorkouts: () => Promise<void>;
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
+  fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
+  fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
   deleteWorkout: (id: string) => Promise<void>;
@@ -66,6 +68,84 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       const response = await fetch(`/api/workouts?date=${encodeURIComponent(date.toISOString())}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to fetch workouts");
+      }
+
+      const data = await response.json();
+      setWorkouts(
+        data.workouts.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          type: w.type,
+          sets: w.sets,
+          reps: w.reps,
+          weight: w.weight,
+          bodyweight: w.bodyweight,
+          intensity: w.intensity,
+          date: new Date(w.date),
+          notes: w.notes,
+        })),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      setError(message);
+      console.error("Error fetching workouts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchWorkoutsBySearch = useCallback(async (searchQuery: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/workouts?searchQuery=${searchQuery}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to fetch workouts");
+      }
+
+      const data = await response.json();
+      setWorkouts(
+        data.workouts.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          type: w.type,
+          sets: w.sets,
+          reps: w.reps,
+          weight: w.weight,
+          bodyweight: w.bodyweight,
+          intensity: w.intensity,
+          date: new Date(w.date),
+          notes: w.notes,
+        })),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      setError(message);
+      console.error("Error fetching workouts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchWorkoutsByMinimum = useCallback(async (minimum: number) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/workouts?minimum=${minimum}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -208,6 +288,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         error,
         fetchWorkouts,
         fetchWorkoutsByDate,
+        fetchWorkoutsBySearch,
+        fetchWorkoutsByMinimum,
         addWorkout,
         updateWorkout,
         deleteWorkout,
