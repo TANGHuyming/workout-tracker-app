@@ -18,7 +18,10 @@ export default function ProfilePage() {
     email: user?.email || "",
   });
   const [savingProfile, setSavingProfile] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const router = useRouter();
   const { workouts, fetchWorkouts } = useWorkouts();
   const [isLoading, setIsLoading] = useState(true);
@@ -38,10 +41,7 @@ export default function ProfilePage() {
       }
     };
 
-    if (workouts.length === 0) {
-      fetcher();
-    }
-
+    fetcher();
     fetchCsrfToken();
     setIsLoading(false);
   }, []);
@@ -155,7 +155,10 @@ export default function ProfilePage() {
               <button
                 onClick={() => {
                   setEditingProfile(true);
-                  setProfileForm({ username: user?.username || "", email: user?.email || "" });
+                  setProfileForm({
+                    username: user?.username || "",
+                    email: user?.email || "",
+                  });
                 }}
                 className="w-full px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors border border-blue-700 dark:border-blue-600"
               >

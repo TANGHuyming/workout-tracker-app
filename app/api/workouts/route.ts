@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkoutProvider } from "../../providers/WorkoutProvider";
 import csrf from "csrf";
 import { cookies } from "next/headers";
-import {
-  indexByUserId,
-  indexByDate,
-  indexBySearch,
-  indexByMininum,
-} from "@/app/controllers/WorkoutController";
+import { indexByUserId, indexByAll } from "@/app/controllers/WorkoutController";
 import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
@@ -16,9 +11,10 @@ const secret = process.env.CSRF_SECRET || "your-super-secret-key-change-in-produ
 // GET all workouts for authenticated user
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const date = params.get("date");
-  const searchQuery = params.get("searchQuery");
+  const date = params.get("date") || new Date();
+  const searchQuery = params.get("searchQuery") || "";
   const minimum = parseFloat(params.get("minimum") || "0");
+  const all = !!params.get("all");
   let data;
   const jwtPayloadHeader = request.headers.get("jwt-payload");
 
@@ -35,9 +31,7 @@ export async function GET(request: NextRequest) {
     throw new Error(`${payload.message}`);
   }
 
-  if (date) data = await indexByDate(payload.userId, new Date(date));
-  else if (searchQuery) data = await indexBySearch(payload.userId, searchQuery);
-  else if (minimum) data = await indexByMininum(payload.userId, minimum);
+  if (all) data = await indexByAll(payload.userId, new Date(date), searchQuery, minimum);
   else data = await indexByUserId(payload.userId);
 
   if (!data.success) {

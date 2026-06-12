@@ -51,6 +51,53 @@ export class WorkoutProvider {
     }
   }
 
+  static async findByFilter(
+    userId: string,
+    options: {
+      date: Date;
+      searchQuery: string;
+      minimum: number;
+    },
+  ) {
+    try {
+      await connectDB();
+
+      const filter: any = {
+        userId,
+        createdAt: {
+          $gte: new Date(0),
+          $lt: new Date(),
+        },
+        name: {
+          $regex: "",
+          $options: "i",
+        },
+        weight: {
+          $gte: 0,
+        },
+      };
+
+      if (options.date) {
+        // Remove time component
+        const startDate = new Date(options.date);
+        startDate.setHours(0, 0, 0, 0);
+        filter.createdAt.$gte = startDate;
+      }
+      if (options.searchQuery) {
+        filter.name.$regex = options.searchQuery.trim();
+      }
+      if (options.minimum) {
+        filter.weight.$gte = options.minimum;
+      }
+
+      const query = WorkoutModel.find(filter).populate("userId");
+      const workouts = await query;
+      return workouts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   /**
    * Get all workouts for a user with filtering and sorting
    */

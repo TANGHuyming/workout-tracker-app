@@ -25,7 +25,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const { workouts, fetchWorkouts, addWorkout } = useWorkouts();
   const [exerciseName, setExerciseName] = useState("");
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const availableExercises = getAllExercises();
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
   const chartOptions = {
@@ -88,10 +91,9 @@ export default function Home() {
       }
     };
 
-    if (workouts.length === 0 && user) {
+    if (user) {
       fetcher();
     }
-
     setIsLoading(false);
   }, [user]);
 

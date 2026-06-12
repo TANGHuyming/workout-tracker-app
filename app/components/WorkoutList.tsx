@@ -13,58 +13,22 @@ interface WorkoutListProps {
 }
 
 export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutListProps) {
-  const { fetchWorkouts, fetchWorkoutsByDate, fetchWorkoutsBySearch, fetchWorkoutsByMinimum } =
-    useWorkouts();
+  const { fetchWorkoutsByAll } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchDate, setSearchDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [searchWeight, setSearchWeight] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
 
-  useEffect(() => {
-    return () => {
-      fetchWorkouts();
-    };
-  });
-
-  const filterByDate = async (value: string) => {
-    const date = new Date(value);
+  const filterByAll = async () => {
     try {
-      await fetchWorkoutsByDate(date);
+      await fetchWorkoutsByAll(
+        new Date(searchDate.length !== 0 ? searchDate : 0),
+        searchExercise,
+        parseFloat(searchWeight),
+      );
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const filterBySearch = async (value: string) => {
-    const searchQuery = value;
-    try {
-      if (searchQuery.length === 0) {
-        await fetchWorkouts();
-        return;
-      }
-
-      await fetchWorkoutsBySearch(searchQuery);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSearchExercise("");
-    }
-  };
-
-  const filterByMinimum = async (value: string) => {
-    const minimum = parseFloat(value) || 0;
-    try {
-      if (minimum === 0) {
-        await fetchWorkouts();
-        return;
-      }
-
-      await fetchWorkoutsByMinimum(minimum);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSearchWeight("");
     }
   };
 
@@ -110,7 +74,7 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
         <div className="space-y-6 mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
           {/* Search Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Exercise
               </label>
@@ -121,16 +85,9 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 placeholder="e.g., Bench Press"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
-              <button
-                type="button"
-                onClick={() => filterBySearch(searchExercise)}
-                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
-              >
-                Search
-              </button>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Date
               </label>
@@ -140,17 +97,9 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 onChange={(e) => setSearchDate(e.target.value)}
                 className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
-
-              <button
-                type="button"
-                onClick={() => filterByDate(searchDate)}
-                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
-              >
-                Filter
-              </button>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Min Weight (kg)
               </label>
@@ -162,15 +111,15 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                 min="0"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
-
-              <button
-                type="button"
-                onClick={() => filterByMinimum(searchWeight)}
-                className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-1/2"
-              >
-                Filter
-              </button>
             </div>
+
+            <button
+              type="button"
+              onClick={filterByAll}
+              className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2"
+            >
+              Apply filters
+            </button>
           </div>
 
           {/* Sort */}

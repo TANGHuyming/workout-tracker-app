@@ -11,6 +11,7 @@ interface WorkoutContextType {
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
+  fetchWorkoutsByAll: (date: Date, searchQuery: string, minimum: number) => Promise<void>;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
   deleteWorkout: (id: string) => Promise<void>;
@@ -179,6 +180,48 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const fetchWorkoutsByAll = async (date: Date, searchQuery: string, minimum: number) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        `/api/workouts?date=${date}&minimum=${minimum}&searchQuery=${searchQuery}&all=${1}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to fetch workouts");
+      }
+
+      const data = await response.json();
+      setWorkouts(
+        data.workouts.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          type: w.type,
+          sets: w.sets,
+          reps: w.reps,
+          weight: w.weight,
+          bodyweight: w.bodyweight,
+          intensity: w.intensity,
+          date: new Date(w.date),
+          notes: w.notes,
+        })),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      setError(message);
+      console.error("Error fetching workouts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addWorkout = useCallback(async (workout: Omit<Workout, "id">) => {
     try {
       setError(null);
@@ -290,6 +333,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         fetchWorkoutsByDate,
         fetchWorkoutsBySearch,
         fetchWorkoutsByMinimum,
+        fetchWorkoutsByAll,
         addWorkout,
         updateWorkout,
         deleteWorkout,

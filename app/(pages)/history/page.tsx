@@ -6,16 +6,18 @@ import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
 import { useState, useEffect } from "react";
 
 export default function HistoryPage() {
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkouts, fetchWorkoutsByDate, deleteWorkout, updateWorkout } =
-    useWorkouts();
+  const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } = useWorkouts();
 
   useEffect(() => {
     const fetcher = async () => {
       setIsLoading(true);
       try {
-        await fetchWorkoutsByDate(new Date());
+        await fetchWorkouts();
       } catch (err) {
         setToast({
           message: err instanceof Error ? err.message : "Failed to fetch workouts",
@@ -26,10 +28,7 @@ export default function HistoryPage() {
       }
     };
 
-    if (workouts.length === 0) {
-      fetcher();
-    }
-
+    fetcher();
     setIsLoading(false);
   }, []);
 
