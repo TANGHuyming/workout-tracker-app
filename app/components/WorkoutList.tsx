@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import clsx from "clsx";
 import type { Workout } from "../utils/workout/workoutData";
 import WorkoutCard from "./WorkoutCard";
 import WorkoutEditModal from "./WorkoutEditModal";
 import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
+import { LuLayoutGrid } from "react-icons/lu";
 
 interface WorkoutListProps {
   workouts: Workout[];
@@ -12,13 +14,21 @@ interface WorkoutListProps {
   onUpdate?: (id: string, updates: Partial<Workout>) => Promise<void>;
 }
 
-export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutListProps) {
-  const { fetchWorkoutsByAll } = useWorkouts();
+export default function WorkoutList({
+  workouts,
+  onDelete,
+  onUpdate,
+}: WorkoutListProps) {
+  const { fetchWorkoutsByAll, isLoading } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
-  const [searchDate, setSearchDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [searchDate, setSearchDate] = useState<string>(
+    new Date().toISOString().split("T")[0],
+  );
   const [searchWeight, setSearchWeight] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [index, setIndex] = useState<number>(0);
+  const [layout, setLayout] = useState({ isCompact: false, isVertical: false });
 
   const filterByAll = async () => {
     try {
@@ -27,6 +37,9 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
         searchExercise,
         parseFloat(searchWeight),
       );
+      setSearchExercise("");
+      setSearchDate("");
+      setSearchWeight("");
     } catch (error) {
       console.error(error);
     }
@@ -60,11 +73,25 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
     }
   };
 
+  const handleChangeCardLayout = () => {
+    const layouts = ["full", "compact"];
+
+    if (layouts[index] === "full") {
+      setLayout({ isCompact: false, isVertical: false });
+      setIndex((prev) => (prev + 1) % layouts.length);
+    } else if (layouts[index] === "compact") {
+      setLayout({ isCompact: true, isVertical: false });
+      setIndex((prev) => (prev + 1) % layouts.length);
+    }
+  };
+
   return (
     <>
       <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Workout History</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Workout History
+          </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
             Search and filter your logged workouts
           </p>
@@ -116,9 +143,13 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
             <button
               type="button"
               onClick={filterByAll}
-              className="bg-blue-950 border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2"
+              className={clsx(
+                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2",
+                isLoading ? "bg-blue-950/50" : "bg-blue-950",
+              )}
+              disabled={isLoading}
             >
-              Apply filters
+              {isLoading ? "Applying..." : "Apply filters"}
             </button>
           </div>
 
@@ -129,7 +160,9 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
             </label>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "date" | "weight" | "sets")}
+              onChange={(e) =>
+                setSortBy(e.target.value as "date" | "weight" | "sets")
+              }
               className="w-full sm:max-w-xs px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="date">Date (Newest)</option>
@@ -137,6 +170,11 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
               <option value="sets">Sets (Most)</option>
             </select>
           </div>
+        </div>
+
+        {/* Card display setting */}
+        <div className="w-full flex justify-end text-2xl font-semibold text-slate-700 dark:text-slate-300 cursor-pointer mb-8">
+          <LuLayoutGrid onClick={handleChangeCardLayout} />
         </div>
 
         {/* Workouts Display */}
@@ -169,6 +207,7 @@ export default function WorkoutList({ workouts, onDelete, onUpdate }: WorkoutLis
                   workout={workout}
                   onDelete={onDelete}
                   onEdit={handleEdit}
+                  options={layout}
                 />
               ))}
             </div>

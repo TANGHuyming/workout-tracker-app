@@ -66,15 +66,23 @@ export default function Header() {
             <GiHamburgerMenu onClick={() => setShowDropdownMenu(true)} />
           )}
 
-          <div className={`${showDropdownMenu ? "flex" : "hidden"}`}>
-            <ul className="font-bold text-md fixed top-16 right-4 z-10 min-w-[50vw] bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 border-blue-950 rounded-md border-2">
+          <div
+            className={`${showDropdownMenu ? "flex" : "hidden"} font-bold text-md fixed top-16 right-4 z-50 min-w-[50vw] bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800`}
+          >
+            <ul className="w-full">
               <li className="dropdown_item" onClick={() => router.push("/")}>
                 Home
               </li>
-              <li className="dropdown_item" onClick={() => router.push("/history")}>
+              <li
+                className="dropdown_item"
+                onClick={() => router.push("/history")}
+              >
                 History
               </li>
-              <li className="dropdown_item" onClick={() => router.push("/profile")}>
+              <li
+                className="dropdown_item"
+                onClick={() => router.push("/profile")}
+              >
                 Profile
               </li>
               <li className="dropdown_item" onClick={handleLogout}>
@@ -87,4 +95,3 @@ export default function Header() {
     </header>
   );
 }
-

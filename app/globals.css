@@ -88,6 +88,5 @@ textarea {
 }
 
 .dropdown_item {
-  @apply p-4 cursor-pointer hover:bg-slate-800;
+  @apply p-4 cursor-pointer hover:bg-slate-800 backdrop-blur-md w-full;
 }
-
