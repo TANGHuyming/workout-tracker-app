@@ -27,7 +27,7 @@ export default function WorkoutList({
   const [searchWeight, setSearchWeight] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
-  const [index, setIndex] = useState<number>(0);
+  const [index, setIndex] = useState<number>(1);
   const [layout, setLayout] = useState({ isCompact: false, isVertical: false });
 
   const filterByAll = async () => {
