@@ -75,13 +75,12 @@ export default function WorkoutList({
 
   const handleChangeCardLayout = () => {
     const layouts = ["full", "compact"];
+    setIndex((prev) => (prev + 1) % layouts.length);
 
     if (layouts[index] === "full") {
       setLayout({ isCompact: false, isVertical: false });
-      setIndex((prev) => (prev + 1) % layouts.length);
     } else if (layouts[index] === "compact") {
       setLayout({ isCompact: true, isVertical: false });
-      setIndex((prev) => (prev + 1) % layouts.length);
     }
   };
 
