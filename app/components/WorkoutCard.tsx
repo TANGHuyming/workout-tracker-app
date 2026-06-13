@@ -1,4 +1,5 @@
 "use client";
+import clsx from "clsx";
 import type { Workout } from "../utils/workout/workoutData";
 import { STRENGTH_STANDARDS } from "../utils/exercises";
 import { useState } from "react";
@@ -7,17 +8,16 @@ interface WorkoutCardProps {
   workout: Workout;
   onDelete: (id: string) => void;
   onEdit?: (workout: Workout) => void;
-  options: {
-    isCompact: boolean;
-    isVertical: boolean;
-  };
+  isCompact: boolean;
+  isList: boolean;
 }
 
 export default function WorkoutCard({
   workout,
   onDelete,
   onEdit,
-  options: { isCompact, isVertical },
+  isCompact,
+  isList,
 }: WorkoutCardProps) {
   const date = new Date(workout.date);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,7 +58,12 @@ export default function WorkoutCard({
   if (isCompact) {
     return (
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div
+          className={clsx(
+            "sm:items-start sm:justify-between gap-4",
+            !isList ? "grid grid-cols-1" : "flex flex-col sm:flex-row",
+          )}
+        >
           <div className="flex-1">
             <div className="flex items-start gap-3 mb-3">
               <div className="flex-1">
@@ -112,7 +117,7 @@ export default function WorkoutCard({
             {onEdit && (
               <button
                 onClick={() => onEdit(workout)}
-                className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
+                className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
               >
                 Edit
               </button>
@@ -123,7 +128,7 @@ export default function WorkoutCard({
                 onClick={() => {
                   handleDelete();
                 }}
-                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+                className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
               >
                 Delete
               </button>
@@ -132,7 +137,7 @@ export default function WorkoutCard({
                 onClick={() => {
                   handleConfirmDelete(confirmDelete, workout.id);
                 }}
-                className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+                className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
               >
                 Confirm delete
               </button>
@@ -145,7 +150,12 @@ export default function WorkoutCard({
 
   return (
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 group">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div
+        className={clsx(
+          "sm:items-start sm:justify-between gap-4",
+          !isList ? "grid grid-cols-1" : "flex flex-col sm:flex-row",
+        )}
+      >
         <div className="flex-1">
           <div className="flex items-start gap-3 mb-3">
             <div className="flex-1">
@@ -214,7 +224,7 @@ export default function WorkoutCard({
           {onEdit && (
             <button
               onClick={() => onEdit(workout)}
-              className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
+              className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap"
             >
               Edit
             </button>
@@ -225,7 +235,7 @@ export default function WorkoutCard({
               onClick={() => {
                 handleDelete();
               }}
-              className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+              className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
             >
               Delete
             </button>
@@ -234,7 +244,7 @@ export default function WorkoutCard({
               onClick={() => {
                 handleConfirmDelete(confirmDelete, workout.id);
               }}
-              className="flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
+              className="cursor-pointer flex-1 sm:flex-none px-4 py-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800 whitespace-nowrap"
             >
               Confirm delete
             </button>

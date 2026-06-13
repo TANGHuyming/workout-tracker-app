@@ -6,7 +6,8 @@ import type { Workout } from "../utils/workout/workoutData";
 import WorkoutCard from "./WorkoutCard";
 import WorkoutEditModal from "./WorkoutEditModal";
 import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
-import { LuLayoutGrid } from "react-icons/lu";
+import { LuLayoutGrid, LuCreditCard } from "react-icons/lu";
+import { FaListUl } from "react-icons/fa";
 
 interface WorkoutListProps {
   workouts: Workout[];
@@ -28,7 +29,8 @@ export default function WorkoutList({
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [index, setIndex] = useState<number>(1);
-  const [layout, setLayout] = useState({ isCompact: false, isVertical: false });
+  const [isList, setIsList] = useState(true);
+  const [isCompact, setIsCompact] = useState(false);
 
   const filterByAll = async () => {
     try {
@@ -78,10 +80,15 @@ export default function WorkoutList({
     setIndex((prev) => (prev + 1) % layouts.length);
 
     if (layouts[index] === "full") {
-      setLayout({ isCompact: false, isVertical: false });
+      setIsCompact(false);
     } else if (layouts[index] === "compact") {
-      setLayout({ isCompact: true, isVertical: false });
+      setIsCompact(true);
     }
+  };
+
+  // Change how each card is displayed: card is grid-like while list is a list
+  const handleChangeListLayout = () => {
+    setIsList((prev) => !prev);
   };
 
   return (
@@ -143,7 +150,7 @@ export default function WorkoutList({
               type="button"
               onClick={filterByAll}
               className={clsx(
-                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2",
+                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2 cursor-pointer",
                 isLoading ? "bg-blue-950/50" : "bg-blue-950",
               )}
               disabled={isLoading}
@@ -172,8 +179,13 @@ export default function WorkoutList({
         </div>
 
         {/* Card display setting */}
-        <div className="w-full flex justify-end text-2xl font-semibold text-slate-700 dark:text-slate-300 cursor-pointer mb-8">
+        <div className="w-full flex justify-end text-2xl font-semibold text-slate-700 dark:text-slate-300 cursor-pointer mb-8 gap-4">
           <LuLayoutGrid onClick={handleChangeCardLayout} />
+          {isList ? (
+            <FaListUl onClick={handleChangeListLayout} />
+          ) : (
+            <LuCreditCard onClick={handleChangeListLayout} />
+          )}
         </div>
 
         {/* Workouts Display */}
@@ -192,24 +204,34 @@ export default function WorkoutList({
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 px-2">
+            <>
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 p-2">
                 Showing{" "}
                 <span className="text-slate-900 dark:text-white font-bold">
                   {sortedWorkouts.length}
                 </span>{" "}
                 workout{sortedWorkouts.length !== 1 ? "s" : ""}
               </p>
-              {sortedWorkouts.map((workout) => (
-                <WorkoutCard
-                  key={workout.id}
-                  workout={workout}
-                  onDelete={onDelete}
-                  onEdit={handleEdit}
-                  options={layout}
-                />
-              ))}
-            </div>
+              <div
+                className={clsx(
+                  "space-y-4 gap-4",
+                  isList
+                    ? "block"
+                    : "grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2",
+                )}
+              >
+                {sortedWorkouts.map((workout) => (
+                  <WorkoutCard
+                    key={workout.id}
+                    workout={workout}
+                    onDelete={onDelete}
+                    onEdit={handleEdit}
+                    isCompact={isCompact}
+                    isList={isList}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
