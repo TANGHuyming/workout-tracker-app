@@ -12,6 +12,7 @@
     "@universal-rate-limit/nextjs": "^2.1.0",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
+    "clsx": "^2.1.1",
     "csrf": "^3.1.0",
     "jsonwebtoken": "^9.0.3",
     "mailersend": "github:mailersend/mailersend-nodejs",
