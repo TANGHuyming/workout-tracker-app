@@ -44,7 +44,9 @@ export class WorkoutProvider {
   static async findByUserId(userId: string): Promise<IWorkout[]> {
     try {
       await connectDB();
-      const workouts = await WorkoutModel.find({ userId }).populate("userId").sort({ date: -1 });
+      const workouts = await WorkoutModel.find({ userId })
+        .populate("userId")
+        .sort({ date: -1 });
       return workouts;
     } catch (error) {
       throw error;
@@ -54,7 +56,7 @@ export class WorkoutProvider {
   static async findByFilter(
     userId: string,
     options: {
-      date: Date;
+      date: { startDate: Date; endDate: Date };
       searchQuery: string;
       minimum: number;
     },
@@ -64,9 +66,9 @@ export class WorkoutProvider {
 
       const filter: any = {
         userId,
-        createdAt: {
+        date: {
           $gte: new Date(0),
-          $lt: new Date(),
+          $lte: new Date(),
         },
         name: {
           $regex: "",
@@ -77,15 +79,26 @@ export class WorkoutProvider {
         },
       };
 
-      if (options.date) {
+      if (options.date.startDate && options.date.endDate) {
         // Remove time component
-        const startDate = new Date(options.date);
+        const startDate = new Date(options.date.startDate);
         startDate.setHours(0, 0, 0, 0);
-        filter.createdAt.$gte = startDate;
+        const endDate = new Date(options.date.endDate);
+        endDate.setHours(0, 0, 0, 0);
+        filter.date.$gte = options.date.startDate;
+        filter.date.$lte = options.date.endDate;
+      } else if (!options.date.startDate && options.date.endDate) {
+        filter.date.$lte = options.date.endDate;
+      } else if (!options.date.endDate && options.date.startDate) {
+        filter.date.$gte = options.date.startDate;
       }
+
+      console.log(filter.createdAt);
+
       if (options.searchQuery) {
         filter.name.$regex = options.searchQuery.trim();
       }
+
       if (options.minimum) {
         filter.weight.$gte = options.minimum;
       }
@@ -147,7 +160,10 @@ export class WorkoutProvider {
     }
   }
 
-  static async findBySearch(userId: string, searchQuery: string): Promise<IWorkout[]> {
+  static async findBySearch(
+    userId: string,
+    searchQuery: string,
+  ): Promise<IWorkout[]> {
     try {
       const filter: any = {
         userId,
@@ -162,7 +178,10 @@ export class WorkoutProvider {
     }
   }
 
-  static async findByMininum(userId: string, minimum: number): Promise<IWorkout[]> {
+  static async findByMininum(
+    userId: string,
+    minimum: number,
+  ): Promise<IWorkout[]> {
     try {
       const filter: any = {
         userId,
@@ -183,7 +202,9 @@ export class WorkoutProvider {
   static async findAll(): Promise<IWorkout[]> {
     try {
       await connectDB();
-      const workouts = await WorkoutModel.find().populate("userId").sort({ date: -1 });
+      const workouts = await WorkoutModel.find()
+        .populate("userId")
+        .sort({ date: -1 });
       return workouts;
     } catch (error) {
       throw error;
@@ -206,10 +227,14 @@ export class WorkoutProvider {
   ): Promise<IWorkout | null> {
     try {
       await connectDB();
-      const workout = await WorkoutModel.findByIdAndUpdate(workoutId, updateData, {
-        new: true,
-        runValidators: true,
-      }).populate("userId");
+      const workout = await WorkoutModel.findByIdAndUpdate(
+        workoutId,
+        updateData,
+        {
+          new: true,
+          runValidators: true,
+        },
+      ).populate("userId");
       return workout;
     } catch (error) {
       throw error;
@@ -258,7 +283,10 @@ export class WorkoutProvider {
   /**
    * Get workouts from last N days for a user
    */
-  static async findRecentByUserId(userId: string, days: number): Promise<IWorkout[]> {
+  static async findRecentByUserId(
+    userId: string,
+    days: number,
+  ): Promise<IWorkout[]> {
     try {
       await connectDB();
       const startDate = new Date();

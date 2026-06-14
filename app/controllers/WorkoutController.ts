@@ -30,15 +30,18 @@ export const indexByUserId = async (userId: string) => {
 
 export const indexByAll = async (
   userId: string,
-  date: Date,
+  date: {
+    startDate: Date;
+    endDate: Date;
+  },
   searchQuery: string,
   minimum: number,
 ) => {
   try {
     const workouts = await WorkoutProvider.findByFilter(userId, {
-      date: date,
-      searchQuery,
-      minimum,
+      date: { startDate: date.startDate, endDate: date.endDate },
+      searchQuery: searchQuery,
+      minimum: minimum,
     });
 
     let data: any = {

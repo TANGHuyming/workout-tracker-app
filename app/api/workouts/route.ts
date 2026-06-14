@@ -6,12 +6,14 @@ import { indexByUserId, indexByAll } from "@/app/controllers/WorkoutController";
 import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
-const secret = process.env.CSRF_SECRET || "your-super-secret-key-change-in-production";
+const secret =
+  process.env.CSRF_SECRET || "your-super-secret-key-change-in-production";
 
 // GET all workouts for authenticated user
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const date = params.get("date") || new Date();
+  const startDate = params.get("startDate") || new Date();
+  const endDate = params.get("endDate") || new Date();
   const searchQuery = params.get("searchQuery") || "";
   const minimum = parseFloat(params.get("minimum") || "0");
   const all = !!params.get("all");
@@ -31,11 +33,20 @@ export async function GET(request: NextRequest) {
     throw new Error(`${payload.message}`);
   }
 
-  if (all) data = await indexByAll(payload.userId, new Date(date), searchQuery, minimum);
+  if (all)
+    data = await indexByAll(
+      payload.userId,
+      { startDate: new Date(startDate), endDate: new Date(endDate) },
+      searchQuery,
+      minimum,
+    );
   else data = await indexByUserId(payload.userId);
 
   if (!data.success) {
-    return NextResponse.json({ message: "Failed to fetch workouts" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Failed to fetch workouts" },
+      { status: 400 },
+    );
   }
   return NextResponse.json(
     {
@@ -84,7 +95,8 @@ export async function POST(request: NextRequest) {
       let response: any = NextResponse.json(
         {
           success: false,
-          message: "Missing required fields: name, sets, reps, weight, bodyweight",
+          message:
+            "Missing required fields: name, sets, reps, weight, bodyweight",
         },
         { status: 400 },
       );

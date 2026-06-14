@@ -22,9 +22,8 @@ export default function WorkoutList({
 }: WorkoutListProps) {
   const { fetchWorkoutsByAll, isLoading } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
-  const [searchDate, setSearchDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
-  );
+  const [searchStartDate, setSearchStartDate] = useState<string>("");
+  const [searchEndDate, setSearchEndDate] = useState<string>("");
   const [searchWeight, setSearchWeight] = useState<string>("");
   const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
@@ -34,13 +33,24 @@ export default function WorkoutList({
 
   const filterByAll = async () => {
     try {
+      let startDate = new Date(searchStartDate);
+      let endDate = new Date(searchEndDate);
+
+      if (startDate > endDate) {
+        startDate = new Date(searchEndDate);
+        endDate = new Date(searchStartDate);
+      }
       await fetchWorkoutsByAll(
-        new Date(searchDate.length !== 0 ? searchDate : 0),
+        {
+          startDate: searchStartDate.length === 0 ? new Date(0) : startDate,
+          endDate: searchEndDate.length === 0 ? new Date() : endDate,
+        },
         searchExercise,
         parseFloat(searchWeight),
       );
       setSearchExercise("");
-      setSearchDate("");
+      setSearchStartDate("");
+      setSearchEndDate("");
       setSearchWeight("");
     } catch (error) {
       console.error(error);
@@ -120,16 +130,30 @@ export default function WorkoutList({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Date
-              </label>
-              <input
-                type="date"
-                value={searchDate}
-                onChange={(e) => setSearchDate(e.target.value)}
-                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Start date
+                </label>
+                <input
+                  type="date"
+                  value={searchStartDate}
+                  onChange={(e) => setSearchStartDate(e.target.value)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  End date
+                </label>
+                <input
+                  type="date"
+                  value={searchEndDate}
+                  onChange={(e) => setSearchEndDate(e.target.value)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

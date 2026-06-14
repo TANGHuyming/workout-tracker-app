@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import type { Workout } from "./workoutData";
 
 interface WorkoutContextType {
@@ -11,7 +17,14 @@ interface WorkoutContextType {
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
-  fetchWorkoutsByAll: (date: Date, searchQuery: string, minimum: number) => Promise<void>;
+  fetchWorkoutsByAll: (
+    date: {
+      startDate: Date;
+      endDate: Date;
+    },
+    searchQuery: string,
+    minimum: number,
+  ) => Promise<void>;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
   deleteWorkout: (id: string) => Promise<void>;
@@ -55,7 +68,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         })),
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
     } finally {
@@ -68,10 +82,13 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/workouts?date=${encodeURIComponent(date.toISOString())}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `/api/workouts?date=${encodeURIComponent(date.toISOString())}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
       if (!response.ok) {
         const data = await response.json();
@@ -94,7 +111,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         })),
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
     } finally {
@@ -133,7 +151,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         })),
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
     } finally {
@@ -172,7 +191,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         })),
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
     } finally {
@@ -180,13 +200,20 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const fetchWorkoutsByAll = async (date: Date, searchQuery: string, minimum: number) => {
+  const fetchWorkoutsByAll = async (
+    date: {
+      startDate: Date;
+      endDate: Date;
+    },
+    searchQuery: string,
+    minimum: number,
+  ) => {
     try {
       setIsLoading(true);
       setError(null);
 
       const response = await fetch(
-        `/api/workouts?date=${date}&minimum=${minimum}&searchQuery=${searchQuery}&all=${1}`,
+        `/api/workouts?startDate=${date.startDate}&endDate=${date.endDate}&minimum=${minimum}&searchQuery=${searchQuery}&all=${1}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -214,7 +241,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         })),
       );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to fetch workouts";
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
     } finally {
@@ -259,47 +287,54 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       setWorkouts((prev) => [newWorkout, ...prev]);
       return newWorkout;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to add workout";
+      const message =
+        err instanceof Error ? err.message : "Failed to add workout";
       setError(message);
       throw err;
     }
   }, []);
 
-  const updateWorkout = useCallback(async (id: string, updates: Partial<Workout>) => {
-    try {
-      setError(null);
-      const response = await fetch(`/api/workouts`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...updates }),
-      });
+  const updateWorkout = useCallback(
+    async (id: string, updates: Partial<Workout>) => {
+      try {
+        setError(null);
+        const response = await fetch(`/api/workouts`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, ...updates }),
+        });
 
-      if (!response.ok) {
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || "Failed to update workout");
+        }
+
         const data = await response.json();
-        throw new Error(data.message || "Failed to update workout");
+        const updatedWorkout: Workout = {
+          id: data.workout.id,
+          name: data.workout.name,
+          sets: data.workout.sets,
+          reps: data.workout.reps,
+          weight: data.workout.weight,
+          bodyweight: data.workout.bodyweight,
+          date: new Date(data.workout.date),
+          notes: data.workout.notes,
+        };
+
+        setWorkouts((prev) =>
+          prev.map((w) => (w.id === id ? updatedWorkout : w)),
+        );
+
+        return updatedWorkout;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update workout";
+        setError(message);
+        throw err;
       }
-
-      const data = await response.json();
-      const updatedWorkout: Workout = {
-        id: data.workout.id,
-        name: data.workout.name,
-        sets: data.workout.sets,
-        reps: data.workout.reps,
-        weight: data.workout.weight,
-        bodyweight: data.workout.bodyweight,
-        date: new Date(data.workout.date),
-        notes: data.workout.notes,
-      };
-
-      setWorkouts((prev) => prev.map((w) => (w.id === id ? updatedWorkout : w)));
-
-      return updatedWorkout;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to update workout";
-      setError(message);
-      throw err;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const deleteWorkout = useCallback(async (id: string) => {
     try {
@@ -317,7 +352,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
 
       setWorkouts((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to delete workout";
+      const message =
+        err instanceof Error ? err.message : "Failed to delete workout";
       setError(message);
       throw err;
     }
