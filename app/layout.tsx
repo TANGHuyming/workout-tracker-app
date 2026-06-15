@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Workout Tracker",
+  title: "FitTrack",
   description: "Track your workouts and monitor progress",
 };
 
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${blackOpsOne.className} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${blackOpsOne.className} ${geistSans.variable} ${geistMono.variable} h-full `}
     >
       <head>
         <meta charSet="utf-8" />

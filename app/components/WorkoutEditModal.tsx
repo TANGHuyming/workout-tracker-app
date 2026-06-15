@@ -28,7 +28,10 @@ export default function WorkoutEditModal({
     notes: workout.notes,
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const availableExercises = getAllExercises();
 
@@ -91,8 +94,12 @@ export default function WorkoutEditModal({
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit Workout</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{formData.name}</p>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              Edit Workout
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              {formData.name}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -110,7 +117,9 @@ export default function WorkoutEditModal({
             </label>
             <select
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">Select an exercise...</option>
@@ -130,7 +139,12 @@ export default function WorkoutEditModal({
               <input
                 type="number"
                 value={formData.sets}
-                onChange={(e) => setFormData({ ...formData, sets: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    sets: parseInt(e.target.value) || 0,
+                  })
+                }
                 placeholder="4"
                 min="1"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -144,7 +158,12 @@ export default function WorkoutEditModal({
               <input
                 type="number"
                 value={formData.reps}
-                onChange={(e) => setFormData({ ...formData, reps: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    reps: parseInt(e.target.value) || 0,
+                  })
+                }
                 placeholder="8"
                 min="1"
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -162,7 +181,10 @@ export default function WorkoutEditModal({
                 step="0.1"
                 value={formData.weight}
                 onChange={(e) =>
-                  setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    weight: parseFloat(e.target.value) || 0,
+                  })
                 }
                 placeholder="225"
                 min="0"
@@ -179,7 +201,10 @@ export default function WorkoutEditModal({
                 step="0.1"
                 value={formData.bodyweight}
                 onChange={(e) =>
-                  setFormData({ ...formData, bodyweight: parseFloat(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    bodyweight: parseFloat(e.target.value) || 0,
+                  })
                 }
                 placeholder="80"
                 min="20"
@@ -189,14 +214,20 @@ export default function WorkoutEditModal({
             </div>
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
               Date *
             </label>
             <input
               type="date"
-              value={formData.date instanceof Date ? formData.date.toISOString().split("T")[0] : ""}
-              onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value) })}
+              value={
+                formData.date instanceof Date
+                  ? formData.date.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                setFormData({ ...formData, date: new Date(e.target.value) })
+              }
               className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
@@ -207,7 +238,9 @@ export default function WorkoutEditModal({
             </label>
             <textarea
               value={formData.notes || ""}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               placeholder="Add any notes..."
               rows={3}

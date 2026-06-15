@@ -31,17 +31,6 @@ export default function WorkoutList({
   const [isList, setIsList] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
 
-  const handleFocus = (e: any) => {
-    if ("showPicker" in HTMLInputElement.prototype) {
-      try {
-        e.target.showPicker();
-      } catch (error) {
-        // Fallback or silent fail for browsers blocking programmatic picker on focus
-        console.warn("showPicker not supported or blocked:", error);
-      }
-    }
-  };
-
   const filterByAll = async () => {
     try {
       let startDate = new Date(searchStartDate);
@@ -150,7 +139,6 @@ export default function WorkoutList({
                   type="date"
                   value={searchStartDate}
                   onChange={(e) => setSearchStartDate(e.target.value)}
-                  onFocus={handleFocus}
                   className="cursor-text px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
@@ -163,7 +151,6 @@ export default function WorkoutList({
                   type="date"
                   value={searchEndDate}
                   onChange={(e) => setSearchEndDate(e.target.value)}
-                  onFocus={handleFocus}
                   className="cursor-text px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>

@@ -30,7 +30,15 @@ export default function Home() {
     type: "success" | "error";
   } | null>(null);
   const availableExercises = getAllExercises();
-  ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+  );
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -83,7 +91,8 @@ export default function Home() {
         await fetchWorkouts();
       } catch (err) {
         setToast({
-          message: err instanceof Error ? err.message : "Failed to fetch workouts",
+          message:
+            err instanceof Error ? err.message : "Failed to fetch workouts",
           type: "error",
         });
       } finally {
@@ -139,7 +148,10 @@ export default function Home() {
         return w.weight + acc;
       }, 0);
 
-      const average = filteredByMonth.length !== 0 ? sumOfWeights / filteredByMonth.length : 0;
+      const average =
+        filteredByMonth.length !== 0
+          ? sumOfWeights / filteredByMonth.length
+          : 0;
       averageLifts.push(average);
     }
 
@@ -213,7 +225,7 @@ export default function Home() {
             <select
               value={exerciseName}
               onChange={(e) => setExerciseName(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              className="cursor-pointer w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
             >
               <option value="">Select an exercise...</option>
               {availableExercises.map((exercise) => (

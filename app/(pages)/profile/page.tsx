@@ -33,7 +33,8 @@ export default function ProfilePage() {
         await fetchWorkouts();
       } catch (err) {
         setToast({
-          message: err instanceof Error ? err.message : "Failed to fetch workouts",
+          message:
+            err instanceof Error ? err.message : "Failed to fetch workouts",
           type: "error",
         });
       } finally {
@@ -78,7 +79,8 @@ export default function ProfilePage() {
       refreshUser();
     } catch (error) {
       setToast({
-        message: error instanceof Error ? error.message : "Failed to update profile",
+        message:
+          error instanceof Error ? error.message : "Failed to update profile",
         type: "error",
       });
     } finally {
@@ -99,11 +101,17 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      {toast ? <Toast message={toast.message} type={toast.type} /> : <div></div>}
+      {toast ? (
+        <Toast message={toast.message} type={toast.type} />
+      ) : (
+        <div></div>
+      )}
 
       {/* Hero Section */}
       <div className="mb-10">
-        <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Your Profile</h2>
+        <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          Your Profile
+        </h2>
         <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
           Manage your account details
         </p>
@@ -160,12 +168,14 @@ export default function ProfilePage() {
                     email: user?.email || "",
                   });
                 }}
-                className="w-full px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors border border-blue-700 dark:border-blue-600"
+                className="cursor-pointer w-full px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors border border-blue-700 dark:border-blue-600"
               >
                 Edit Profile
               </button>
 
-              <div className="lg:col-span-2">{stats && <StatsBreakdown stats={stats} />}</div>
+              <div className="lg:col-span-2">
+                {stats && <StatsBreakdown stats={stats} />}
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -177,7 +187,9 @@ export default function ProfilePage() {
                 <input
                   type="text"
                   value={profileForm.username}
-                  onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, username: e.target.value })
+                  }
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter username"
                 />
@@ -189,7 +201,9 @@ export default function ProfilePage() {
                 <input
                   type="email"
                   value={profileForm.email}
-                  onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, email: e.target.value })
+                  }
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
                   placeholder="Enter email"
                 />
@@ -199,14 +213,14 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
-                  className="flex-1 px-6 py-3 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer flex-1 px-6 py-3 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {savingProfile ? "Saving..." : "Save Changes"}
                 </button>
                 <button
                   onClick={() => setEditingProfile(false)}
                   disabled={savingProfile}
-                  className="flex-1 px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer flex-1 px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>

@@ -79,26 +79,31 @@ export class WorkoutProvider {
         },
       };
 
+      // filter by date attribute
       if (options.date.startDate && options.date.endDate) {
         // Remove time component
         const startDate = new Date(options.date.startDate);
         startDate.setHours(0, 0, 0, 0);
         const endDate = new Date(options.date.endDate);
         endDate.setHours(0, 0, 0, 0);
-        filter.date.$gte = options.date.startDate;
-        filter.date.$lte = options.date.endDate;
+        filter.date.$gte = startDate;
+        filter.date.$lte = endDate;
       } else if (!options.date.startDate && options.date.endDate) {
-        filter.date.$lte = options.date.endDate;
+        const endDate = new Date(options.date.endDate);
+        endDate.setHours(0, 0, 0, 0);
+        filter.date.$lte = endDate;
       } else if (!options.date.endDate && options.date.startDate) {
-        filter.date.$gte = options.date.startDate;
+        const startDate = new Date(options.date.startDate);
+        startDate.setHours(0, 0, 0, 0);
+        filter.date.$gte = startDate;
       }
 
-      console.log(filter.createdAt);
-
+      // filter by name searching
       if (options.searchQuery) {
         filter.name.$regex = options.searchQuery.trim();
       }
 
+      // filter by minimum weight
       if (options.minimum) {
         filter.weight.$gte = options.minimum;
       }
