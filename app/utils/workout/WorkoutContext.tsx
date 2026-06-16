@@ -13,19 +13,19 @@ interface WorkoutContextType {
   workouts: Workout[];
   isLoading: boolean;
   error: string | null;
-  fetchWorkouts: (page: number, pageSize: number) => Promise<void>;
+  fetchWorkouts: (page?: number, pageSize?: number) => Promise<void>;
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
   fetchWorkoutsByAll: (
-    date: {
+    date?: {
       startDate: Date;
       endDate: Date;
     },
-    searchQuery: string,
-    minimum: number,
-    page: number,
-    pageSize: number,
+    searchQuery?: string,
+    minimum?: number,
+    page?: number,
+    pageSize?: number,
   ) => Promise<void>;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
@@ -39,18 +39,15 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWorkouts = useCallback(async (page: number, pageSize: number) => {
+  const fetchWorkouts = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `/api/workouts?page=${page}&pageSize=${pageSize}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      const response = await fetch(`/api/workouts`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (!response.ok) {
         const data = await response.json();
@@ -206,14 +203,14 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchWorkoutsByAll = async (
-    date: {
+    date?: {
       startDate: Date;
       endDate: Date;
     },
-    searchQuery: string,
-    minimum: number,
-    page: number,
-    pageSize: number,
+    searchQuery?: string,
+    minimum?: number,
+    page?: number,
+    pageSize?: number,
   ) => {
     try {
       setIsLoading(true);
@@ -222,8 +219,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       const response = await fetch(
         `/api/workouts?page=${page}
           &pageSize=${pageSize}
-          &startDate=${date.startDate}
-          &endDate=${date.endDate}
+          &startDate=${date?.startDate}
+          &endDate=${date?.endDate}
           &minimum=${minimum}
           &searchQuery=${searchQuery}
           &all=${1}`,

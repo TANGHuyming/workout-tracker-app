@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
     );
-  else data = await indexByUserId(payload.userId, page, pageSize);
+  else data = await indexByUserId(payload.userId);
 
   if (!data.success) {
     return NextResponse.json(

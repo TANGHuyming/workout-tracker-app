@@ -14,7 +14,7 @@ export default function HistoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } =
+  const { workouts, fetchWorkoutsByAll, deleteWorkout, updateWorkout } =
     useWorkouts();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<10 | 25 | 50 | 100>(10);
@@ -27,7 +27,13 @@ export default function HistoryPage() {
     const fetcher = async () => {
       setIsLoading(true);
       try {
-        await fetchWorkouts(currentPage, pageSize);
+        await fetchWorkoutsByAll(
+          { startDate: new Date(0), endDate: new Date() },
+          "",
+          0,
+          currentPage,
+          pageSize,
+        );
       } catch (err) {
         setToast({
           message:
@@ -52,9 +58,7 @@ export default function HistoryPage() {
   }, []);
 
   useEffect(() => {
-    router.push(
-      `?page=${page}&pageSize=${pageSize}&isFiltered=${isFiltered}#paginator`,
-    );
+    router.push(`?isFiltered=${isFiltered}#paginator`);
   }, [page, pageSize]);
 
   const handleDeleteWorkout = async (id: string) => {
@@ -126,21 +130,37 @@ export default function HistoryPage() {
       <WorkoutList
         workouts={workouts}
         page={page}
+        setPage={setPage}
         pageSize={pageSize}
         onDelete={handleDeleteWorkout}
         onUpdate={handleUpdateWorkout}
       />
 
       <div id="paginator" className="flex flex-row justify-between">
-        <button onClick={handleFirstPage}>First</button>
-        <button onClick={handlePrevPage}>Prev Page</button>
-        <div>
-          <button onClick={handlePrevPage}>{prevPage}</button>
-          <button>{page}</button>
-          <button onClick={handleNextPage}>{nextPage}</button>
+        <button onClick={handleFirstPage} className="paginateBtn">
+          First
+        </button>
+        <button onClick={handlePrevPage} className="paginateBtn">
+          Prev Page
+        </button>
+        <div className="flex gap-5">
+          <button onClick={handlePrevPage} className="paginateBtn">
+            {prevPage}
+          </button>
+          <button className="paginateBtn">{page}</button>
+          <button onClick={handleNextPage} className="paginateBtn">
+            {nextPage}
+          </button>
         </div>
-        <button onClick={handleNextPage}>Next Page</button>
-        <button onClick={() => console.log("Not implemented yet")}>Last</button>
+        <button onClick={handleNextPage} className="paginateBtn">
+          Next Page
+        </button>
+        <button
+          onClick={() => console.log("Not implemented yet")}
+          className="paginateBtn"
+        >
+          Last
+        </button>
       </div>
     </div>
   );

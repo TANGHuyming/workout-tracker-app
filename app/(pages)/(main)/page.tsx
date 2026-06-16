@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useAuth } from "./utils/auth/AuthContext";
-import { useWorkouts } from "./utils/workout/WorkoutContext";
-import WorkoutForm from "./components/WorkoutForm";
-import BodyGraphics from "./components/BodyGraphics";
-import type { Workout } from "./utils/workout/workoutData";
-import { getAllExercises } from "./utils/exercises";
+import { useAuth } from "@/app/utils/auth/AuthContext";
+import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
+import WorkoutForm from "@/app/components/WorkoutForm";
+import BodyGraphics from "@/app/components/BodyGraphics";
+import type { Workout } from "@/app/utils/workout/workoutData";
+import { getAllExercises } from "@/app/utils/exercises";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,8 +17,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import Toast from "./components/Toast";
-import { fetchCsrfToken } from "./utils/csrf/fetchCsrfToken";
+import Toast from "../../components/Toast";
+import { fetchCsrfToken } from "../../utils/csrf/fetchCsrfToken";
 
 export default function Home() {
   const { user, refreshUser } = useAuth();

@@ -3,8 +3,6 @@ import { Geist, Geist_Mono, Black_Ops_One } from "next/font/google";
 import { AuthProvider } from "./utils/auth/AuthContext";
 import { WorkoutProvider } from "./utils/workout/WorkoutContext";
 import "./globals.css";
-import Header from "@/app/components/layouts/Header";
-import Footer from "@/app/components/layouts/Footer";
 
 const blackOpsOne = Black_Ops_One({
   weight: "400",
@@ -44,11 +42,9 @@ export default function RootLayout({
 
       <body className="flex flex-col">
         <AuthProvider>
-          <Header />
           <WorkoutProvider>
             <div className="min-h-screen">{children}</div>
           </WorkoutProvider>
-          <Footer />
         </AuthProvider>
       </body>
     </html>

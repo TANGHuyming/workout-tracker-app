@@ -1,15 +1,8 @@
 import { WorkoutProvider } from "@/app/providers/WorkoutProvider";
 
-export const indexByUserId = async (
-  userId: string,
-  page: number,
-  pageSize: number,
-) => {
+export const indexByUserId = async (userId: string) => {
   try {
-    const workouts = await WorkoutProvider.findByUserId(userId, {
-      page,
-      pageSize,
-    });
+    const workouts = await WorkoutProvider.findByUserId(userId);
 
     let data: any = {
       success: true,

@@ -13,6 +13,7 @@ import { FaListUl } from "react-icons/fa";
 interface WorkoutListProps {
   workouts: Workout[];
   page: number;
+  setPage: any;
   pageSize: 10 | 25 | 50 | 100;
   onDelete: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Workout>) => Promise<void>;
@@ -21,12 +22,12 @@ interface WorkoutListProps {
 export default function WorkoutList({
   workouts,
   page,
+  setPage,
   pageSize,
   onDelete,
   onUpdate,
 }: WorkoutListProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { fetchWorkoutsByAll, isLoading } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchStartDate, setSearchStartDate] = useState<string>("");
@@ -61,9 +62,7 @@ export default function WorkoutList({
         page,
         pageSize,
       );
-      router.push(
-        `?page=${page}&pageSize=${pageSize}&isFiltered=true#paginator`,
-      );
+      router.push(`?isFiltered=true#paginator`);
     } catch (error) {
       console.error(error);
     }
@@ -74,21 +73,9 @@ export default function WorkoutList({
     setSearchEndDate("");
     setSearchExercise("");
     setSearchWeight("");
-    router.push(`?page=${1}&pageSize=${10}&isFiltered=false`);
+    setPage(1);
+    router.push(`?isFiltered=false`);
   };
-
-  const sortedWorkouts = [...workouts].sort((a, b) => {
-    switch (sortBy) {
-      case "weight":
-        return b.weight - a.weight;
-      case "sets":
-        return b.sets - a.sets;
-      case "date":
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      default:
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-    }
-  });
 
   const handleEdit = (workout: Workout) => {
     setEditingWorkout(workout);
@@ -194,7 +181,7 @@ export default function WorkoutList({
               type="button"
               onClick={handleFilterByAll}
               className={clsx(
-                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full cursor-pointer",
+                "border-blue-50 py-2 px-4 text-sm text-white rounded-lg w-full cursor-pointer hover:bg-blue-950/50 active:bg-blue-800",
                 isLoading ? "bg-blue-950/50" : "bg-blue-950",
               )}
               disabled={isLoading}
@@ -205,31 +192,13 @@ export default function WorkoutList({
               type="button"
               onClick={handleClearFilters}
               className={clsx(
-                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full cursor-pointer",
+                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full cursor-pointer hover:bg-blue-950/50 active:bg-blue-800",
                 isLoading ? "bg-blue-950/50" : "bg-blue-950",
               )}
               disabled={isLoading}
             >
               Clear filters
             </button>
-          </div>
-
-          {/* Sort */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Sort By
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) =>
-                setSortBy(e.target.value as "date" | "weight" | "sets")
-              }
-              className="cursor-pointer w-full sm:max-w-xs px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            >
-              <option value="date">Date (Newest)</option>
-              <option value="weight">Weight (Heaviest)</option>
-              <option value="sets">Sets (Most)</option>
-            </select>
           </div>
         </div>
 
@@ -244,8 +213,8 @@ export default function WorkoutList({
         </div>
 
         {/* Workouts Display */}
-        <div className="max-h-[120vh] overflow-y-auto">
-          {sortedWorkouts.length === 0 ? (
+        <div className="max-h-[180vh] overflow-y-auto">
+          {workouts.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
                 {workouts.length === 0
@@ -263,9 +232,9 @@ export default function WorkoutList({
               <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 p-2">
                 Showing{" "}
                 <span className="text-slate-900 dark:text-white font-bold">
-                  {sortedWorkouts.length}
+                  {workouts.length}
                 </span>{" "}
-                workout{sortedWorkouts.length !== 1 ? "s" : ""}
+                workout{workouts.length !== 1 ? "s" : ""}
               </p>
               <div
                 className={clsx(
@@ -275,7 +244,7 @@ export default function WorkoutList({
                     : "grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2",
                 )}
               >
-                {sortedWorkouts.map((workout) => (
+                {workouts.map((workout) => (
                   <WorkoutCard
                     key={workout.id}
                     workout={workout}
