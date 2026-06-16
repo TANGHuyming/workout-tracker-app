@@ -1,8 +1,15 @@
 import { WorkoutProvider } from "@/app/providers/WorkoutProvider";
 
-export const indexByUserId = async (userId: string) => {
+export const indexByUserId = async (
+  userId: string,
+  page: number,
+  pageSize: number,
+) => {
   try {
-    const workouts = await WorkoutProvider.findByUserId(userId);
+    const workouts = await WorkoutProvider.findByUserId(userId, {
+      page,
+      pageSize,
+    });
 
     let data: any = {
       success: true,
@@ -36,12 +43,16 @@ export const indexByAll = async (
   },
   searchQuery: string,
   minimum: number,
+  page: number,
+  pageSize: number,
 ) => {
   try {
     const workouts = await WorkoutProvider.findByFilter(userId, {
       date: { startDate: date.startDate, endDate: date.endDate },
       searchQuery: searchQuery,
       minimum: minimum,
+      page: page,
+      pageSize: pageSize,
     });
 
     let data: any = {

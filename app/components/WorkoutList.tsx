@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import clsx from "clsx";
 import type { Workout } from "../utils/workout/workoutData";
@@ -11,15 +12,21 @@ import { FaListUl } from "react-icons/fa";
 
 interface WorkoutListProps {
   workouts: Workout[];
+  page: number;
+  pageSize: 10 | 25 | 50 | 100;
   onDelete: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Workout>) => Promise<void>;
 }
 
 export default function WorkoutList({
   workouts,
+  page,
+  pageSize,
   onDelete,
   onUpdate,
 }: WorkoutListProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { fetchWorkoutsByAll, isLoading } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchStartDate, setSearchStartDate] = useState<string>("");
@@ -31,7 +38,11 @@ export default function WorkoutList({
   const [isList, setIsList] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
 
-  const filterByAll = async () => {
+  useEffect(() => {
+    handleFilterByAll();
+  }, [page, pageSize]);
+
+  const handleFilterByAll = async () => {
     try {
       let startDate = new Date(searchStartDate);
       let endDate = new Date(searchEndDate);
@@ -47,14 +58,23 @@ export default function WorkoutList({
         },
         searchExercise,
         parseFloat(searchWeight),
+        page,
+        pageSize,
       );
-      setSearchExercise("");
-      setSearchStartDate("");
-      setSearchEndDate("");
-      setSearchWeight("");
+      router.push(
+        `?page=${page}&pageSize=${pageSize}&isFiltered=true#paginator`,
+      );
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleClearFilters = () => {
+    setSearchStartDate("");
+    setSearchEndDate("");
+    setSearchExercise("");
+    setSearchWeight("");
+    router.push(`?page=${1}&pageSize=${10}&isFiltered=false`);
   };
 
   const sortedWorkouts = [...workouts].sort((a, b) => {
@@ -172,14 +192,25 @@ export default function WorkoutList({
 
             <button
               type="button"
-              onClick={filterByAll}
+              onClick={handleFilterByAll}
               className={clsx(
-                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full sm:w-1/2 cursor-pointer",
+                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full cursor-pointer",
                 isLoading ? "bg-blue-950/50" : "bg-blue-950",
               )}
               disabled={isLoading}
             >
               {isLoading ? "Applying..." : "Apply filters"}
+            </button>
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className={clsx(
+                "border-blue-50 py-2 px-4 text-sm rounded-lg w-full cursor-pointer",
+                isLoading ? "bg-blue-950/50" : "bg-blue-950",
+              )}
+              disabled={isLoading}
+            >
+              Clear filters
             </button>
           </div>
 

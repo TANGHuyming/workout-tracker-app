@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
   const searchQuery = params.get("searchQuery") || "";
   const minimum = parseFloat(params.get("minimum") || "0");
   const all = !!params.get("all");
+  const page = parseFloat(params.get("page") || "1");
+  const pageSize = parseFloat(params.get("pageSize") || "10");
   let data;
   const jwtPayloadHeader = request.headers.get("jwt-payload");
 
@@ -39,8 +41,10 @@ export async function GET(request: NextRequest) {
       { startDate: new Date(startDate), endDate: new Date(endDate) },
       searchQuery,
       minimum,
+      page,
+      pageSize,
     );
-  else data = await indexByUserId(payload.userId);
+  else data = await indexByUserId(payload.userId, page, pageSize);
 
   if (!data.success) {
     return NextResponse.json(

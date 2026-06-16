@@ -13,7 +13,7 @@ interface WorkoutContextType {
   workouts: Workout[];
   isLoading: boolean;
   error: string | null;
-  fetchWorkouts: () => Promise<void>;
+  fetchWorkouts: (page: number, pageSize: number) => Promise<void>;
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
@@ -24,6 +24,8 @@ interface WorkoutContextType {
     },
     searchQuery: string,
     minimum: number,
+    page: number,
+    pageSize: number,
   ) => Promise<void>;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
@@ -37,15 +39,18 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWorkouts = useCallback(async () => {
+  const fetchWorkouts = useCallback(async (page: number, pageSize: number) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/api/workouts", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `/api/workouts?page=${page}&pageSize=${pageSize}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
       if (!response.ok) {
         const data = await response.json();
@@ -207,13 +212,21 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     },
     searchQuery: string,
     minimum: number,
+    page: number,
+    pageSize: number,
   ) => {
     try {
       setIsLoading(true);
       setError(null);
 
       const response = await fetch(
-        `/api/workouts?startDate=${date.startDate}&endDate=${date.endDate}&minimum=${minimum}&searchQuery=${searchQuery}&all=${1}`,
+        `/api/workouts?page=${page}
+          &pageSize=${pageSize}
+          &startDate=${date.startDate}
+          &endDate=${date.endDate}
+          &minimum=${minimum}
+          &searchQuery=${searchQuery}
+          &all=${1}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

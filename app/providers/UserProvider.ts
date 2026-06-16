@@ -1,5 +1,5 @@
-import { connectDB } from '../lib/mongodb';
-import UserModel, { IUser } from '../models/User';
+import { connectDB } from "../lib/mongodb";
+import UserModel, { IUser } from "../models/User";
 
 export class UserProvider {
   /**
@@ -43,7 +43,9 @@ export class UserProvider {
   static async findByEmail(email: string): Promise<IUser | null> {
     try {
       await connectDB();
-      const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+passwordHash');
+      const user = await UserModel.findOne({
+        email: email.toLowerCase(),
+      }).select("+passwordHash");
       return user;
     } catch (error) {
       throw error;
@@ -85,7 +87,7 @@ export class UserProvider {
       email?: string;
       username?: string;
       passwordHash?: string;
-    }>
+    }>,
   ): Promise<IUser | null> {
     try {
       await connectDB();
@@ -108,15 +110,19 @@ export class UserProvider {
    * Update password by ID
    */
   static async updatePasswordById(
-    id: string, 
-    newPasswordHash: string
+    id: string,
+    newPasswordHash: string,
   ): Promise<IUser | null> {
     try {
       await connectDB();
-      const user = await UserModel.findByIdAndUpdate(id, { passwordHash: newPasswordHash }, {
-        new: true,
-        runValidators: true,
-      });
+      const user = await UserModel.findByIdAndUpdate(
+        id,
+        { passwordHash: newPasswordHash },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
       return user;
     } catch (error: any) {
       console.log(error);

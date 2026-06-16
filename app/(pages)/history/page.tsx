@@ -1,4 +1,5 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
 import Toast from "@/app/components/Toast";
 import type { Workout } from "@/app/utils/workout/workoutData";
 import WorkoutList from "@/app/components/WorkoutList";
@@ -10,17 +11,27 @@ export default function HistoryPage() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } = useWorkouts();
+  const { workouts, fetchWorkouts, deleteWorkout, updateWorkout } =
+    useWorkouts();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<10 | 25 | 50 | 100>(10);
+  const [prevPage, setPrevPage] = useState(page - 1);
+  const [currentPage, setCurrentPage] = useState(page);
+  const [nextPage, setNextPage] = useState(page + 1);
+  const isFiltered = searchParams.get("isFiltered") !== "true" ? false : true;
 
   useEffect(() => {
     const fetcher = async () => {
       setIsLoading(true);
       try {
-        await fetchWorkouts();
+        await fetchWorkouts(currentPage, pageSize);
       } catch (err) {
         setToast({
-          message: err instanceof Error ? err.message : "Failed to fetch workouts",
+          message:
+            err instanceof Error ? err.message : "Failed to fetch workouts",
           type: "error",
         });
       } finally {
@@ -28,15 +39,23 @@ export default function HistoryPage() {
       }
     };
 
-    fetcher();
+    if (!isFiltered) {
+      fetcher();
+    }
     setIsLoading(false);
-  }, []);
+  }, [page, pageSize]);
 
   useEffect(() => {
     setTimeout(() => {
       setToast(null);
     }, 5000);
   }, []);
+
+  useEffect(() => {
+    router.push(
+      `?page=${page}&pageSize=${pageSize}&isFiltered=${isFiltered}#paginator`,
+    );
+  }, [page, pageSize]);
 
   const handleDeleteWorkout = async (id: string) => {
     try {
@@ -58,6 +77,32 @@ export default function HistoryPage() {
     }
   };
 
+  const handleFirstPage = () => {
+    setPage(1);
+    setPrevPage(0);
+    setCurrentPage(1);
+    setNextPage(2);
+  };
+
+  const handlePrevPage = () => {
+    setPage((prev) => (prev === 1 ? prev : prev - 1));
+    setPrevPage((prev) => (prev === 0 ? prev : prev - 1));
+    setCurrentPage((prev) => (prev === 1 ? prev : prev - 1));
+    setNextPage((prev) => (prev === 2 ? prev : prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setPage((prev) => prev + 1);
+    setPrevPage((prev) => prev + 1);
+    setCurrentPage((prev) => prev + 1);
+    setNextPage((prev) => prev + 1);
+  };
+
+  // requires db to keep track of count
+  // const handleLastPage = () => {
+  //   setPage(totalPages);
+  // }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center">
@@ -73,12 +118,30 @@ export default function HistoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      {toast ? <Toast message={toast.message} type={toast.type} /> : <div></div>}
+      {toast ? (
+        <Toast message={toast.message} type={toast.type} />
+      ) : (
+        <div></div>
+      )}
       <WorkoutList
         workouts={workouts}
+        page={page}
+        pageSize={pageSize}
         onDelete={handleDeleteWorkout}
         onUpdate={handleUpdateWorkout}
       />
+
+      <div id="paginator" className="flex flex-row justify-between">
+        <button onClick={handleFirstPage}>First</button>
+        <button onClick={handlePrevPage}>Prev Page</button>
+        <div>
+          <button onClick={handlePrevPage}>{prevPage}</button>
+          <button>{page}</button>
+          <button onClick={handleNextPage}>{nextPage}</button>
+        </div>
+        <button onClick={handleNextPage}>Next Page</button>
+        <button onClick={() => console.log("Not implemented yet")}>Last</button>
+      </div>
     </div>
   );
 }

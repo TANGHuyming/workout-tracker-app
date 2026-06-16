@@ -41,12 +41,76 @@ export class WorkoutProvider {
   /**
    * Get all workouts for a user
    */
-  static async findByUserId(userId: string): Promise<IWorkout[]> {
+  static async findByUserId(
+    userId: string,
+    options: { page: number; pageSize: number },
+  ): Promise<IWorkout[]> {
     try {
       await connectDB();
+
+      if (!userId || userId.length === 0) {
+        throw new Error("User id is required");
+      }
+
+      if (!options.page && !options.pageSize) {
+        throw new Error("Page number and page size are required to paginate");
+      }
+
+      if (![10, 25, 50, 100].includes(options.pageSize)) {
+        throw new Error("Page size must be 10, 25, 50, 100");
+      }
+
+      if (options.page <= 0) {
+        throw new Error("Page number cannot be less than 1");
+      }
+
+      const pageOffset = (options.page - 1) * options.pageSize;
       const workouts = await WorkoutModel.find({ userId })
         .populate("userId")
+        .limit(options.pageSize)
+        .skip(pageOffset)
         .sort({ date: -1 });
+      return workouts;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async findByPage(
+    userId: string,
+    options: {
+      page: number;
+      pageSize: number;
+    },
+  ) {
+    try {
+      await connectDB();
+
+      if (!userId || userId.length === 0) {
+        throw new Error("User id is required");
+      }
+
+      if (!options.page && !options.pageSize) {
+        throw new Error("Page number and page size are required to paginate");
+      }
+
+      if (![10, 25, 50, 100].includes(options.pageSize)) {
+        throw new Error("Page size must be 10, 25, 50, 100");
+      }
+
+      if (options.page <= 0) {
+        throw new Error("Page number cannot be less than 1");
+      }
+
+      const pageOffset = (options.page - 1) * options.pageSize;
+
+      const query = WorkoutModel.find({ userId })
+        .populate("userId")
+        .limit(options.pageSize)
+        .skip(pageOffset);
+
+      const workouts = await query;
+
       return workouts;
     } catch (error) {
       throw error;
@@ -59,10 +123,30 @@ export class WorkoutProvider {
       date: { startDate: Date; endDate: Date };
       searchQuery: string;
       minimum: number;
+      page: number;
+      pageSize: number;
     },
   ) {
     try {
       await connectDB();
+
+      if (!userId || userId.length === 0) {
+        throw new Error("User id is required");
+      }
+
+      if (!options.page && !options.pageSize) {
+        throw new Error("Page number and page size are required to paginate");
+      }
+
+      if (![10, 25, 50, 100].includes(options.pageSize)) {
+        throw new Error("Page size must be 10, 25, 50, 100");
+      }
+
+      if (options.page <= 0) {
+        throw new Error("Page number cannot be less than 1");
+      }
+
+      const pageOffset = (options.page - 1) * options.pageSize;
 
       const filter: any = {
         userId,
@@ -108,7 +192,10 @@ export class WorkoutProvider {
         filter.weight.$gte = options.minimum;
       }
 
-      const query = WorkoutModel.find(filter).populate("userId");
+      const query = WorkoutModel.find(filter)
+        .populate("userId")
+        .limit(options.pageSize)
+        .skip(pageOffset);
       const workouts = await query;
       return workouts;
     } catch (error) {
