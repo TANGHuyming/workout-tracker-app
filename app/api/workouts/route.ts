@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
     {
       message: "Successfully fetched workouts",
       workouts: data.workouts,
+      workoutCount: data.workoutCount,
     },
     {
       status: 200,

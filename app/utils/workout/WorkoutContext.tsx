@@ -11,9 +11,10 @@ import type { Workout } from "./workoutData";
 
 interface WorkoutContextType {
   workouts: Workout[];
+  workoutCount: number;
   isLoading: boolean;
   error: string | null;
-  fetchWorkouts: (page?: number, pageSize?: number) => Promise<void>;
+  fetchWorkouts: () => Promise<void>;
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
@@ -36,6 +37,7 @@ const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [workoutCount, setWorkoutCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +71,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           notes: w.notes,
         })),
       );
+      setWorkoutCount(workouts.length);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch workouts";
@@ -250,6 +253,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           notes: w.notes,
         })),
       );
+      setWorkoutCount(data.workoutCount);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch workouts";
@@ -373,6 +377,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     <WorkoutContext.Provider
       value={{
         workouts,
+        workoutCount,
         isLoading,
         error,
         fetchWorkouts,

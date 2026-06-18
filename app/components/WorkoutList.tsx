@@ -15,6 +15,7 @@ interface WorkoutListProps {
   page: number;
   setPage: any;
   pageSize: 10 | 25 | 50 | 100;
+  setPageSize: any;
   onDelete: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Workout>) => Promise<void>;
 }
@@ -24,11 +25,12 @@ export default function WorkoutList({
   page,
   setPage,
   pageSize,
+  setPageSize,
   onDelete,
   onUpdate,
 }: WorkoutListProps) {
   const router = useRouter();
-  const { fetchWorkoutsByAll, isLoading } = useWorkouts();
+  const { fetchWorkouts, fetchWorkoutsByAll, isLoading } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchStartDate, setSearchStartDate] = useState<string>("");
   const [searchEndDate, setSearchEndDate] = useState<string>("");
@@ -38,6 +40,8 @@ export default function WorkoutList({
   const [index, setIndex] = useState<number>(1);
   const [isList, setIsList] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
+  const [isPageSizeDropdown, setIsPageSizeDropdown] = useState(false);
+  const pageSizeOptions = [10, 25, 50, 100];
 
   useEffect(() => {
     handleFilterByAll();
@@ -74,6 +78,7 @@ export default function WorkoutList({
     setSearchExercise("");
     setSearchWeight("");
     setPage(1);
+    fetchWorkouts();
     router.push(`?isFiltered=false`);
   };
 
@@ -123,7 +128,7 @@ export default function WorkoutList({
         {/* Search and Sort */}
         <div className="space-y-6 mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
           {/* Search Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Exercise
@@ -137,7 +142,7 @@ export default function WorkoutList({
               />
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Start date
@@ -203,39 +208,71 @@ export default function WorkoutList({
         </div>
 
         {/* Card display setting */}
-        <div className="w-full flex justify-end text-2xl font-semibold text-slate-700 dark:text-slate-300 cursor-pointer mb-8 gap-4">
-          <LuLayoutGrid onClick={handleChangeCardLayout} />
-          {isList ? (
-            <FaListUl onClick={handleChangeListLayout} />
-          ) : (
-            <LuCreditCard onClick={handleChangeListLayout} />
-          )}
+        <div className="w-full flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-8 gap-4">
+          <div
+            onMouseEnter={() => setIsPageSizeDropdown(true)}
+            onMouseLeave={() => setIsPageSizeDropdown(false)}
+            className="text-left w-1/3 cursor-pointer relative"
+          >
+            {pageSize} / page
+            {isPageSizeDropdown ? (
+              <div className="absolute z-0 w-full">
+                <div className="flex flex-col justify-start bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                  {pageSizeOptions.map((opt) => (
+                    <button
+                      key={`page_size_${opt}`}
+                      className="optionBtn"
+                      onClick={() => {
+                        setPageSize(opt);
+                        setPage(1);
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div></div>
+            )}
+          </div>
+          <div className="flex flex-row gap-4 text-2xl cursor-pointer">
+            <LuLayoutGrid onClick={handleChangeCardLayout} />
+            {isList ? (
+              <FaListUl onClick={handleChangeListLayout} />
+            ) : (
+              <LuCreditCard onClick={handleChangeListLayout} />
+            )}
+          </div>
         </div>
 
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 p-2">
+          Showing{" "}
+          <span className="text-slate-900 dark:text-white font-bold">
+            {workouts.length}
+          </span>{" "}
+          workout{workouts.length !== 1 ? "s" : ""}
+        </p>
+
         {/* Workouts Display */}
-        <div className="max-h-[180vh] overflow-y-auto">
-          {workouts.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                {workouts.length === 0
-                  ? "No workouts logged yet"
-                  : "No workouts match your search criteria"}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                {workouts.length === 0
-                  ? "Start logging your workouts to see them here"
-                  : "Try adjusting your filters"}
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
+              <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
+                Loading your workouts...
               </p>
             </div>
-          ) : (
-            <>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 p-2">
-                Showing{" "}
-                <span className="text-slate-900 dark:text-white font-bold">
-                  {workouts.length}
-                </span>{" "}
-                workout{workouts.length !== 1 ? "s" : ""}
-              </p>
+          </div>
+        ) : (
+          <div className="max-h-[180vh] overflow-y-auto">
+            {workouts.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
+                  No workouts found
+                </p>
+              </div>
+            ) : (
               <div
                 className={clsx(
                   "space-y-4 gap-4",
@@ -255,9 +292,9 @@ export default function WorkoutList({
                   />
                 ))}
               </div>
-            </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Edit Modal */}

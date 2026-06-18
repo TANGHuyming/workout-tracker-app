@@ -14,15 +14,21 @@ export default function HistoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkoutsByAll, deleteWorkout, updateWorkout } =
-    useWorkouts();
+  const {
+    workouts,
+    workoutCount,
+    fetchWorkoutsByAll,
+    deleteWorkout,
+    updateWorkout,
+  } = useWorkouts();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<10 | 25 | 50 | 100>(10);
   const [prevPage, setPrevPage] = useState(page - 1);
-  const [currentPage, setCurrentPage] = useState(page);
   const [nextPage, setNextPage] = useState(page + 1);
   const isFiltered = searchParams.get("isFiltered") !== "true" ? false : true;
+  const totalPages = Math.ceil(workoutCount / pageSize);
 
+  // grab all workouts in normal mode
   useEffect(() => {
     const fetcher = async () => {
       setIsLoading(true);
@@ -31,7 +37,7 @@ export default function HistoryPage() {
           { startDate: new Date(0), endDate: new Date() },
           "",
           0,
-          currentPage,
+          page,
           pageSize,
         );
       } catch (err) {
@@ -51,15 +57,23 @@ export default function HistoryPage() {
     setIsLoading(false);
   }, [page, pageSize]);
 
+  // for toast disappearing
   useEffect(() => {
     setTimeout(() => {
       setToast(null);
     }, 5000);
   }, []);
 
+  // used to check whether the user is in filtering or normal mode
   useEffect(() => {
     router.push(`?isFiltered=${isFiltered}#paginator`);
   }, [page, pageSize]);
+
+  // set previous and next page numbers
+  useEffect(() => {
+    setPrevPage(page - 1);
+    setNextPage(page + 1);
+  }, [page]);
 
   const handleDeleteWorkout = async (id: string) => {
     try {
@@ -83,29 +97,20 @@ export default function HistoryPage() {
 
   const handleFirstPage = () => {
     setPage(1);
-    setPrevPage(0);
-    setCurrentPage(1);
-    setNextPage(2);
   };
 
   const handlePrevPage = () => {
     setPage((prev) => (prev === 1 ? prev : prev - 1));
-    setPrevPage((prev) => (prev === 0 ? prev : prev - 1));
-    setCurrentPage((prev) => (prev === 1 ? prev : prev - 1));
-    setNextPage((prev) => (prev === 2 ? prev : prev - 1));
   };
 
   const handleNextPage = () => {
-    setPage((prev) => prev + 1);
-    setPrevPage((prev) => prev + 1);
-    setCurrentPage((prev) => prev + 1);
-    setNextPage((prev) => prev + 1);
+    setPage((prev) => (prev === totalPages ? prev : prev + 1));
   };
 
   // requires db to keep track of count
-  // const handleLastPage = () => {
-  //   setPage(totalPages);
-  // }
+  const handleLastPage = () => {
+    setPage(totalPages);
+  };
 
   if (isLoading) {
     return (
@@ -132,35 +137,51 @@ export default function HistoryPage() {
         page={page}
         setPage={setPage}
         pageSize={pageSize}
+        setPageSize={setPageSize}
         onDelete={handleDeleteWorkout}
         onUpdate={handleUpdateWorkout}
       />
 
-      <div id="paginator" className="flex flex-row justify-between">
-        <button onClick={handleFirstPage} className="paginateBtn">
-          First
-        </button>
-        <button onClick={handlePrevPage} className="paginateBtn">
-          Prev Page
-        </button>
-        <div className="flex gap-5">
-          <button onClick={handlePrevPage} className="paginateBtn">
-            {prevPage}
+      <div id="paginator" className="flex flex-row justify-between mt-5">
+        <div className="flex flex-row gap-2">
+          <button onClick={handleFirstPage} className="paginateBtn">
+            First
           </button>
-          <button className="paginateBtn">{page}</button>
-          <button onClick={handleNextPage} className="paginateBtn">
-            {nextPage}
+          <button
+            onClick={handlePrevPage}
+            className="paginateBtn hidden sm:block"
+          >
+            Prev Page
           </button>
         </div>
-        <button onClick={handleNextPage} className="paginateBtn">
-          Next Page
-        </button>
-        <button
-          onClick={() => console.log("Not implemented yet")}
-          className="paginateBtn"
-        >
-          Last
-        </button>
+        <div className="flex gap-1 sm:gap-4">
+          {prevPage !== 0 ? (
+            <button onClick={handlePrevPage} className="paginateBtn">
+              {prevPage}
+            </button>
+          ) : (
+            <div></div>
+          )}
+          <button className="paginateBtn bg-blue-500!">{page}</button>
+          {page !== totalPages ? (
+            <button onClick={handleNextPage} className="paginateBtn">
+              {nextPage}
+            </button>
+          ) : (
+            <div></div>
+          )}
+        </div>
+        <div className="flex flex-row gap-2">
+          <button
+            onClick={handleNextPage}
+            className="paginateBtn hidden sm:block"
+          >
+            Next Page
+          </button>
+          <button onClick={handleLastPage} className="paginateBtn">
+            Last
+          </button>
+        </div>
       </div>
     </div>
   );

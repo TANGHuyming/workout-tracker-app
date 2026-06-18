@@ -1,6 +1,7 @@
 import { connectDB } from "../lib/mongodb";
 import WorkoutModel, { IWorkout } from "../models/Workout";
 import { ObjectId } from "mongodb";
+import mongoose from "mongodb";
 
 export class WorkoutProvider {
   /**
@@ -170,11 +171,37 @@ export class WorkoutProvider {
         filter.weight.$gte = options.minimum;
       }
 
-      const query = WorkoutModel.find(filter)
-        .populate("userId")
-        .limit(options.pageSize)
-        .skip(pageOffset);
-      const workouts = await query;
+      const workouts = await WorkoutModel.aggregate([
+        {
+          // find by filters
+          $match: {
+            userId: new (require("mongodb").ObjectId)(filter.userId),
+            date: { $gte: filter.date.$gte, $lte: filter.date.$lte },
+            name: {
+              $regex: filter.name.$regex,
+              $options: filter.name.$options,
+            },
+            weight: {
+              $gte: filter.weight.$gte,
+            },
+          },
+        },
+        // sort by date
+        {
+          $sort: {
+            date: -1,
+          },
+        },
+        // return array = [metadata: {}, data: {}]
+        // metadata contains the count of the filtered collection
+        // data contains paginated collection
+        {
+          $facet: {
+            metadata: [{ $count: "count" }],
+            data: [{ $skip: pageOffset }, { $limit: options.pageSize }],
+          },
+        },
+      ]);
       return workouts;
     } catch (error) {
       throw error;

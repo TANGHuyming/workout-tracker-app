@@ -51,7 +51,7 @@ export const indexByAll = async (
     let data: any = {
       success: true,
       message: "Workouts fetched successfully",
-      workouts: workouts.map((w) => ({
+      workouts: workouts[0].data.map((w: any) => ({
         id: w._id,
         name: w.name,
         sets: w.sets,
@@ -61,6 +61,7 @@ export const indexByAll = async (
         date: w.date,
         notes: w.notes,
       })),
+      workoutCount: workouts[0].metadata[0]?.count ?? 0,
     };
 
     return data;
