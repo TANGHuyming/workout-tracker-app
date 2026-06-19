@@ -208,6 +208,49 @@ export class WorkoutProvider {
     }
   }
 
+  static async findStats(userId: string) {
+    try {
+      await connectDB();
+
+      const stats = await WorkoutModel.aggregate([
+        { $match: { userId: new (require("mongodb").ObjectId)(userId) } },
+        {
+          $facet: {
+            totalWorkouts: [{ $count: "totalWorkouts" }],
+            otherStats: [
+              {
+                $group: {
+                  _id: null,
+                  totalSets: { $sum: "$sets" },
+                  totalReps: { $sum: { $multiply: ["$reps", "$sets"] } },
+                  heaviestWeight: { $max: "$weight" },
+                  averageWeight: { $avg: "$weight" },
+                  lastWorkoutDate: { $max: "$date" },
+                }
+              },
+              {
+                $project: {
+                  _id: 0,
+                  totalSets: "$totalSets",
+                  totalReps: "$totalReps",
+                  heaviestWeight: "$heaviestWeight",
+                  averageWeight: "$averageWeight",
+                  averageRepsPerSet: { $divide: ["$totalReps", "$totalSets"] },
+                  lastWorkoutData: "$lastWorkoutDate",
+                }
+              }
+            ]
+          }
+        }
+      ])
+
+      return stats;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
   /**
    * Get all workouts for a user with filtering and sorting
    */

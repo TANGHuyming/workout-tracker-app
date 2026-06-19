@@ -7,14 +7,16 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import type { Workout } from "./workoutData";
+import type { Workout, WorkoutStats } from "./workoutData";
 
 interface WorkoutContextType {
   workouts: Workout[];
   workoutCount: number;
+  workoutStats: any
   isLoading: boolean;
   error: string | null;
   fetchWorkouts: () => Promise<void>;
+  fetchWorkoutStats: () => Promise<void>;
   fetchWorkoutsByDate: (date: Date) => Promise<void>;
   fetchWorkoutsBySearch: (searchQuery: string) => Promise<void>;
   fetchWorkoutsByMinimum: (minimum: number) => Promise<void>;
@@ -38,6 +40,7 @@ const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [workoutCount, setWorkoutCount] = useState(0);
+  const [workoutStats, setWorkoutStats] = useState<WorkoutStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,6 +84,41 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   }, []);
+
+  const fetchWorkoutStats = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/workouts?statistics=1`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to fetch workouts");
+      }
+      const data = await response.json();
+      setWorkoutStats({
+        totalWorkouts: data.stats.totalWorkouts,
+        totalSets: data.stats.totalSets,
+        totalReps: data.stats.totalReps,
+        averageWeight: Math.round(data.stats.averageWeight),
+        heaviestWeight: data.stats.heaviestWeight,
+        averageRepsPerSet: Math.round(data.stats.averageRepsPerSet),
+        lastWorkoutDate: (new Date(data.stats.lastWorkoutData)).toISOString().split("T")[0],
+        streakDays: 0,
+      })
+    }
+    catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch workouts";
+      setError(message);
+      console.error("Error fetching workouts:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [])
 
   const fetchWorkoutsByDate = useCallback(async (date: Date) => {
     try {
@@ -378,9 +416,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       value={{
         workouts,
         workoutCount,
+        workoutStats,
         isLoading,
         error,
         fetchWorkouts,
+        fetchWorkoutStats,
         fetchWorkoutsByDate,
         fetchWorkoutsBySearch,
         fetchWorkoutsByMinimum,

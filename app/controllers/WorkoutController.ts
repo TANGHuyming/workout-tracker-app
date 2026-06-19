@@ -1,5 +1,28 @@
 import { WorkoutProvider } from "@/app/providers/WorkoutProvider";
 
+export const indexStats = async (userId: string) => {
+  try {
+    const stats = await WorkoutProvider.findStats(userId);
+    const totalWorkouts = stats[0].totalWorkouts[0].totalWorkouts;
+    const otherStats = stats[0].otherStats[0];
+
+    let data: any = {
+      success: true,
+      message: "Workouts fetched successfully",
+      stats: {
+        totalWorkouts,
+        ...otherStats,
+      }
+    };
+
+    return data;
+  }
+  catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    let data: any = { success: false, message: `Error: ${errorMsg}` };
+    return data;
+  }
+}
 export const indexByUserId = async (userId: string) => {
   try {
     const workouts = await WorkoutProvider.findByUserId(userId);

@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken, getTokenFromRequest } from "./app/utils/jwt";
+import { verifyToken, getTokenFromRequest } from "@/app/utils/jwt";
 import { nextjsRateLimit } from "@universal-rate-limit/nextjs";
 
 const ALLOWED_ORIGINS = ["http://localhost:3000", process.env.NEXT_PUBLIC_BASE_URL];
 
 const limiter = nextjsRateLimit({
-  limit: 1000000, // Limit each key to 5 requests per window
+  limit: 60, // Limit each key to 5 requests per window
   algorithm: { type: "sliding-window", windowMs: 60000 },
 });
 
-const publicRoutes = ["/api/auth/login", "/api/auth/register"];
+const publicRoutes = ["/api/auth/login", "/api/auth/register", "/login", "/register", "/server-error"];
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
@@ -17,17 +17,8 @@ export async function proxy(request: NextRequest) {
 
   // Skip middleware for public routes
   if (publicRoutes.includes(pathname)) {
-    return NextResponse.next();
+    return response;
   }
-
-  // Skip middleware for non-API routes
-  if (!pathname.startsWith("/api/")) {
-    return NextResponse.next();
-  }
-
-  // JWT auth
-  const payload = requireAuth(request);
-  response.headers.set("jwt-payload", JSON.stringify(payload));
 
   // CORS
   const headers = corsHeaders(request);
@@ -38,27 +29,17 @@ export async function proxy(request: NextRequest) {
   // Rate Limiting
   const result = await limiter(request);
   if (result.limited) {
-    return NextResponse.json({ success: false, message: "Rate limit exceeded" }, { status: 429 });
+    return NextResponse.redirect(new URL("/server-error", request.url));
   }
+
+  // JWT auth
+  const payload = verifyToken(getTokenFromRequest(request) ?? "");
+  if (!payload) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  response.headers.set("jwt-payload", JSON.stringify(payload));
 
   return response;
-}
-
-function requireAuth(request: NextRequest) {
-  const token = getTokenFromRequest(request) || request.cookies.get("authToken")?.value;
-
-  // check if user is logged in
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  // verify token
-  const payload = verifyToken(token);
-  if (!payload || !payload.userId) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  return payload;
 }
 
 function corsHeaders(request: NextRequest) {

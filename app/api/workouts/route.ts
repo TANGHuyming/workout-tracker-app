@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkoutProvider } from "../../providers/WorkoutProvider";
 import csrf from "csrf";
 import { cookies } from "next/headers";
-import { indexByUserId, indexByAll } from "@/app/controllers/WorkoutController";
+import { indexByUserId, indexByAll, indexStats } from "@/app/controllers/WorkoutController";
 import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
   const all = !!params.get("all");
   const page = parseFloat(params.get("page") || "1");
   const pageSize = parseFloat(params.get("pageSize") || "10");
+  const statistics = params.get("statistics");
   let data;
   const jwtPayloadHeader = request.headers.get("jwt-payload");
 
@@ -44,6 +45,9 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
     );
+  else if (statistics) {
+    data = await indexStats(payload.userId);
+  }
   else data = await indexByUserId(payload.userId);
 
   if (!data.success) {
@@ -57,6 +61,7 @@ export async function GET(request: NextRequest) {
       message: "Successfully fetched workouts",
       workouts: data.workouts,
       workoutCount: data.workoutCount,
+      stats: data.stats,
     },
     {
       status: 200,

@@ -5,13 +5,10 @@ import { useEffect, useState } from "react";
 import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
 import { useAuth } from "@/app/utils/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import type { WorkoutStats } from "@/app/utils/workout/workoutData";
-import { calculateStats } from "@/app/utils/workout/workoutData";
 import StatsBreakdown from "@/app/components/StatsBreakdown";
 
 export default function ProfilePage() {
-  const [stats, setStats] = useState<WorkoutStats | null>(null);
-  const { user, refreshUser, logout } = useAuth();
+  const { user, isLoading: authLoading, refreshUser, logout } = useAuth();
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
     username: user?.username || "",
@@ -23,33 +20,24 @@ export default function ProfilePage() {
     type: "success" | "error";
   } | null>(null);
   const router = useRouter();
-  const { workouts, fetchWorkouts } = useWorkouts();
-  const [isLoading, setIsLoading] = useState(true);
+  const { workoutStats, isLoading: workoutsLoading, fetchWorkoutStats } = useWorkouts();
 
   useEffect(() => {
     const fetcher = async () => {
-      setIsLoading(true);
       try {
-        await fetchWorkouts();
+        await fetchWorkoutStats();
       } catch (err) {
         setToast({
           message:
             err instanceof Error ? err.message : "Failed to fetch workouts",
           type: "error",
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetcher();
     fetchCsrfToken();
-    setIsLoading(false);
   }, []);
-
-  useEffect(() => {
-    setStats(calculateStats(workouts));
-  }, [workouts]);
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
@@ -88,7 +76,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) {
+  if (authLoading || workoutsLoading) {
     return (
       <div className="text-center">
         <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
@@ -152,10 +140,10 @@ export default function ProfilePage() {
                 <p className="text-md sm:text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                   {user?.createdAt
                     ? new Date(user.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
                     : "N/A"}
                 </p>
               </div>
@@ -174,7 +162,7 @@ export default function ProfilePage() {
               </button>
 
               <div className="lg:col-span-2">
-                {stats && <StatsBreakdown stats={stats} />}
+                {workoutStats && <StatsBreakdown stats={workoutStats} />}
               </div>
             </div>
           ) : (
