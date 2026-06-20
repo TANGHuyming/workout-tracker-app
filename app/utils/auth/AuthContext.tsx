@@ -5,12 +5,12 @@ export interface AuthUser {
   id: string;
   email: string;
   username: string;
+  profilePictureUrl: string;
   createdAt: Date;
 }
 
 interface AuthContextType {
   user: AuthUser | null;
-  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
     email: string,
@@ -26,28 +26,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Check if user is already logged in on mount
-  useEffect(() => {
-    refreshUser();
-  }, []);
 
   const refreshUser = async () => {
     try {
-      setIsLoading(true);
       const response = await fetch("/api/auth/me");
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
-      } else {
-        setUser(null);
       }
-      setIsLoading(false);
     } catch (error) {
       setUser(null);
-    } finally {
-      setIsLoading(false)
     }
   };
 
@@ -94,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

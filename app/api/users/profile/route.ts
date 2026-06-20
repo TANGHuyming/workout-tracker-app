@@ -1,6 +1,7 @@
+import { put } from "@vercel/blob";
 import { ProfilePayload } from "@/app/utils/profileData";
 import { NextRequest, NextResponse } from "next/server";
-import { UserProvider } from "@/app/providers/UserProvider"
+import { UserProvider } from "@/app/providers/UserProvider";
 import csrf from 'csrf';
 import { cookies } from 'next/headers';
 
@@ -47,7 +48,13 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = (await request.json()) as ProfilePayload;
+    const body = await request.formData();
+
+    // extracting fields
+    const email = body.get("email");
+    const username = body.get("username");
+    const profilePicture = body.get("profilePicture")
+
     const cookieStore = await cookies();
     const csrfToken = cookieStore.get('csrfToken')?.value || "";
     const jwtPayloadHeader = request.headers.get('jwt-payload') || "{}";
@@ -69,13 +76,50 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validation
-    if (!body.email || !body.username) {
+    if (!email || !username) {
       let response: any = NextResponse.json(
         { success: false, message: 'All fields are required' },
         { status: 400 }
       );
       return response;
     }
+
+    // File validation
+    const maxFileSize = 5 * 1024 * 1024; // max file size 5MB
+    const allowedMIME = ["image/jpeg", "image/jpg", "image/png"];
+    // Check existence and length
+    let profilePictureUrl = "";
+    if (!profilePicture) {
+      let response: any = NextResponse.json(
+        { success: false, message: "Profile picture is required" },
+        { status: 400 }
+      )
+      return response;
+    }
+
+    // Check file size
+    if (profilePicture.size > maxFileSize) {
+      let response: any = NextResponse.json(
+        { success: false, message: "File size exceeded" },
+        { status: 400 }
+      )
+      return response;
+    }
+
+    // Check MIME type
+    if (!allowedMIME.includes(profilePicture.type)) {
+      let response: any = NextResponse.json(
+        { success: false, message: "Invalid MIME type" },
+        { status: 400 }
+      )
+      return response;
+    }
+
+    // Upload to vercel blob
+    const blob = await put(profilePicture.name, profilePicture, {
+      access: 'public',
+      addRandomSuffix: true,
+    })
 
     // Find user
     const user = await UserProvider.findById(payload.userId);
@@ -88,7 +132,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update user
-    const updatedUser = await UserProvider.update(payload.userId, body);
+    const updatedUser = await UserProvider.update(payload.userId, {
+      username: username,
+      email: email,
+      profilePictureUrl: blob.url,
+    });
+
     if (!updatedUser) {
       let response: any = NextResponse.json(
         { success: false, message: 'User not found' },
@@ -112,6 +161,7 @@ export async function PUT(request: NextRequest) {
     return response;
   }
   catch (err) {
+    console.log(err)
     let response: any = NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

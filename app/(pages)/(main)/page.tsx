@@ -22,9 +22,9 @@ import { fetchCsrfToken } from "../../utils/csrf/fetchCsrfToken";
 
 export default function Home() {
   const { user, refreshUser } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const { workouts, fetchWorkouts, addWorkout } = useWorkouts();
+  const { workouts, clearWorkouts, fetchWorkouts, addWorkout } = useWorkouts();
   const [exerciseName, setExerciseName] = useState("");
+  const [isLoading, setIsLoading] = useState(!!workouts)
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -79,15 +79,9 @@ export default function Home() {
 
   // Fetch CSRF token
   useEffect(() => {
-    refreshUser();
-    fetchCsrfToken();
-  }, []);
-
-  // Fetch workouts from API when user is loaded
-  useEffect(() => {
     const fetcher = async () => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
         await fetchWorkouts();
       } catch (err) {
         setToast({
@@ -100,11 +94,14 @@ export default function Home() {
       }
     };
 
-    if (user) {
-      fetcher();
+    refreshUser();
+    fetcher();
+    fetchCsrfToken();
+
+    return () => {
+      clearWorkouts();
     }
-    setIsLoading(false);
-  }, [user]);
+  }, []);
 
   // Update stats whenever workouts change
   useEffect(() => {
@@ -168,19 +165,6 @@ export default function Home() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
-          <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
-            Loading your workouts...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Show workout tracker if authenticated
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
@@ -189,13 +173,12 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="mb-10">
-          <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <div className="block text-4xl font-bold text-slate-900 dark:text-white mb-2">
             Welcome back,{" "}
-            <span className="bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-              {user ? user.username : ""}
-            </span>
-            !
-          </h2>
+            <div className="bg-linear-to-r from-blue-600 to-blue-500 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+              {user ? <div>{user.username}!</div> : <div className="w-1/3 animate-pulse"><div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg"></div></div>}
+            </div>
+          </div>
           <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
             Log your workouts and track your progress toward your fitness goals
           </p>
@@ -208,53 +191,65 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mb-10">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Exercise Progression
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                How your exercise is evolving
+        {isLoading ?
+          <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
+              <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
+                Loading your workouts...
               </p>
             </div>
-
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Exercise Name *
-            </label>
-            <select
-              value={exerciseName}
-              onChange={(e) => setExerciseName(e.target.value)}
-              className="cursor-pointer w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-            >
-              <option value="">Select an exercise...</option>
-              {availableExercises.map((exercise) => (
-                <option key={exercise} value={exercise}>
-                  {exercise}
-                </option>
-              ))}
-            </select>
-
-            {exerciseName ? (
-              <Line options={chartOptions} data={chartData} />
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                  No exercise selected
-                </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                  Try selecting an exercise to view its progression
-                </p>
-              </div>
-            )}
           </div>
-        </div>
+          :
+          <>
+            <div className="mb-10">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    Exercise Progression
+                  </h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    How your exercise is evolving
+                  </p>
+                </div>
 
-        {/* Body Graphics Section */}
-        <div className="mb-10">
-          <BodyGraphics workouts={workouts} />
-        </div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  Exercise Name *
+                </label>
+                <select
+                  value={exerciseName}
+                  onChange={(e) => setExerciseName(e.target.value)}
+                  className="cursor-pointer w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                >
+                  <option value="">Select an exercise...</option>
+                  {availableExercises.map((exercise) => (
+                    <option key={exercise} value={exercise}>
+                      {exercise}
+                    </option>
+                  ))}
+                </select>
+
+                {exerciseName ? (
+                  <Line options={chartOptions} data={chartData} />
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
+                      No exercise selected
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                      Try selecting an exercise to view its progression
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-10">
+              <BodyGraphics workouts={workouts} />
+            </div>
+          </>
+        }
       </div>
-    </div>
+    </div >
   );
 }

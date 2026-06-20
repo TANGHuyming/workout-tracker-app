@@ -13,7 +13,6 @@ interface WorkoutContextType {
   workouts: Workout[];
   workoutCount: number;
   workoutStats: any
-  isLoading: boolean;
   error: string | null;
   fetchWorkouts: () => Promise<void>;
   fetchWorkoutStats: () => Promise<void>;
@@ -30,6 +29,7 @@ interface WorkoutContextType {
     page?: number,
     pageSize?: number,
   ) => Promise<void>;
+  clearWorkouts: () => void;
   addWorkout: (workout: Omit<Workout, "id">) => Promise<Workout>;
   updateWorkout: (id: string, updates: Partial<Workout>) => Promise<Workout>;
   deleteWorkout: (id: string) => Promise<void>;
@@ -41,12 +41,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [workoutCount, setWorkoutCount] = useState(0);
   const [workoutStats, setWorkoutStats] = useState<WorkoutStats | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchWorkouts = useCallback(async () => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(`/api/workouts`, {
@@ -80,14 +78,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   const fetchWorkoutStats = useCallback(async () => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(`/api/workouts?statistics=1`, {
@@ -115,14 +110,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         error instanceof Error ? error.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", error);
-    } finally {
-      setIsLoading(false);
     }
   }, [])
 
   const fetchWorkoutsByDate = useCallback(async (date: Date) => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(
@@ -158,14 +150,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   const fetchWorkoutsBySearch = useCallback(async (searchQuery: string) => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(`/api/workouts?searchQuery=${searchQuery}`, {
@@ -198,14 +187,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   const fetchWorkoutsByMinimum = useCallback(async (minimum: number) => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(`/api/workouts?minimum=${minimum}`, {
@@ -238,8 +224,6 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
@@ -254,7 +238,6 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     pageSize?: number,
   ) => {
     try {
-      setIsLoading(true);
       setError(null);
 
       const response = await fetch(
@@ -297,10 +280,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "Failed to fetch workouts";
       setError(message);
       console.error("Error fetching workouts:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  const clearWorkouts = () => {
+    setWorkouts([]);
+  }
 
   const addWorkout = useCallback(async (workout: Omit<Workout, "id">) => {
     try {
@@ -417,7 +402,6 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         workouts,
         workoutCount,
         workoutStats,
-        isLoading,
         error,
         fetchWorkouts,
         fetchWorkoutStats,
@@ -425,6 +409,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         fetchWorkoutsBySearch,
         fetchWorkoutsByMinimum,
         fetchWorkoutsByAll,
+        clearWorkouts,
         addWorkout,
         updateWorkout,
         deleteWorkout,

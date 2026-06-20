@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
           id: user._id.toString(),
           email: user.email,
           username: user.username,
+          profilePictureUrl: user.profilePictureUrl,
           createdAt: user.createdAt,
         },
       },

@@ -86,13 +86,14 @@ export class UserProvider {
     updateData: Partial<{
       email?: string;
       username?: string;
+      profilePictureUrl?: string;
       passwordHash?: string;
     }>,
   ): Promise<IUser | null> {
     try {
       await connectDB();
       const user = await UserModel.findByIdAndUpdate(userId, updateData, {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       });
       return user;

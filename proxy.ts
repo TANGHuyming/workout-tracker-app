@@ -5,7 +5,7 @@ import { nextjsRateLimit } from "@universal-rate-limit/nextjs";
 const ALLOWED_ORIGINS = ["http://localhost:3000", process.env.NEXT_PUBLIC_BASE_URL];
 
 const limiter = nextjsRateLimit({
-  limit: 60, // Limit each key to 5 requests per window
+  limit: 1000, // Limit each key to 5 requests per window
   algorithm: { type: "sliding-window", windowMs: 60000 },
 });
 

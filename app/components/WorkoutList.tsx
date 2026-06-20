@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import clsx from "clsx";
 import type { Workout } from "../utils/workout/workoutData";
@@ -11,7 +11,6 @@ import { LuLayoutGrid, LuCreditCard } from "react-icons/lu";
 import { FaListUl } from "react-icons/fa";
 
 interface WorkoutListProps {
-  workouts: Workout[];
   page: number;
   setPage: any;
   pageSize: 10 | 25 | 50 | 100;
@@ -21,7 +20,6 @@ interface WorkoutListProps {
 }
 
 export default function WorkoutList({
-  workouts,
   page,
   setPage,
   pageSize,
@@ -30,47 +28,60 @@ export default function WorkoutList({
   onUpdate,
 }: WorkoutListProps) {
   const router = useRouter();
-  const { fetchWorkouts, fetchWorkoutsByAll, isLoading } = useWorkouts();
+  const { workouts, fetchWorkoutsByAll } = useWorkouts();
   const [searchExercise, setSearchExercise] = useState<string>("");
   const [searchStartDate, setSearchStartDate] = useState<string>("");
   const [searchEndDate, setSearchEndDate] = useState<string>("");
   const [searchWeight, setSearchWeight] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"date" | "weight" | "sets">("date");
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [index, setIndex] = useState<number>(1);
   const [isList, setIsList] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
   const [isPageSizeDropdown, setIsPageSizeDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!workouts);
+  const [refresh, setRefresh] = useState(false);
   const pageSizeOptions = [10, 25, 50, 100];
 
   useEffect(() => {
-    handleFilterByAll();
-  }, [page, pageSize]);
+    const onMountFetch = async () => {
+      try {
+        setIsLoading(true);
 
-  const handleFilterByAll = async () => {
-    try {
-      let startDate = new Date(searchStartDate);
-      let endDate = new Date(searchEndDate);
+        let startDate = new Date(searchStartDate);
+        let endDate = new Date(searchEndDate);
 
-      if (startDate > endDate) {
-        startDate = new Date(searchEndDate);
-        endDate = new Date(searchStartDate);
+        if (startDate > endDate) {
+          startDate = new Date(searchEndDate);
+          endDate = new Date(searchStartDate);
+        }
+
+        await fetchWorkoutsByAll(
+          {
+            startDate: searchStartDate.length === 0 ? new Date(0) : startDate,
+            endDate: searchEndDate.length === 0 ? new Date() : endDate,
+          },
+          searchExercise,
+          parseFloat(searchWeight),
+          page,
+          pageSize,
+        );
+
+        router.push(`#paginator`);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
       }
-      await fetchWorkoutsByAll(
-        {
-          startDate: searchStartDate.length === 0 ? new Date(0) : startDate,
-          endDate: searchEndDate.length === 0 ? new Date() : endDate,
-        },
-        searchExercise,
-        parseFloat(searchWeight),
-        page,
-        pageSize,
-      );
-      router.push(`?isFiltered=true#paginator`);
-    } catch (error) {
-      console.error(error);
     }
-  };
+
+    onMountFetch();
+  }, [page, pageSize, refresh]);
+
+  const handleFilterByAll = () => {
+    setPage(1);
+    setPageSize(10);
+    setRefresh(prev => !prev);
+  }
 
   const handleClearFilters = () => {
     setSearchStartDate("");
@@ -78,8 +89,8 @@ export default function WorkoutList({
     setSearchExercise("");
     setSearchWeight("");
     setPage(1);
-    fetchWorkouts();
-    router.push(`?isFiltered=false`);
+    setPageSize(10);
+    setRefresh(prev => !prev);
   };
 
   const handleEdit = (workout: Workout) => {
@@ -256,7 +267,7 @@ export default function WorkoutList({
 
         {/* Workouts Display */}
         {isLoading ? (
-          <div className="flex items-center justify-center">
+          <div className="h-screen flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
               <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
@@ -265,7 +276,7 @@ export default function WorkoutList({
             </div>
           </div>
         ) : (
-          <div className="max-h-[180vh] overflow-y-auto">
+          <div className="h-screen overflow-y-auto">
             {workouts.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-lg font-medium text-slate-700 dark:text-slate-300">

@@ -5,6 +5,7 @@ export interface IUser extends Document {
   username: string;
   passwordHash: string;
   bodyweight: number;
+  profilePictureUrl: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,8 +37,12 @@ const UserSchema = new Schema<IUser>(
     },
     bodyweight: {
       type: Number,
-      required:[true, 'Please provide your bodyweight'],
+      required: [true, 'Please provide your bodyweight'],
       min: [0, 'Bodyweight must be a positive number'],
+    },
+    profilePictureUrl: {
+      type: String,
+      required: false,
     }
   },
   {
