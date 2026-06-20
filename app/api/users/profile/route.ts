@@ -51,9 +51,9 @@ export async function PUT(request: NextRequest) {
     const body = await request.formData();
 
     // extracting fields
-    const email = body.get("email");
-    const username = body.get("username");
-    const profilePicture = body.get("profilePicture")
+    const email = body.get("email") as string;
+    const username = body.get("username") as string;
+    const profilePicture = body.get("profilePicture") as File
 
     const cookieStore = await cookies();
     const csrfToken = cookieStore.get('csrfToken')?.value || "";
