@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    const isPasswordValid = await comparePasswords(body.password, user.passwordHash);
+    const isPasswordValid = await comparePasswords(
+      body.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       let response: any = NextResponse.json(
         { success: false, message: "Invalid email or password" },
@@ -62,14 +65,18 @@ export async function POST(request: NextRequest) {
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return response;
   } catch (error) {
     let response: any = NextResponse.json(
-      { success: false, message: error instanceof Error ? error.message : "Internal server error" },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Internal server error",
+      },
       { status: 500 },
     );
     return response;
