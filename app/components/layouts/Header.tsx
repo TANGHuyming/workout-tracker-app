@@ -42,7 +42,7 @@ export default function Header() {
         </div>
 
         {/* Desktop navigation */}
-        <nav className="hidden sm:flex items-center gap-1 sm:gap-3">
+        <nav className="hidden md:flex items-center gap-1 sm:gap-3">
           <button
             onClick={() => router.push("/")}
             className="cursor-pointer px-4 py-2 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-semibold rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors border border-indigo-200 dark:border-indigo-800"
@@ -80,7 +80,7 @@ export default function Header() {
 
           {/* Notification bell */}
           <div
-            className="relative cursor-pointer "
+            className="relative cursor-pointer ml-4"
             onClick={() => setShowNotifications((prev) => !prev)}
           >
             <FaBell className="text-2xl" style={{ marginLeft: "auto" }} />
@@ -180,11 +180,17 @@ export default function Header() {
         </nav>
 
         {/* Mobile navigation */}
-        <nav className="sm:hidden flex">
+        <nav className="md:hidden flex items-center gap-5">
           {showDropdownMenu ? (
-            <FaXmark onClick={() => setShowDropdownMenu(false)} />
+            <FaXmark
+              onClick={() => setShowDropdownMenu(false)}
+              className="cursor-pointer text-2xl"
+            />
           ) : (
-            <GiHamburgerMenu onClick={() => setShowDropdownMenu(true)} />
+            <GiHamburgerMenu
+              onClick={() => setShowDropdownMenu(true)}
+              className="cursor-pointer text-2xl"
+            />
           )}
 
           <div

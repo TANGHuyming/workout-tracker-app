@@ -43,14 +43,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       await fetch("/api/socket");
 
-      const socketInstance = io({
-        path: "/api/socket",
+      const socketInstance = io(
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
+        {
+          transports: ["polling"],
+          path: "/api/socket",
 
-        auth: {
-          username: user.username,
-          userId: user.id,
+          auth: {
+            username: user.username,
+            userId: user.id,
+          },
         },
-      });
+      );
 
       setSocket(socketInstance);
 
