@@ -41,13 +41,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       getUsers();
 
-      await fetch("/api/socket");
-
       const socketInstance = io(
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
+        process.env.WEBSOCKET_SERVER_URL || "http://localhost:8000",
         {
-          path: "/api/socket",
-
           auth: {
             username: user.username,
             userId: user.id,
