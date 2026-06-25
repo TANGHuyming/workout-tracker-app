@@ -14,9 +14,8 @@ const PORT = process.env.PORT || 3001;
 const httpServer = createServer();
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"],
-    credentials: true,
   },
 });
 

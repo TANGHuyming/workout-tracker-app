@@ -41,15 +41,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       getUsers();
 
-      const socketInstance = io(
-        process.env.WEBSOCKET_SERVER_URL || "http://localhost:8000",
-        {
-          auth: {
-            username: user.username,
-            userId: user.id,
-          },
+      const socketInstance = io(process.env.WEBSOCKET_SERVER_URL, {
+        auth: {
+          username: user.username,
+          userId: user.id,
         },
-      );
+      });
 
       setSocket(socketInstance);
 
