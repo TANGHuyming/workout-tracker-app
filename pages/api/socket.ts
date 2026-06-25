@@ -37,6 +37,10 @@ export default async function handler(
   const io = new SocketServer(response.socket.server, {
     path: "/api/socket",
     addTrailingSlash: false,
+    cors: {
+      origin: process.env.NEXT_PUBLIC_API_URL,
+      method: ["GET", "POST"],
+    },
   });
 
   response.socket.server.io = io;
