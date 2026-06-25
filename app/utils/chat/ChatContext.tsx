@@ -36,53 +36,49 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [notified, setNotified] = useState<any[]>([]);
 
   useEffect(() => {
-    const socketInitializer = async () => {
-      if (!user) return; // Only connect if user is logged in
+    if (!user) return; // Only connect if user is logged in
 
-      getUsers();
+    getUsers();
 
-      const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER_URL, {
-        transports: ["websocket"],
-        auth: {
-          username: user.username,
-          userId: user.id,
-        },
-      });
+    const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER_URL, {
+      transports: ["websocket"],
+      auth: {
+        username: user.username,
+        userId: user.id,
+      },
+    });
 
-      setSocket(socketInstance);
+    setSocket(socketInstance);
 
-      // Setup global listeners
-      socketInstance.on("getOnlineUsers", (users: any) => {
-        setOnlineUsers(users);
-      });
+    // Setup global listeners
+    socketInstance.on("getOnlineUsers", (users: any) => {
+      setOnlineUsers(users);
+    });
 
-      socketInstance.on("sendPrivateMessage", (payload: any) => {
-        // console.log(payload);
-        setPrivateMessages((prev) => [...prev, payload]);
-      });
+    socketInstance.on("sendPrivateMessage", (payload: any) => {
+      // console.log(payload);
+      setPrivateMessages((prev) => [...prev, payload]);
+    });
 
-      socketInstance.on("pastMessages", (payload: any) => {
-        // console.log(payload);
-        setPrivateMessages(payload);
-      });
+    socketInstance.on("pastMessages", (payload: any) => {
+      // console.log(payload);
+      setPrivateMessages(payload);
+    });
 
-      socketInstance.on("sendNotification", (payload: any) => {
-        setNotified((prev: any) => [...prev, ...payload]);
-      });
+    socketInstance.on("sendNotification", (payload: any) => {
+      setNotified((prev: any) => [...prev, ...payload]);
+    });
 
-      // Cleanup on unmount or user change
-      return () => {
-        socketInstance.off("getOnlineUsers");
-        socketInstance.off("pastMessages");
-        socketInstance.off("sendNotification");
-        socketInstance.off("pendingNotifications");
-        socketInstance.off("friendRequeset");
-        socketInstance.disconnect();
-        setSocket(null);
-      };
+    // Cleanup on unmount or user change
+    return () => {
+      socketInstance.off("getOnlineUsers");
+      socketInstance.off("pastMessages");
+      socketInstance.off("sendNotification");
+      socketInstance.off("pendingNotifications");
+      socketInstance.off("friendRequeset");
+      socketInstance.disconnect();
+      setSocket(null);
     };
-
-    socketInitializer();
   }, [user?.id]); // Only re-run if the actual user ID changes
 
   const joinPrivateChat = (targetUserId: any) => {
