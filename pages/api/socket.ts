@@ -39,7 +39,7 @@ export default async function handler(
     addTrailingSlash: false,
     cors: {
       origin: process.env.NEXT_PUBLIC_API_URL,
-      method: ["GET", "POST"],
+      methods: ["GET", "POST"],
     },
   });
 
