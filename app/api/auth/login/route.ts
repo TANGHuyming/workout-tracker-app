@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { comparePasswords } from "../../../utils/auth/authData";
-import { createToken } from "../../../utils/jwt";
-import { UserProvider } from "../../../providers/UserProvider";
+import { comparePasswords } from "@/app/utils/auth/authData";
+import { createToken } from "@/app/utils/jwt";
+import { UserProvider } from "@/app/providers/UserProvider";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    const isPasswordValid = await comparePasswords(body.password, user.passwordHash);
+    const isPasswordValid = await comparePasswords(
+      body.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       let response: any = NextResponse.json(
         { success: false, message: "Invalid email or password" },
@@ -69,7 +72,11 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     let response: any = NextResponse.json(
-      { success: false, message: error instanceof Error ? error.message : "Internal server error" },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Internal server error",
+      },
       { status: 500 },
     );
     return response;

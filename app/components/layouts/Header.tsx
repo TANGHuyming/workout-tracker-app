@@ -1,15 +1,27 @@
 "use client";
+import placeholder from "@/public/placeholder.png";
 import { FaXmark } from "react-icons/fa6";
 import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { LuBicepsFlexed } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/utils/auth/AuthContext";
+import { useChat } from "@/app/utils/chat/ChatContext";
+import { FaBell } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
   const { logout } = useAuth();
+  const {
+    users,
+    notified,
+    acceptFriendRequest,
+    declineFriendRequest,
+    checkNotification,
+  } = useChat();
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -28,6 +40,7 @@ export default function Header() {
             FitTrack
           </h1>
         </div>
+
         {/* Desktop navigation */}
         <nav className="hidden sm:flex items-center gap-1 sm:gap-3">
           <button
@@ -91,6 +104,81 @@ export default function Header() {
             </ul>
           </div>
         </nav>
+
+        <div
+          className="relative cursor-pointer "
+          onClick={() => setShowNotifications((prev) => !prev)}
+        >
+          <FaBell className="text-2xl" style={{ marginLeft: "auto" }} />
+          {notified && notified.length !== 0 && (
+            <div className="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full"></div>
+          )}
+          {/* Notification box */}
+          {showNotifications && notified.length !== 0 && (
+            <div
+              className="select-none bg-white dark:bg-slate-950/80 backdrop-blur-md rounded shadow-lg z-50 px-4 py-2"
+              style={{
+                width: "full",
+                position: "absolute",
+                top: "50px",
+                right: "0px",
+              }}
+            >
+              {notified?.map((n: any, id: any) => {
+                const user = users.find((user) => user.id === n.from);
+                if (n.type === "friend_request") {
+                  return (
+                    <div className="friendRequest" key={id}>
+                      <Image
+                        src={user.profilePictureUrl || placeholder}
+                        alt={`Picture of ${user.username}`}
+                        width={100}
+                        height={100}
+                        className="rounded-full object-cover"
+                        style={{ width: "30px", height: "30px" }}
+                      />
+                      <span className="w-50">
+                        {user.username} wants to be your friend
+                      </span>
+                      <button
+                        onClick={() => acceptFriendRequest(user.id)}
+                        className="acceptBtn"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => declineFriendRequest(user.id)}
+                        className="declineBtn"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  );
+                } else if (n.type === "friend_request_accepted") {
+                  return (
+                    <div
+                      className="friendRequest"
+                      key={id}
+                      onClick={() => checkNotification(user.id)}
+                    >
+                      <Image
+                        src={user.profilePictureUrl || placeholder}
+                        alt={`Picture of ${user.username}`}
+                        width={100}
+                        height={100}
+                        className="rounded-full object-cover"
+                        style={{ width: "30px", height: "30px" }}
+                      />
+                      <span className="w-50">
+                        {user.username} accepted your friend request!
+                      </span>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

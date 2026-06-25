@@ -1,5 +1,5 @@
-import { connectDB } from "../lib/mongodb";
-import UserModel, { IUser } from "../models/User";
+import { connectDB } from "@/app/lib/mongodb";
+import UserModel, { IUser } from "@/app/models/User";
 
 export class UserProvider {
   /**
@@ -9,6 +9,7 @@ export class UserProvider {
     email: string;
     username: string;
     passwordHash: string;
+    bodyweight: number;
   }): Promise<IUser> {
     try {
       await connectDB();
@@ -55,11 +56,14 @@ export class UserProvider {
   /**
    * Find user by username
    */
-  static async findByUsername(username: string): Promise<IUser | null> {
+  static async findByUsername(username: string) {
     try {
       await connectDB();
-      const user = await UserModel.findOne({ username });
-      return user;
+      const users = await UserModel.aggregate([
+        { $match: { username: { $regex: username, $options: "i" } } },
+      ]);
+
+      return users;
     } catch (error) {
       throw error;
     }

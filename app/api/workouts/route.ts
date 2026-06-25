@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { WorkoutProvider } from "../../providers/WorkoutProvider";
+import { WorkoutProvider } from "@/app/providers/WorkoutProvider";
 import csrf from "csrf";
 import { cookies } from "next/headers";
-import { indexByUserId, indexByAll, indexStats } from "@/app/controllers/WorkoutController";
+import {
+  indexByUserId,
+  indexByAll,
+  indexStats,
+} from "@/app/controllers/WorkoutController";
 import { getJwtPayload } from "@/app/controllers/AuthController";
 
 const csrfProtection = new csrf();
@@ -47,8 +51,7 @@ export async function GET(request: NextRequest) {
     );
   else if (statistics) {
     data = await indexStats(payload.userId);
-  }
-  else data = await indexByUserId(payload.userId);
+  } else data = await indexByUserId(payload.userId);
 
   if (!data.success) {
     return NextResponse.json(

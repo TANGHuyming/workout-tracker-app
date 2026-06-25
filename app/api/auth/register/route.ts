@@ -1,33 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { hashPassword, type RegisterPayload, type AuthResponse } from '../../../utils/auth/authData';
-import { createToken } from '../../../utils/jwt';
-import { UserProvider } from '../../../providers/UserProvider';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  hashPassword,
+  type RegisterPayload,
+  type AuthResponse,
+} from "@/app/utils/auth/authData";
+import { createToken } from "@/app/utils/jwt";
+import { UserProvider } from "@/app/providers/UserProvider";
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as RegisterPayload;
 
     // Validation
-    if (!body.email || !body.username || !body.password || !body.confirmPassword) {
+    if (
+      !body.email ||
+      !body.username ||
+      !body.password ||
+      !body.confirmPassword
+    ) {
       let response: any = NextResponse.json(
-        { success: false, message: 'All fields are required' },
-        { status: 400 }
+        { success: false, message: "All fields are required" },
+        { status: 400 },
       );
       return response;
     }
 
     if (body.password !== body.confirmPassword) {
       let response: any = NextResponse.json(
-        { success: false, message: 'Passwords do not match' },
-        { status: 400 }
+        { success: false, message: "Passwords do not match" },
+        { status: 400 },
       );
       return response;
     }
 
     if (body.password.length < 6) {
       let response: any = NextResponse.json(
-        { success: false, message: 'Password must be at least 6 characters' },
-        { status: 400 }
+        { success: false, message: "Password must be at least 6 characters" },
+        { status: 400 },
       );
       return response;
     }
@@ -36,8 +45,8 @@ export async function POST(request: NextRequest) {
     const existingEmail = await UserProvider.findByEmail(body.email);
     if (existingEmail) {
       let response: any = NextResponse.json(
-        { success: false, message: 'Email already registered' },
-        { status: 400 }
+        { success: false, message: "Email already registered" },
+        { status: 400 },
       );
       return response;
     }
@@ -45,8 +54,8 @@ export async function POST(request: NextRequest) {
     const existingUsername = await UserProvider.findByUsername(body.username);
     if (existingUsername) {
       let response: any = NextResponse.json(
-        { success: false, message: 'Username already taken' },
-        { status: 400 }
+        { success: false, message: "Username already taken" },
+        { status: 400 },
       );
       return response;
     }
@@ -57,6 +66,7 @@ export async function POST(request: NextRequest) {
       email: body.email,
       username: body.username,
       passwordHash: hashedPassword,
+      bodyweight: 50,
     });
 
     // Create token
@@ -73,27 +83,28 @@ export async function POST(request: NextRequest) {
     let response: any = NextResponse.json(
       {
         success: true,
-        message: 'Registration successful',
+        message: "Registration successful",
         user: userWithoutPassword,
         token,
       },
-      { status: 201 }
+      { status: 201 },
     );
 
     response.cookies.set({
-      name: 'authToken',
+      name: "authToken",
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return response;
   } catch (error) {
+    console.log(error);
     let response: any = NextResponse.json(
-      { success: false, message: 'Internal server error' },
-      { status: 500 }
+      { success: false, message: "Internal server error" },
+      { status: 500 },
     );
     return response;
   }

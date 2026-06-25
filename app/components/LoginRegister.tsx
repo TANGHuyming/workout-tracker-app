@@ -16,7 +16,10 @@ export default function LoginRegister({
   setShowResetPassword: (value: boolean) => void;
 }) {
   const [resetEmail, setResetEmail] = useState("");
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const formHeaderStyle =
     "bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden";
 
@@ -26,11 +29,14 @@ export default function LoginRegister({
 
     try {
       if (!validateEmail(trimmedEmail)) {
-        setToast({ message: "Please enter a valid email address", type: "error" });
+        setToast({
+          message: "Please enter a valid email address",
+          type: "error",
+        });
         return;
       }
 
-      let response = await fetch(`/api/users/profile`, {
+      let response = await fetch(`/api/users`, {
         method: "GET",
       });
 
@@ -44,7 +50,10 @@ export default function LoginRegister({
       const user = users.find((user: any) => user.email === trimmedEmail);
 
       if (!user) {
-        setToast({ message: "No account found with that email address", type: "error" });
+        setToast({
+          message: "No account found with that email address",
+          type: "error",
+        });
         return;
       }
 
@@ -62,12 +71,16 @@ export default function LoginRegister({
         return;
       }
 
-      setToast({ message: "Password reset email sent. Please check your inbox.", type: "error" });
+      setToast({
+        message: "Password reset email sent. Please check your inbox.",
+        type: "error",
+      });
       return;
     } catch (err) {
       console.log((err as Error).message);
       setToast({
-        message: "An error occurred while checking the email. Please try again later.",
+        message:
+          "An error occurred while checking the email. Please try again later.",
         type: "error",
       });
       return;

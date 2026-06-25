@@ -12,17 +12,16 @@ export const indexStats = async (userId: string) => {
       stats: {
         totalWorkouts,
         ...otherStats,
-      }
+      },
     };
 
     return data;
-  }
-  catch (error) {
+  } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Unknown error";
     let data: any = { success: false, message: `Error: ${errorMsg}` };
     return data;
   }
-}
+};
 export const indexByUserId = async (userId: string) => {
   try {
     const workouts = await WorkoutProvider.findByUserId(userId);

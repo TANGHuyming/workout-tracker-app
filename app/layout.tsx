@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Black_Ops_One } from "next/font/google";
 import { AuthProvider } from "./utils/auth/AuthContext";
 import { WorkoutProvider } from "./utils/workout/WorkoutContext";
+import { ChatProvider } from "@/app/utils/chat/ChatContext";
 import "./globals.css";
 
 const blackOpsOne = Black_Ops_One({
@@ -42,9 +43,11 @@ export default function RootLayout({
 
       <body className="flex flex-col">
         <AuthProvider>
-          <WorkoutProvider>
-            <div className="min-h-screen">{children}</div>
-          </WorkoutProvider>
+          <ChatProvider>
+            <WorkoutProvider>
+              <div className="min-h-screen">{children}</div>
+            </WorkoutProvider>
+          </ChatProvider>
         </AuthProvider>
       </body>
     </html>

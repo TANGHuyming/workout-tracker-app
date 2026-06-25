@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { UserProvider } from '../../../providers/UserProvider';
+import { NextRequest, NextResponse } from "next/server";
+import { UserProvider } from "@/app/providers/UserProvider";
 
 export async function GET(request: NextRequest) {
   try {
-    const jwtPayloadHeader = request.headers.get('jwt-payload');
+    const jwtPayloadHeader = request.headers.get("jwt-payload");
 
     if (!jwtPayloadHeader) {
       return NextResponse.json(
-        { success: false, message: 'Unauthorized: No JWT payload' },
-        { status: 401 }
+        { success: false, message: "Unauthorized: No JWT payload" },
+        { status: 401 },
       );
     }
 
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const user = await UserProvider.findById(payload.userId);
     if (!user) {
       let response: any = NextResponse.json(
-        { success: false, message: 'User not found' },
-        { status: 404 }
+        { success: false, message: "User not found" },
+        { status: 404 },
       );
       return response;
     }
@@ -32,16 +32,17 @@ export async function GET(request: NextRequest) {
           email: user.email,
           username: user.username,
           profilePictureUrl: user.profilePictureUrl,
+          friends: user.friends,
           createdAt: user.createdAt,
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
     return response;
   } catch (error) {
     let response: any = NextResponse.json(
-      { success: false, message: 'Internal server error' },
-      { status: 500 }
+      { success: false, message: "Internal server error" },
+      { status: 500 },
     );
     return response;
   }

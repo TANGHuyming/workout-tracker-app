@@ -5,18 +5,23 @@ import { fetchCsrfToken } from "@/app/utils/csrf/fetchCsrfToken";
 import { useEffect, useState } from "react";
 import { useWorkouts } from "@/app/utils/workout/WorkoutContext";
 import { useAuth } from "@/app/utils/auth/AuthContext";
+import { useChat } from "@/app/utils/chat/ChatContext";
 import { useRouter } from "next/navigation";
 import StatsBreakdown from "@/app/components/StatsBreakdown";
 import placeholder from "@/public/placeholder.png";
 
 export default function ProfilePage() {
   const { user, refreshUser, logout } = useAuth();
+  const { users, addFriend } = useChat();
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
     username: user?.username || "",
     email: user?.email || "",
   });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [searchFriend, setSearchFriend] = useState("");
+  const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -42,6 +47,42 @@ export default function ProfilePage() {
     fetchCsrfToken();
   }, []);
 
+  useEffect(() => {
+    setIsLoading(true);
+    const handleSearch = async (searchFriend: any) => {
+      try {
+        const response = await fetch(
+          `/api/users?searchFriend=${searchFriend}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Error when searching for a friend");
+        }
+
+        const data = await response.json();
+        setSearchedUsers(data.users);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const searchTimeout: any = setTimeout(() => {
+      handleSearch(searchFriend);
+    }, 1000);
+
+    return () => {
+      clearTimeout(searchTimeout);
+    };
+  }, [searchFriend]);
+
   const handleSaveProfile = async (e: any) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -49,7 +90,7 @@ export default function ProfilePage() {
     try {
       const response = await fetch("/api/users/profile", {
         method: "PUT",
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -104,25 +145,84 @@ export default function ProfilePage() {
             </h3>
           </div>
 
+          <div className="mb-6">
+            <h3>Add a friend</h3>
+            <input
+              id="searchFriend"
+              name="searchFriend"
+              value={searchFriend}
+              onChange={(e) => setSearchFriend(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
+            />
+            {searchFriend.length !== 0 && (
+              <div>
+                <span>User(s) found: {searchFriend}</span>
+                {searchedUsers.length === 0 ? (
+                  <div className="w-full bg-slate-50 dark:bg-slate-800 p-4 backdrop-blur-md">
+                    No User Found
+                  </div>
+                ) : (
+                  <div className="relative w-full">
+                    <div className="w-full absolute top-0 left-0 bg-slate-50 dark:bg-slate-800 backdrop-blur-md">
+                      {isLoading ? (
+                        <div className="flex flex-row gap-y-4 animate-pulse p-4 gap-4 items-center">
+                          <div className="rounded-full bg-slate-50 dark:bg-slate-700 w-8 h-8 p-3"></div>
+                          <span className="rounded-lg bg-slate-50 dark:bg-slate-700 w-full p-2"></span>
+                        </div>
+                      ) : (
+                        <div>
+                          {searchedUsers.map((searchUser, id) => {
+                            if (searchUser.friends?.includes(user?.id)) {
+                              return null;
+                            }
+                            if (searchUser.id === user?.id) {
+                              return null;
+                            }
+                            return (
+                              <div
+                                key={id}
+                                className="flex flex-row items-center gap-4 p-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-600"
+                                onClick={() => addFriend(searchUser.id)}
+                              >
+                                <Image
+                                  src={
+                                    searchUser.profilePictureUrl || placeholder
+                                  }
+                                  alt={`Picture of ${searchUser.username}`}
+                                  width={100}
+                                  height={100}
+                                  className="rounded-full object-cover"
+                                  style={{ width: "32px", height: "32px" }}
+                                  loading="lazy"
+                                />
+                                <span>{searchUser.username}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {!editingProfile ? (
             <div>
-              {!user ?
+              {!user ? (
                 // Profile loading skeleton
                 <div className="flex flex-col gap-y-4 animate-pulse">
-                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3">
-                  </label>
+                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3"></label>
                   <div className="p-10 rounded-full bg-slate-50 dark:bg-slate-800 mb-2 w-40 h-40"></div>
-                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3">
-                  </label>
+                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3"></label>
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"></div>
-                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3">
-                  </label>
+                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3"></label>
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"></div>
-                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3">
-                  </label>
+                  <label className="p-4 bg-slate-50 dark:bg-slate-800 mb-2 w-1/3"></label>
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 "></div>
                 </div>
-                :
+              ) : (
                 // Account content
                 <div className="space-y-6">
                   <div>
@@ -130,7 +230,11 @@ export default function ProfilePage() {
                       Profile Picture
                     </label>
                     <Image
-                      src={user.profilePictureUrl ? user.profilePictureUrl : placeholder}
+                      src={
+                        user.profilePictureUrl
+                          ? user.profilePictureUrl
+                          : placeholder
+                      }
                       alt={`${user.username}'s profile picture`}
                       width={500}
                       height={500}
@@ -161,10 +265,10 @@ export default function ProfilePage() {
                     <p className="text-md sm:text-lg font-medium text-slate-900 dark:text-white px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                       {user?.createdAt
                         ? new Date(user.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
                         : "N/A"}
                     </p>
                   </div>
@@ -182,10 +286,14 @@ export default function ProfilePage() {
                     Edit Profile
                   </button>
                 </div>
-              }
+              )}
             </div>
           ) : (
-            <form onSubmit={handleSaveProfile} enc-type="multipart/form-data" className="space-y-6">
+            <form
+              onSubmit={handleSaveProfile}
+              enc-type="multipart/form-data"
+              className="space-y-6"
+            >
               {/* Edit Mode */}
               <div>
                 <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">
@@ -256,18 +364,18 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {!workoutStats ?
+        {!workoutStats ? (
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-3 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-6"></div>
             <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
               Loading your workouts...
             </p>
           </div>
-          :
+        ) : (
           <div className="lg:col-span-2">
             {workoutStats && <StatsBreakdown stats={workoutStats} />}
           </div>
-        }
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,18 @@
 "use client";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 export interface AuthUser {
   id: string;
   email: string;
   username: string;
   profilePictureUrl: string;
+  friends: string[];
   createdAt: Date;
 }
 
@@ -82,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

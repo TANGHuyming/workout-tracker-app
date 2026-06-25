@@ -1,7 +1,6 @@
-import { connectDB } from "../lib/mongodb";
-import WorkoutModel, { IWorkout } from "../models/Workout";
+import { connectDB } from "@/app/lib/mongodb";
+import WorkoutModel, { IWorkout } from "@/app/models/Workout";
 import { ObjectId } from "mongodb";
-import mongoose from "mongodb";
 
 export class WorkoutProvider {
   /**
@@ -226,7 +225,7 @@ export class WorkoutProvider {
                   heaviestWeight: { $max: "$weight" },
                   averageWeight: { $avg: "$weight" },
                   lastWorkoutDate: { $max: "$date" },
-                }
+                },
               },
               {
                 $project: {
@@ -237,16 +236,15 @@ export class WorkoutProvider {
                   averageWeight: "$averageWeight",
                   averageRepsPerSet: { $divide: ["$totalReps", "$totalSets"] },
                   lastWorkoutData: "$lastWorkoutDate",
-                }
-              }
-            ]
-          }
-        }
-      ])
+                },
+              },
+            ],
+          },
+        },
+      ]);
 
       return stats;
-    }
-    catch (error) {
+    } catch (error) {
       throw error;
     }
   }
