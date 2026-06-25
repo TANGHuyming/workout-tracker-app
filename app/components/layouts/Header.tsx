@@ -51,6 +51,13 @@ export default function Header() {
           </button>
 
           <button
+            onClick={() => router.push("/friend")}
+            className="cursor-pointer px-4 py-2 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-semibold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors border border-blue-200 dark:border-blue-800"
+          >
+            Friend
+          </button>
+
+          <button
             onClick={() => router.push("/history")}
             className="cursor-pointer px-4 py-2 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-semibold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors border border-blue-200 dark:border-blue-800"
           >
@@ -70,8 +77,109 @@ export default function Header() {
           >
             Logout
           </button>
+
+          {/* Notification bell */}
+          <div
+            className="relative cursor-pointer "
+            onClick={() => setShowNotifications((prev) => !prev)}
+          >
+            <FaBell className="text-2xl" style={{ marginLeft: "auto" }} />
+            {notified && notified.length !== 0 && (
+              <div className="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full"></div>
+            )}
+            {/* Notification box */}
+            {showNotifications && notified.length !== 0 && (
+              <div
+                className="select-none bg-white dark:bg-slate-950/80 backdrop-blur-md rounded shadow-lg z-50 px-4 py-2"
+                style={{
+                  width: "full",
+                  position: "absolute",
+                  top: "50px",
+                  right: "0px",
+                }}
+              >
+                {notified?.map((n: any, id: any) => {
+                  const user = users.find((user) => user.id === n.from);
+                  if (n.type === "friend_request") {
+                    return (
+                      <div className="friendRequest" key={id}>
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} wants to be your friend
+                        </span>
+                        <button
+                          onClick={() => acceptFriendRequest(user.id)}
+                          className="acceptBtn"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => declineFriendRequest(user.id)}
+                          className="declineBtn"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    );
+                  } else if (n.type === "friend_request_accepted") {
+                    return (
+                      <div
+                        className="friendRequest"
+                        key={id}
+                        onClick={() =>
+                          checkNotification("friend_request_accepted", user.id)
+                        }
+                      >
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} accepted your friend request!
+                        </span>
+                      </div>
+                    );
+                  } else if (n.type === "friend_message") {
+                    return (
+                      <div
+                        className="friendRequest"
+                        key={id}
+                        onClick={() =>
+                          checkNotification("friend_message", user.id)
+                        }
+                      >
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} sent you a message!
+                        </span>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
+        {/* Mobile navigation */}
         <nav className="sm:hidden flex">
           {showDropdownMenu ? (
             <FaXmark onClick={() => setShowDropdownMenu(false)} />
@@ -85,6 +193,12 @@ export default function Header() {
             <ul className="w-full">
               <li className="dropdown_item" onClick={() => router.push("/")}>
                 Home
+              </li>
+              <li
+                className="dropdown_item"
+                onClick={() => router.push("/friend")}
+              >
+                Friend
               </li>
               <li
                 className="dropdown_item"
@@ -103,82 +217,107 @@ export default function Header() {
               </li>
             </ul>
           </div>
-        </nav>
 
-        <div
-          className="relative cursor-pointer "
-          onClick={() => setShowNotifications((prev) => !prev)}
-        >
-          <FaBell className="text-2xl" style={{ marginLeft: "auto" }} />
-          {notified && notified.length !== 0 && (
-            <div className="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full"></div>
-          )}
-          {/* Notification box */}
-          {showNotifications && notified.length !== 0 && (
-            <div
-              className="select-none bg-white dark:bg-slate-950/80 backdrop-blur-md rounded shadow-lg z-50 px-4 py-2"
-              style={{
-                width: "full",
-                position: "absolute",
-                top: "50px",
-                right: "0px",
-              }}
-            >
-              {notified?.map((n: any, id: any) => {
-                const user = users.find((user) => user.id === n.from);
-                if (n.type === "friend_request") {
-                  return (
-                    <div className="friendRequest" key={id}>
-                      <Image
-                        src={user.profilePictureUrl || placeholder}
-                        alt={`Picture of ${user.username}`}
-                        width={100}
-                        height={100}
-                        className="rounded-full object-cover"
-                        style={{ width: "30px", height: "30px" }}
-                      />
-                      <span className="w-50">
-                        {user.username} wants to be your friend
-                      </span>
-                      <button
-                        onClick={() => acceptFriendRequest(user.id)}
-                        className="acceptBtn"
+          {/* Notification bell mobile */}
+          <div
+            className="relative cursor-pointer "
+            onClick={() => setShowNotifications((prev) => !prev)}
+          >
+            <FaBell className="text-2xl" style={{ marginLeft: "auto" }} />
+            {notified && notified.length !== 0 && (
+              <div className="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full"></div>
+            )}
+            {/* Notification box */}
+            {showNotifications && notified.length !== 0 && (
+              <div
+                className="select-none bg-white dark:bg-slate-950/80 backdrop-blur-md rounded shadow-lg z-50 px-4 py-2"
+                style={{
+                  width: "full",
+                  position: "absolute",
+                  top: "50px",
+                  right: "0px",
+                }}
+              >
+                {notified?.map((n: any, id: any) => {
+                  const user = users.find((user) => user.id === n.from);
+                  if (n.type === "friend_request") {
+                    return (
+                      <div className="friendRequest" key={id}>
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} wants to be your friend
+                        </span>
+                        <button
+                          onClick={() => acceptFriendRequest(user.id)}
+                          className="acceptBtn"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => declineFriendRequest(user.id)}
+                          className="declineBtn"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    );
+                  } else if (n.type === "friend_request_accepted") {
+                    return (
+                      <div
+                        className="friendRequest"
+                        key={id}
+                        onClick={() =>
+                          checkNotification("friend_request_accepted", user.id)
+                        }
                       >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => declineFriendRequest(user.id)}
-                        className="declineBtn"
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} accepted your friend request!
+                        </span>
+                      </div>
+                    );
+                  } else if (n.type === "friend_message") {
+                    return (
+                      <div
+                        className="friendRequest"
+                        key={id}
+                        onClick={() =>
+                          checkNotification("friend_message", user.id)
+                        }
                       >
-                        Decline
-                      </button>
-                    </div>
-                  );
-                } else if (n.type === "friend_request_accepted") {
-                  return (
-                    <div
-                      className="friendRequest"
-                      key={id}
-                      onClick={() => checkNotification(user.id)}
-                    >
-                      <Image
-                        src={user.profilePictureUrl || placeholder}
-                        alt={`Picture of ${user.username}`}
-                        width={100}
-                        height={100}
-                        className="rounded-full object-cover"
-                        style={{ width: "30px", height: "30px" }}
-                      />
-                      <span className="w-50">
-                        {user.username} accepted your friend request!
-                      </span>
-                    </div>
-                  );
-                }
-              })}
-            </div>
-          )}
-        </div>
+                        <Image
+                          src={user.profilePictureUrl || placeholder}
+                          alt={`Picture of ${user.username}`}
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                        <span className="w-50">
+                          {user.username} sent you a message!
+                        </span>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            )}
+          </div>
+        </nav>
       </div>
     </header>
   );

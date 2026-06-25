@@ -18,6 +18,7 @@ const NotificationSchema = new Schema<Notification>(
         "friend_request",
         "friend_request_accepted",
         "friend_request_declined",
+        "friend_message",
       ],
     },
     from: {

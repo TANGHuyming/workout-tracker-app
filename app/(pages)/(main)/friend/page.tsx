@@ -23,7 +23,7 @@ export default function FriendPage() {
     const friendIds = user.friends;
     friendIds.forEach((id) => {
       const friendData = users.find((u) => u.id === id);
-      if (friendData.id === user.id) return null;
+      if (!friendData || friendData.id === user.id) return null;
       setFriends((prev) => [...prev, friendData]);
     });
 
