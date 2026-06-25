@@ -46,7 +46,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const socketInstance = io(
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
         {
-          transports: ["polling"],
           path: "/api/socket",
 
           auth: {
