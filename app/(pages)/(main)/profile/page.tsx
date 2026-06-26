@@ -83,6 +83,25 @@ export default function ProfilePage() {
     };
   }, [searchFriend]);
 
+  useEffect(() => {
+    const toastTimeout = setTimeout(() => {
+      setToast(null);
+    }, 5000);
+
+    return () => {
+      clearTimeout(toastTimeout);
+    };
+  }, [toast]);
+
+  const handleAddFriend = (targetUserId: any) => {
+    addFriend(targetUserId);
+    setToast({
+      message: "Friend added",
+      type: "success",
+    });
+    setSearchFriend("");
+  };
+
   const handleSaveProfile = async (e: any) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -182,7 +201,7 @@ export default function ProfilePage() {
                               <div
                                 key={id}
                                 className="flex flex-row items-center gap-4 p-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-600"
-                                onClick={() => addFriend(searchUser.id)}
+                                onClick={() => handleAddFriend(searchUser.id)}
                               >
                                 <Image
                                   src={

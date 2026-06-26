@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 const httpServer = createServer();
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
@@ -50,12 +50,16 @@ async function main() {
     if (pending.length > 0) socket.emit("sendNotification", pending);
 
     socket.on("checkNotification", async ({ type, senderId }) => {
-      await NotificationModel.deleteMany({
-        type,
-        from: senderId,
-        to: userId,
-        read: false,
-      });
+      try {
+        await NotificationModel.deleteMany({
+          type,
+          from: senderId,
+          to: userId,
+          read: false,
+        });
+      } catch (error) {
+        console.error(error);
+      }
     });
 
     socket.on("acceptFriendRequest", async (friendId: string) => {

@@ -40,13 +40,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
     getUsers();
 
-    const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER_URL, {
-      transports: ["websocket"],
-      auth: {
-        username: user.username,
-        userId: user.id,
+    const socketInstance = io(
+      process.env.NEXT_PUBLIC_WEBSOCKET_SERVER_URL || "http://localhost:8000",
+      {
+        transports: ["websocket"],
+        auth: {
+          username: user.username,
+          userId: user.id,
+        },
       },
-    });
+    );
 
     setSocket(socketInstance);
 
