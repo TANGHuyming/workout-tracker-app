@@ -44,6 +44,13 @@ export default function WorkoutForm({
         throw new Error("Please fill in all required fields");
       }
 
+      // validate exercise name
+      if (!availableExercises.includes(formData.name)) {
+        throw new Error(
+          "Invalid exercise name. Please choose from the available options",
+        );
+      }
+
       await onAdd({
         name: formData.name,
         sets: parseInt(formData.sets),
@@ -53,11 +60,11 @@ export default function WorkoutForm({
         date: new Date(formData.date),
         notes: formData.notes || undefined,
       });
+      setToast({ message: "Workout logged successfully!", type: "success" });
     } catch (error) {
       setToast({ message: (error as Error).message, type: "error" });
       // console.error('Error logging workout:', error);
     } finally {
-      setToast({ message: "Workout logged successfully!", type: "success" });
       // Reset form
       setFormData({
         name: "",
@@ -91,18 +98,23 @@ export default function WorkoutForm({
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
             Exercise Name *
           </label>
-          <select
+          <input
+            type="text"
+            list="exerciseList"
+            placeholder="Search exercise..."
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-          >
-            <option value="">Select an exercise...</option>
-            {availableExercises.map((exercise) => (
-              <option key={exercise} value={exercise}>
+          />
+          <datalist id="exerciseList">
+            {availableExercises.map((exercise, id) => (
+              <option key={id} value={exercise}>
                 {exercise}
               </option>
             ))}
-          </select>
+          </datalist>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
