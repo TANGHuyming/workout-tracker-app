@@ -19,6 +19,7 @@ interface ChatContextType {
   notified: any[];
   sendPrivateMessage: (targetUserId: any, message: any) => void;
   joinPrivateChat: (targetUserId: any) => void;
+  getMoreMessages: (pageSize: number, pageOffset: number) => void;
   addFriend: (targetUserId: any) => void;
   acceptFriendRequest: (friendId: any) => void;
   declineFriendRequest: (friendId: any) => void;
@@ -61,6 +62,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     socketInstance.on("sendPrivateMessage", (payload: any) => {
       // console.log(payload);
       setPrivateMessages((prev) => [...prev, payload]);
+    });
+
+    socketInstance.on("morePastMessages", (payload: any) => {
+      if (payload.length === 0) return;
+      setPrivateMessages((prev) => [...payload, ...prev]);
     });
 
     socketInstance.on("pastMessages", (payload: any) => {
@@ -114,7 +120,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const acceptFriendRequest = (friendId: any) => {
     socket.emit("checkNotification", {
-      type: "friend_request_accepted",
+      type: "friend_request",
       senderId: friendId,
     });
     socket.emit("acceptFriendRequest", friendId);
@@ -123,7 +129,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const declineFriendRequest = (friendId: any) => {
     socket.emit("checkNotification", {
-      type: "friend_request_declined", // can't think of a name for this yet
+      type: "friend_request", // can't think of a name for this yet
       senderId: friendId,
     });
     socket.emit("declineFriendRequest", friendId);
@@ -133,6 +139,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const checkNotification = (type: string, senderId: any) => {
     socket.emit("checkNotification", { type, senderId });
     setNotified((prev) => prev.filter((p) => p.from !== senderId));
+  };
+
+  const getMoreMessages = (pageSize: number, pageOffset: any) => {
+    socket.emit("getMoreMessages", { pageSize, pageOffset });
   };
 
   return (
@@ -146,6 +156,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         notified,
         sendPrivateMessage,
         joinPrivateChat,
+        getMoreMessages,
         addFriend,
         acceptFriendRequest,
         declineFriendRequest,

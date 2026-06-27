@@ -52,10 +52,9 @@ async function main() {
     socket.on("checkNotification", async ({ type, senderId }) => {
       try {
         await NotificationModel.deleteMany({
-          type,
+          type: type,
           from: senderId,
           to: userId,
-          read: false,
         });
       } catch (error) {
         console.error(error);
@@ -135,9 +134,20 @@ async function main() {
         });
 
         if (conversation) {
-          const payload = await MessageModel.find({
-            conversationId: conversation._id,
-          });
+          // const payload = await MessageModel.find({
+          //   conversationId: conversation._id,
+          // });
+
+          const payload = await MessageModel.aggregate([
+            { $match: { conversationId: conversation._id } },
+            { $sort: { createdAt: -1 } },
+            { $limit: 10 },
+          ]);
+
+          const sortedPayload = payload.sort(
+            (a, b) => a.createdAt - b.createdAt,
+          );
+
           socket.emit("pastMessages", payload);
         } else {
           conversation = await ConversationModel.create({
@@ -185,6 +195,34 @@ async function main() {
         io.to(roomName).emit("sendPrivateMessage", payload);
       }
     });
+
+    socket.on(
+      "getMoreMessages",
+      async ({
+        pageSize,
+        pageOffset,
+      }: {
+        pageSize: number;
+        pageOffset: number;
+      }) => {
+        try {
+          const payload = await MessageModel.aggregate([
+            { $match: { conversationId: conversation._id } },
+            { $sort: { createdAt: -1 } },
+            { $skip: pageOffset },
+            { $limit: pageSize },
+          ]);
+
+          const sortedPayload = payload.sort(
+            (a, b) => a.createdAt - b.createdAt,
+          );
+
+          socket.emit("morePastMessages", sortedPayload);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    );
 
     socket.on("disconnect", () => {
       onlineUsers = onlineUsers.filter((u) => u.socketId !== socket.id);

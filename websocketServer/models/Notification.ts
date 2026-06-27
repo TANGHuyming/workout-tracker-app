@@ -23,12 +23,10 @@ const NotificationSchema = new Schema<Notification>(
     },
     from: {
       type: String,
-      unique: true,
       required: true,
     },
     to: {
       type: String,
-      unique: true,
       required: true,
     },
     read: {

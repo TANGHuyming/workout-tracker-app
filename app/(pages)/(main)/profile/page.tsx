@@ -96,7 +96,7 @@ export default function ProfilePage() {
   const handleAddFriend = (targetUserId: any) => {
     addFriend(targetUserId);
     setToast({
-      message: "Friend added",
+      message: "Friend request sent",
       type: "success",
     });
     setSearchFriend("");
